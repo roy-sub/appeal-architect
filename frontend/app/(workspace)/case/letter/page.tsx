@@ -1,115 +1,312 @@
 "use client";
-import { useState } from "react";
-import { Reveal } from "@/components/reveal";
-import { StatusPill } from "@/components/status-pill";
-import { useCase } from "@/components/workspace/case-context";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
-import { Bullets, PageHead, card, label } from "@/components/workspace/shell";
-import { args, letterParas, mailList, tierLabel } from "@/lib/case-data";
+import { useCase } from "@/components/workspace/case-context";
+import { PageHead, card, label } from "@/components/workspace/shell";
+import { Gated, LoadError, NeedsCase, Skeleton } from "@/components/workspace/states";
+import { ApiError } from "@/lib/api";
+import {
+  useEditLetter,
+  useEntitlement,
+  useExportLetter,
+  useGenerateLetter,
+  useLetters,
+} from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
+const PROCEDURAL = "procedural";
+
+/** What to put in the envelope, and how to prove it was sent on time. */
+const POSTING_CHECKLIST = [
+  "The signed letter, dated.",
+  "A copy of the denial letter you are appealing.",
+  "Every document on your evidence checklist that you have.",
+  "Send it so you can prove the date: certified mail with return receipt, or the insurer's portal with a screenshot of the confirmation.",
+  "Keep a copy of everything you send, including the envelope's postmark.",
+];
+
 export default function LetterPage() {
-  const [para, setPara] = useState<string | null>(null);
-  const { node, setNode } = useCase();
-  const sel = args.find((a) => a.id === node) ?? args[0];
+  const { caseId, node, setNode } = useCase();
+  const letters = useLetters(caseId);
+  const entitlement = useEntitlement();
+  const generate = useGenerateLetter(caseId);
+  const edit = useEditLetter(caseId);
+  const exportLetter = useExportLetter(caseId);
+
+  const latest = letters.data?.[0] ?? null;
+  const [editing, setEditing] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
+
+  // Selecting a paragraph selects its argument everywhere else in the app.
+  useEffect(() => {
+    if (editing !== null && latest) {
+      setDraft(latest.body.paragraphs[editing]?.text ?? "");
+    }
+  }, [editing, latest]);
+
+  if (!caseId) return <NeedsCase />;
+  if (letters.isPending) return <Skeleton rows={4} />;
+
+  if (letters.isError) {
+    return (
+      <LoadError
+        error={letters.error}
+        what="your letter"
+        onRetry={() => letters.refetch()}
+      />
+    );
+  }
+
+  const gated = entitlement.data ? !entitlement.data.can_generate_letter : false;
+
+  if (!latest) {
+    return (
+      <div>
+        <PageHead
+          title="Your appeal letter"
+          lead="Written from the arguments that hold. Every paragraph traces back to one of them, or to the procedural parts a filing has to contain."
+        />
+        {gated ? (
+          <div className="flex flex-col gap-3.5">
+            <Gated
+              reason="Writing the letter is part of the Appeal Package. Your route, your deadlines and the rule behind each one stay available either way — nothing about your case is hidden from you."
+              href="/#pricing"
+              cta="See what the package includes"
+            />
+            {entitlement.data ? (
+              <div className={cn(card, "px-[22px] py-5")}>
+                <div className={cn(label, "mb-3")}>ALWAYS FREE</div>
+                <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                  {entitlement.data.always_available.map((item) => (
+                    <li key={item} className="text-[15px] leading-[23px] text-ink">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div>
+            <Button onClick={() => generate.mutate()} disabled={generate.isPending}>
+              {generate.isPending ? "Writing it…" : "Write my appeal letter"}
+            </Button>
+            <p className="mt-2.5 mb-0 max-w-[58ch] text-pretty text-[15px] leading-[24px] text-ink-muted">
+              It takes about half a minute. You can edit every paragraph afterwards,
+              and the procedural parts stay fixed because a filing has to contain them.
+            </p>
+            {generate.isError ? (
+              <div className="mt-3.5">
+                <LoadError error={generate.error} what="the letter" />
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const paragraphs = latest.body.paragraphs;
+  const fromArguments = paragraphs.filter((p) => p.source === "argument").length;
 
   return (
     <div>
-      <div className="no-print">
-        <PageHead
-          title="Your appeal letter"
-          lead="Built from the arguments that hold. Tap any paragraph to see which argument put it there. Edit anything — it is your letter and your signature."
-          action={
-            <div className="flex flex-wrap gap-2.5">
-              <Button variant="ghost" onClick={() => window.print()}>Export PDF</Button>
-              <Button>Export DOCX</Button>
-            </div>
-          }
-        />
-      </div>
-      <div className="grid items-start gap-5 lg:grid-cols-[1fr_320px] lg:gap-7">
-        <div className="min-w-0">
-          <article className={cn(card, "print-sheet rounded-[2px] px-[18px] py-[22px] shadow-e1 lg:px-14 lg:py-11")}>
-            <div className="mb-[22px] border-b border-rule pb-3.5 font-mono text-[11px] leading-[18px] text-ink-muted">
-              M. OKONKWO · 2219 LAUREL ST, RICHMOND VA 23220
-              <br />
-              ANTHEM BLUE CROSS, APPEALS · P.O. BOX 60007, LOS ANGELES CA 90060
-              <br />
-              RE: CLAIM CLM-4471902 · APPEAL OF ADVERSE DETERMINATION DATED 14 SEP 2026
-            </div>
-            <div className="mb-[18px] font-doc text-[17px] leading-[30px] text-ink">To the appeals reviewer,</div>
-            <div className="flex flex-col gap-3.5">
-              {letterParas.map((p, i) => {
-                const active = para === p.id;
-                // Paragraphs assemble top-down; each badge lands 80ms behind its sentence.
-                return (
-                  <Reveal key={p.id} gesture="riseSm" trigger="load" delay={i * 0.09}>
-                    <Reveal gesture="fade" trigger="load" delay={i * 0.09 + 0.08} className="no-print mb-1.5">
-                      <span
-                        className={cn(
-                          "rounded-[2px] border bg-surface px-1.5 py-0.5 font-mono text-[11px] tracking-[.04em]",
-                          p.ref ? "border-standing text-standing" : "border-rule text-ink-muted",
-                        )}
+      <PageHead
+        title="Your appeal letter"
+        lead={`Version ${latest.version}. ${fromArguments} of ${paragraphs.length} paragraphs come from an argument the solver accepted; the rest are the procedural parts a filing has to contain. Nothing here was written without something behind it.`}
+      />
+
+      <div className="grid gap-3.5 lg:grid-cols-[1fr_300px] lg:items-start">
+        {/* ---- the letter ---- */}
+        <article className="rounded-[2px] border border-rule bg-surface p-7 lg:p-[44px_56px] print:border-0 print:p-0">
+          <div className="font-mono text-[11px] leading-[19px] text-ink-muted">
+            <div>{new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</div>
+            <div>Appeals Department</div>
+          </div>
+
+          <p className="mt-7 mb-5 font-doc text-[17px] leading-[29px] text-ink">
+            To the Appeals Department,
+          </p>
+
+          {paragraphs.map((paragraph, index) => {
+            const isArgument = paragraph.source === "argument";
+            const active = isArgument && node === paragraph.argument_node_id;
+
+            return (
+              <div key={index} className="mb-5">
+                {/* The badge is an editing affordance; it is display:none in print. */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isArgument) {
+                      setNode(active ? null : paragraph.argument_node_id);
+                    }
+                  }}
+                  className={cn(
+                    "mb-1.5 block bg-transparent p-0 font-mono text-[11px] tracking-[.05em] print:hidden",
+                    isArgument ? "text-clay-deep underline underline-offset-[3px]" : "text-ink-muted",
+                  )}
+                >
+                  {paragraph.argument_node_id === PROCEDURAL
+                    ? "PROCEDURAL"
+                    : paragraph.argument_node_id}
+                </button>
+
+                {editing === index ? (
+                  <div>
+                    <textarea
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      rows={5}
+                      className="w-full rounded-[6px] border-[1.5px] border-ink bg-surface p-3.5 font-doc text-[17px] leading-[29px] text-ink outline-none"
+                    />
+                    <div className="mt-2.5 flex gap-2.5">
+                      <Button
+                        variant="small"
+                        disabled={edit.isPending}
+                        onClick={() =>
+                          edit.mutate(
+                            {
+                              letterId: latest.id,
+                              paragraphs: [{ index, text: draft }],
+                            },
+                            { onSuccess: () => setEditing(null) },
+                          )
+                        }
                       >
-                        {p.ref ?? "procedural"}
-                      </span>
-                    </Reveal>
-                    <button
-                      onClick={() => {
-                        setPara(active ? null : p.id);
-                        if (p.ref) setNode(p.ref.toLowerCase());
-                      }}
-                      aria-pressed={active}
-                      className={cn(
-                        "block w-full rounded-[2px] border-l-2 px-3 py-2.5 text-left font-doc text-[17px] leading-[30px] text-ink lg:px-4 lg:py-3 lg:text-[18px] lg:leading-[31px]",
-                        active ? "border-standing bg-standing-tint" : "border-transparent bg-transparent",
-                      )}
-                    >
-                      {p.text}
-                    </button>
-                  </Reveal>
-                );
-              })}
-            </div>
-            <div className="mt-[22px] font-doc text-[17px] leading-[30px] text-ink">
-              Sincerely,
-              <br />
-              <br />
-              M. Okonkwo
-              <br />
-              Member ID AB4471902 · 5 October 2026
-            </div>
-            <p className="mt-[26px] mb-0 border-t border-rule pt-4 text-[14px] leading-[22px] text-ink">
-              This letter was prepared with Appeal Architect, a document preparation tool. It is not legal advice and no lawyer has reviewed it. The member reviews, signs and files it themselves.
-            </p>
-          </article>
-        </div>
-        <div className="no-print flex min-w-0 flex-col gap-4">
-          <div className={card} aria-live="polite">
-            <div className="p-5">
-              <div className="mb-3 flex items-center gap-2.5">
-                <StatusPill kind={sel.tier}>{tierLabel[sel.tier]}</StatusPill>
-                <span className="font-mono text-[11px] tracking-[.05em] text-ink-muted">{sel.ref}</span>
+                        Save
+                      </Button>
+                      <Button variant="ghost" onClick={() => setEditing(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p
+                    className={cn(
+                      "m-0 font-doc text-[17px] leading-[29px] text-ink",
+                      active &&
+                        "border-l-2 border-standing bg-standing-tint pl-3.5 print:border-0 print:bg-transparent print:pl-0",
+                    )}
+                    onDoubleClick={() => setEditing(index)}
+                  >
+                    {paragraph.text}
+                  </p>
+                )}
+
+                {editing !== index ? (
+                  <button
+                    type="button"
+                    onClick={() => setEditing(index)}
+                    className="mt-1 bg-transparent p-0 text-[14px] text-ink-muted underline underline-offset-[3px] print:hidden"
+                  >
+                    Edit this paragraph
+                  </button>
+                ) : null}
               </div>
-              <div className="mb-2 text-[17px] leading-[25px] font-semibold text-ink">{sel.title}</div>
-              <p className="mt-0 mb-3.5 text-[15px] leading-6 text-ink-muted text-pretty">{sel.why}</p>
-              <div className="border-t border-rule pt-2.5 font-mono text-[11px] leading-[18px] text-ink-muted">Needs: {sel.needs}</div>
-            </div>
+            );
+          })}
+
+          <div className="mt-9">
+            <p className="m-0 mb-10 font-doc text-[17px] leading-[29px] text-ink">
+              Sincerely,
+            </p>
+            <p className="m-0 font-doc text-[17px] leading-[29px] text-ink">
+              _______________________________
+            </p>
+            <p className="m-0 font-doc text-[15px] leading-[26px] text-ink-muted">
+              Member signature and date
+            </p>
           </div>
-          <div className={card}>
-            <div className="p-5">
-              <div className={cn(label, "mb-3")}>Before you send it</div>
-              <Bullets items={mailList} />
+
+          <p className="mt-10 mb-0 border-t border-rule pt-3.5 text-[13px] leading-[21px] text-ink">
+            {latest.body.disclaimer}
+          </p>
+        </article>
+
+        {/* ---- export and posting ---- */}
+        <aside className="flex flex-col gap-3.5 print:hidden">
+          <div className={cn(card, "px-5 py-5")}>
+            <div className={cn(label, "mb-3")}>EXPORT</div>
+            <div className="flex flex-col gap-2.5">
+              {(["pdf", "docx"] as const).map((format) => (
+                <Button
+                  key={format}
+                  variant="ghost"
+                  disabled={exportLetter.isPending}
+                  onClick={() =>
+                    exportLetter.mutate(
+                      { letterId: latest.id, format },
+                      {
+                        onSuccess: (result) => {
+                          window.open(result.url, "_blank", "noopener");
+                        },
+                      },
+                    )
+                  }
+                >
+                  {exportLetter.isPending ? "Preparing…" : `Download ${format.toUpperCase()}`}
+                </Button>
+              ))}
+              <Button variant="ghost" onClick={() => window.print()}>
+                Print
+              </Button>
             </div>
+            {exportLetter.isError ? (
+              <p className="mt-3 mb-0 border-l-[3px] border-ink pl-3 text-[14px] leading-[22px] text-ink">
+                {exportLetter.error instanceof ApiError
+                  ? exportLetter.error.problem.detail
+                  : "That did not work. Try printing instead."}
+              </p>
+            ) : null}
           </div>
-          <div className={card}>
-            <div className="p-5">
-              <div className={cn(label, "mb-2.5")}>Due 22 March 2027</div>
-              <div className="text-[15px] leading-6 font-medium text-time-ample">168 days left — on track</div>
-              <p className="mt-2.5 mb-0 text-[14px] leading-[22px] text-ink-muted">One item of evidence is still missing. The letter is complete without it, but A2 is stronger with it.</p>
-            </div>
+
+          <div className={cn(card, "px-5 py-5")}>
+            <div className={cn(label, "mb-3")}>WHAT TO SEND, AND HOW</div>
+            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+              {POSTING_CHECKLIST.map((item) => (
+                <li
+                  key={item}
+                  className="text-pretty text-[15px] leading-[23px] text-ink"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+
+          <div className={cn(card, "px-5 py-5")}>
+            <div className={cn(label, "mb-2.5")}>VERSIONS</div>
+            <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+              {letters.data.map((letter) => (
+                <li key={letter.id} className="text-[15px] text-ink-muted">
+                  Version {letter.version}
+                  {letter.body.edited_by_user ? " · edited by you" : ""}
+                </li>
+              ))}
+            </ul>
+            <Button
+              variant="ghost"
+              className="mt-3.5 w-full"
+              disabled={generate.isPending || gated}
+              onClick={() => generate.mutate()}
+            >
+              {generate.isPending ? "Writing…" : "Write a new version"}
+            </Button>
+            {gated ? (
+              <p className="mt-2 mb-0 text-[14px] leading-[22px] text-ink-muted">
+                A new version is part of the Appeal Package.
+              </p>
+            ) : null}
+          </div>
+
+          <Button variant="ghost" asChild>
+            <Link href="/case/arguments/">See the arguments behind it</Link>
+          </Button>
+        </aside>
       </div>
     </div>
   );

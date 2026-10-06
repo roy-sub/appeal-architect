@@ -158,3 +158,12 @@ button { cursor: pointer; }
   .no-print { display: none !important; }
   .print-sheet { border: 0 !important; box-shadow: none !important; padding: 0 !important; }
 }
+
+/* Evidence satisfied → the argument nodes it feeds pulse once.
+   Once only: a border that keeps moving in someone's peripheral vision while
+   they read is the same mistake as an animated countdown. */
+@keyframes nodePulse {
+  0%   { box-shadow: 0 0 0 0 var(--standing-tint); }
+  40%  { box-shadow: 0 0 0 6px var(--standing-tint); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}

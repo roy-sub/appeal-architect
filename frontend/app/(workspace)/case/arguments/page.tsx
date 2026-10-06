@@ -1,218 +1,375 @@
 "use client";
+
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
-import { Reveal } from "@/components/reveal";
-import { useCase } from "@/components/workspace/case-context";
-import { StatusPill } from "@/components/status-pill";
+import { useEffect, useMemo } from "react";
+
+import {
+  ArgumentCard,
+  TIER_MARKER,
+  type Tier,
+} from "@/components/domain/argument-node";
+import {
+  missingFor,
+  reference,
+  shortTitle,
+  tierOf,
+  visibleArguments,
+} from "@/components/domain/argument-graph";
 import { Button } from "@/components/ui/button";
-import { PageHead, card, stack, well } from "@/components/workspace/shell";
-import { args, claim, tierLabel, type Arg } from "@/lib/case-data";
-import { ease } from "@/lib/motion";
+import { useCase } from "@/components/workspace/case-context";
+import { PageHead, card, label, well } from "@/components/workspace/shell";
+import { Gated, LoadError, NeedsCase, Skeleton } from "@/components/workspace/states";
+import { ApiError, type ArgumentGraph } from "@/lib/api";
+import { useArgumentDetail, useArguments, useComputeArguments } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
-// The refutation assembles (motion.md § "The argument graph sequence"), seconds:
-const T = { bus: 0.4, solidHead: 0.7, solid: 0.76, add: 1.18, out: 1.62, done: 1.8, stagger: 0.11 };
+/**
+ * React Flow and dagre are ~70 kB, and only desktop renders the graph -- mobile
+ * gets the stacked list, which is not a fallback but the better reading on a
+ * phone. Loading it lazily keeps that weight off the device least able to
+ * afford it, and off the first paint of every other screen.
+ */
+const ArgumentFlow = dynamic(
+  () => import("@/components/domain/argument-graph").then((m) => m.ArgumentFlow),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-[560px] rounded-[16px] border border-rule bg-surface-sunk"
+        aria-busy="true"
+      />
+    ),
+  },
+);
 
-const monoLabel = "font-mono text-[11px] tracking-[.05em] text-ink-muted";
-const mark = { solid: "●", add: "◇", out: "✕" } as const;
-const markColor = { solid: "text-standing", add: "text-ink-muted", out: "text-defeated" } as const;
-const verdictColor = { solid: "text-standing", add: "text-ink", out: "text-defeated" } as const;
-
-// ArgumentNode — tier is carried by border style and marker shape, not colour alone:
-// solid ground = solid border + 3px standing edge + ●; worth adding = dashed + ◇;
-// left out = hatched, struck through + ✕.
-function ArgumentNode({ a, delay, instant, pulse, active, onPick }: { a: Arg; delay: number; instant: boolean; pulse: boolean; active: boolean; onPick: () => void }) {
-  const out = a.tier === "out";
-  return (
-    // Defeated nodes arrive with their section and never animate out.
-    <Reveal gesture={out ? "fade" : "rise"} trigger="load" delay={delay} instant={instant}>
-      <motion.button
-        // Evidence satisfied elsewhere pulses the node it feeds, once.
-        animate={pulse ? { boxShadow: ["0 0 0 0px var(--standing)", "0 0 0 3px var(--standing)", "0 0 0 0px var(--standing)"] } : undefined}
-        transition={{ duration: 0.3, delay: instant ? 0 : delay + 0.4 }}
-        onClick={onPick}
-        aria-pressed={active}
-        className={cn(
-          "relative w-full rounded-[10px] p-4 text-left lg:px-5 lg:py-[18px]",
-          a.tier === "solid" && "border-[1.5px] border-l-[3px] border-solid border-standing bg-surface",
-          a.tier === "add" && "border-[1.5px] border-dashed border-ink-muted bg-surface",
-          out && "hatch border border-solid border-defeated bg-transparent",
-          active && "shadow-[0_0_0_2px_var(--focus)]",
-        )}
-      >
-        {!out && (
-          <span aria-hidden className={cn("absolute -top-[18px] -left-px hidden h-[18px] w-px lg:block", a.tier === "solid" ? "bg-standing" : "bg-ink-muted")} />
-        )}
-        <div className="flex items-start gap-2.5">
-          <span aria-hidden className={cn("text-[12px] leading-none", markColor[a.tier])}>{mark[a.tier]}</span>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-baseline gap-[9px]">
-              <span className={monoLabel}>{a.ref}</span>
-              <h3 className={cn("m-0 text-[17px] leading-[25px] font-semibold", out ? "text-defeated line-through" : "text-ink")}>{a.title}</h3>
-              <span className="sr-only">— {tierLabel[a.tier]}</span>
-            </div>
-            <p className="mt-2 mb-0 text-[15px] leading-6 text-ink-muted text-pretty">{out ? a.why : a.assert}</p>
-            {!out && (
-              <div className="mt-3">
-                <StatusPill kind={a.ok ? "solid" : "plain"}>{a.status}</StatusPill>
-              </div>
-            )}
-            {/* Mobile: the detail expands inline instead of in a side panel. */}
-            {active && !out && (
-              <div className="mt-3.5 flex flex-col gap-2.5 border-t border-rule pt-3 lg:hidden">
-                <div>
-                  <div className={cn(monoLabel, "mb-1")}>What they could say back</div>
-                  <div className="text-[15px] leading-6 text-ink">{a.reply}</div>
-                </div>
-                <div className={cn("text-[15px] leading-6 font-medium", verdictColor[a.tier])}>{a.verdict}</div>
-                <div className="text-[15px] leading-6 text-ink-muted">{a.why}</div>
-                <div className="font-mono text-[11px] leading-[18px] text-ink-muted">Needs: {a.needs}</div>
-              </div>
-            )}
-          </div>
-        </div>
-      </motion.button>
-    </Reveal>
-  );
-}
-
-function LaneHead({ tier, count, delay, instant, children }: { tier: "solid" | "add" | "out"; count: number; delay: number; instant: boolean; children: string }) {
-  return (
-    <Reveal
-      gesture="fade"
-      trigger="load"
-      delay={delay}
-      instant={instant}
-      className={cn(
-        "mb-3.5 pt-3",
-        tier === "solid" && "border-t-[1.5px] border-solid border-standing",
-        tier === "add" && "border-t-[1.5px] border-dashed border-ink-muted",
-        tier === "out" && "border-t border-rule",
-      )}
-    >
-      <div className="flex items-center gap-[9px]">
-        <span aria-hidden className={cn("text-[13px] leading-none", markColor[tier])}>{mark[tier]}</span>
-        <h2 className="m-0 text-[17px] font-semibold text-ink">{tierLabel[tier]}</h2>
-        <span className="font-mono text-[12px] text-ink-muted">{count}</span>
-      </div>
-      <p className={cn("mt-1.5 mb-0 text-[14px] leading-[22px] text-ink-muted text-pretty", tier === "out" ? "max-w-[52ch]" : "max-w-[42ch]")}>{children}</p>
-    </Reveal>
-  );
-}
+/** The lane order. Their reason first, because it is what everything attacks. */
+const LANES: { tier: Tier; heading: string }[] = [
+  { tier: "insurer", heading: "What they said" },
+  { tier: "solid", heading: "Solid ground" },
+  { tier: "add", heading: "Worth adding" },
+  { tier: "out", heading: "Left out" },
+];
 
 export default function ArgumentsPage() {
-  const { node, setNode, pulse, clearPulse, graphPlayed, markGraphPlayed } = useCase();
-  const reduce = useReducedMotion();
-  const [runKey, setRunKey] = useState(0);
-  // The sequence plays once per case; coming back shows the static diagram.
-  const [instant, setInstant] = useState(graphPlayed);
-  const [pulseNow] = useState(pulse);
+  const { caseId, node, setNode, pulse, clearPulse } = useCase();
+  const graphQuery = useArguments(caseId);
+  const compute = useComputeArguments(caseId);
+  const detail = useArgumentDetail(caseId, node);
 
+  // The pulse plays once, then clears.
   useEffect(() => {
-    clearPulse();
-    const t = setTimeout(markGraphPlayed, T.done * 1000);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (pulse.length === 0) return;
+    const timer = setTimeout(clearPulse, 900);
+    return () => clearTimeout(timer);
+  }, [pulse, clearPulse]);
 
-  const still = instant || !!reduce;
-  const draw = (d: number, origin: string, axis: "x" | "y", length: number) => ({
-    initial: still ? false : axis === "x" ? { scaleX: 0 } : { scaleY: 0 },
-    animate: axis === "x" ? { scaleX: 1 } : { scaleY: 1 },
-    transition: still ? { duration: 0 } : { duration: length, delay: d, ease: ease.move },
-    style: { transformOrigin: origin },
-  });
-  const sel = args.find((a) => a.id === node) ?? args[0];
-  const solid = args.filter((a) => a.tier === "solid");
-  const add = args.filter((a) => a.tier === "add");
-  const out = args.filter((a) => a.tier === "out");
+  if (!caseId) return <NeedsCase />;
+  if (graphQuery.isPending) return <Skeleton rows={4} />;
+
+  if (graphQuery.isError) {
+    const notYet =
+      graphQuery.error instanceof ApiError && graphQuery.error.code === "not_found";
+    if (notYet) {
+      return (
+        <div>
+          <PageHead
+            title="What holds against their reason"
+            lead="We treat the insurer's reason as an argument and work out which counter-arguments survive what they would say back."
+          />
+          <div className="flex flex-col gap-3.5">
+            <Gated reason="We have not built your argument graph yet. It needs your confirmed facts." />
+            <div>
+              <Button
+                onClick={() => compute.mutate()}
+                disabled={compute.isPending}
+              >
+                {compute.isPending ? "Working it out…" : "Build the arguments"}
+              </Button>
+              {compute.isError ? (
+                <div className="mt-3.5">
+                  <LoadError error={compute.error} what="the arguments" />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <LoadError
+        error={graphQuery.error}
+        what="your arguments"
+        onRetry={() => graphQuery.refetch()}
+      />
+    );
+  }
+
+  const { graph, tier_explanations: explanations } = graphQuery.data;
+  const nodes = visibleArguments(graph);
+  const byTier = (tier: Tier) => nodes.filter((n) => tierOf(graph, n.id) === tier);
 
   return (
     <div>
       <PageHead
-        title="Their reason, and what answers it"
-        lead="Three arguments hold up whatever the insurer says back. Two only help under a narrow reading. One does not work, and we have left it out of your letter."
-        action={
-          <div className="flex flex-wrap gap-2.5">
-            {/* Skip is in the DOM from frame one (motion.md). */}
-            {!still && <Button variant="ghost" onClick={() => setInstant(true)}>Show it all</Button>}
-            <Button variant="ghost" onClick={() => { setInstant(false); setRunKey(runKey + 1); }}>Replay</Button>
-          </div>
-        }
+        title="What holds against their reason"
+        lead="Their reason sits at the top. Everything beneath it attacks it. We computed which of those survive what they would say back — we did not pick them."
       />
 
-      <div className="grid items-start lg:grid-cols-[1fr_360px] lg:gap-8">
-        <div className="min-w-0" key={`${runKey}-${instant}`}>
-          <Reveal gesture="claim" trigger="load" instant={still} className="rounded-[2px] border-[1.5px] border-ink bg-surface p-[18px] lg:mx-auto lg:max-w-[620px] lg:px-6 lg:py-[22px]">
-            <div className="mb-3 flex items-center gap-2.5">
-              <span className="size-[9px] bg-ink" />
-              <span className="font-mono text-[11px] tracking-[.06em] text-ink-muted">What the insurer says · {claim.code}</span>
-            </div>
-            <blockquote className="m-0 font-doc text-[19px] leading-8 italic text-ink">{claim.text}</blockquote>
-            <div className="mt-3.5 border-t border-rule pt-2.5 font-mono text-[11px] text-ink-muted">{claim.meta}</div>
-          </Reveal>
-
-          {/* AttackConnector — the bus from the claim down into both lanes (desktop). */}
-          <div aria-hidden className="relative mx-auto hidden h-12 w-full max-w-[760px] lg:block">
-            <motion.div className="absolute top-0 left-1/2 h-6 w-px bg-rule" {...draw(T.bus, "top", "y", 0.18)} />
-            <motion.div className="absolute top-6 right-1/4 left-1/4 h-px bg-rule" {...draw(T.bus + 0.18, "center", "x", 0.22)} />
-            <motion.div className="absolute top-6 left-1/4 h-6 w-px bg-standing" {...draw(T.bus + 0.4, "top", "y", 0.12)} />
-            <motion.div className="absolute top-6 left-3/4 h-6 w-px bg-ink-muted" {...draw(T.bus + 0.52, "top", "y", 0.12)} />
-          </div>
-
-          <div className="mt-7 grid gap-7 lg:mt-0 lg:grid-cols-2 lg:gap-8">
-            <section className="min-w-0">
-              <LaneHead tier="solid" count={solid.length} delay={T.solidHead} instant={still}>These stand up to whatever the insurer answers. Your letter leads with them.</LaneHead>
-              <div className={stack}>
-                {solid.map((a, i) => (
-                  <ArgumentNode key={a.id} a={a} delay={T.solid + i * T.stagger} instant={still} pulse={pulseNow.includes(a.id)} active={node === a.id} onPick={() => setNode(a.id)} />
-                ))}
-              </div>
-            </section>
-            <section className="min-w-0">
-              <LaneHead tier="add" count={add.length} delay={T.add} instant={still}>The insurer has a fair answer to each of these. Useful as extra weight, not as your main point.</LaneHead>
-              <div className={stack}>
-                {add.map((a, i) => (
-                  <ArgumentNode key={a.id} a={a} delay={T.add + i * T.stagger} instant={still} pulse={pulseNow.includes(a.id)} active={node === a.id} onPick={() => setNode(a.id)} />
-                ))}
-              </div>
-            </section>
-          </div>
-
-          <section className="mt-7">
-            <LaneHead tier="out" count={out.length} delay={T.out} instant={still}>We checked this one and it does not hold. It stays visible so you know it was considered.</LaneHead>
-            <div className={stack}>
-              {out.map((a) => (
-                <ArgumentNode key={a.id} a={a} delay={T.out} instant={still} pulse={false} active={node === a.id} onPick={() => setNode(a.id)} />
-              ))}
-            </div>
-          </section>
-        </div>
-
-        <aside className={cn(card, "sticky top-24 hidden p-6 lg:block")} aria-live="polite">
-          <div className="mb-3.5 flex items-center gap-2.5">
-            <StatusPill kind={sel.tier}>{tierLabel[sel.tier]}</StatusPill>
-            <span className={monoLabel}>{sel.ref}</span>
-          </div>
-          <h2 className="mt-0 mb-3 text-[21px] leading-7 font-semibold tracking-[-0.01em] text-ink">{sel.title}</h2>
-          <p className="mt-0 mb-5 text-[16px] leading-[27px] text-ink text-pretty">{sel.assert}</p>
-          <div className={well}>
-            <div className={cn(monoLabel, "mb-1.5")}>What the insurer could say back</div>
-            <div className="text-[16px] leading-[26px] text-ink">{sel.reply}</div>
-          </div>
-          <div className="mt-[18px]">
-            <div className={cn("text-[16px] leading-[26px] font-medium", verdictColor[sel.tier])}>{sel.verdict}</div>
-            <p className="mt-2 mb-0 text-[15px] leading-[25px] text-ink-muted text-pretty">{sel.why}</p>
-          </div>
-          <div className="mt-5 mb-5 border-t border-rule pt-3.5">
-            <div className={cn(monoLabel, "mb-1.5")}>Evidence this argument needs</div>
-            <div className="text-[15px] leading-6 text-ink">{sel.needs}</div>
-            <div className="mt-3"><StatusPill kind={sel.tier}>{sel.status}</StatusPill></div>
-          </div>
-          <Button variant="ghost" asChild><Link href="/case/evidence/">Go to the evidence list</Link></Button>
-        </aside>
+      {/* ---- desktop: the graph ---- */}
+      <div className="hidden lg:block">
+        <ArgumentFlow
+          graph={graph}
+          selected={node}
+          pulse={pulse}
+          onSelect={setNode}
+        />
       </div>
+
+      {/* ---- mobile: the lanes. Same data, easier to read on a phone. ---- */}
+      <div className="flex flex-col gap-6 lg:hidden">
+        {LANES.map(({ tier, heading }) => {
+          const lane = byTier(tier);
+          if (lane.length === 0) return null;
+          return (
+            <section key={tier}>
+              <div
+                className={cn(
+                  "mb-3 flex items-baseline gap-2.5 border-t pt-2.5",
+                  tier === "solid"
+                    ? "border-standing"
+                    : tier === "add"
+                      ? "border-dashed border-ink-muted"
+                      : tier === "out"
+                        ? "border-defeated"
+                        : "border-ink",
+                )}
+              >
+                <span className="font-mono text-[12px] text-ink-muted" aria-hidden>
+                  {TIER_MARKER[tier]}
+                </span>
+                <h2 className="m-0 text-[17px] leading-6 font-semibold text-ink">
+                  {heading}
+                </h2>
+                <span className="font-mono text-[11px] text-ink-muted">
+                  {lane.length}
+                </span>
+              </div>
+              {tier !== "insurer" && explanations[heading] ? (
+                <p className="mt-0 mb-3 text-pretty text-[15px] leading-[23px] text-ink-muted">
+                  {explanations[heading]}
+                </p>
+              ) : null}
+              <div className="flex flex-col gap-2.5">
+                {lane.map((argument) => (
+                  <div key={argument.id}>
+                    <ArgumentCard
+                      tier={tier}
+                      reference={reference(argument.id)}
+                      title={shortTitle(argument.claim)}
+                      assertion={argument.claim}
+                      needs={missingFor(argument)}
+                      active={node === argument.id}
+                      pulsing={pulse.includes(argument.id)}
+                      onSelect={() => setNode(node === argument.id ? null : argument.id)}
+                    />
+                    {/* On mobile the active node expands in place. */}
+                    {node === argument.id ? (
+                      <div className="mt-2.5">
+                        <Detail
+                          detail={detail.data}
+                          pending={detail.isPending}
+                          graph={graph}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      {/* ---- desktop: the detail panel beside the graph ---- */}
+      <div className="mt-3.5 hidden lg:block">
+        {node ? (
+          <Detail detail={detail.data} pending={detail.isPending} graph={graph} />
+        ) : (
+          <div className={cn(card, "px-[22px] py-5")}>
+            <p className="m-0 text-pretty text-[16px] leading-[26px] text-ink-muted">
+              Choose an argument to see what it asserts, what evidence it needs, and
+              what the insurer would likely say back.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ---- the legend ---- */}
+      <div className="mt-7 border-t border-rule pt-5">
+        <div className={cn(label, "mb-3")}>HOW TO READ THIS</div>
+        <dl className="m-0 grid gap-3 lg:grid-cols-3">
+          {(["solid", "add", "out"] as Tier[]).map((tier) => {
+            const heading = LANES.find((l) => l.tier === tier)!.heading;
+            return (
+              <div key={tier} className={well}>
+                <dt className="flex items-center gap-2 text-[15px] font-semibold text-ink">
+                  <span className="font-mono text-[12px]" aria-hidden>
+                    {TIER_MARKER[tier]}
+                  </span>
+                  {heading}
+                </dt>
+                <dd className="m-0 mt-1.5 text-pretty text-[14px] leading-[22px] text-ink-muted">
+                  {explanations[heading]}
+                </dd>
+              </div>
+            );
+          })}
+        </dl>
+        <p className="mt-4 mb-0 font-mono text-[11px] tracking-[.05em] text-ink-muted">
+          SCHEMES VERSION {graph.schemes_version} · COMPUTED BY SOLVER, NOT ASSIGNED
+        </p>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Button variant="ghost" asChild>
+          <Link href="/case/evidence/">What evidence this needs</Link>
+        </Button>
+        <Button variant="ghost" asChild>
+          <Link href="/case/letter/">See the letter</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Detail({
+  detail,
+  pending,
+  graph,
+}: {
+  detail: ReturnType<typeof useArgumentDetail>["data"];
+  pending: boolean;
+  graph: ArgumentGraph;
+}) {
+  const argument = useMemo(
+    () => graph.arguments.find((a) => a.id === detail?.id) ?? null,
+    [graph, detail],
+  );
+
+  if (pending) {
+    return (
+      <div className={cn(card, "px-[22px] py-5")} aria-busy="true">
+        <div className="h-[15px] w-[40%] rounded-[2px] bg-surface-sunk" />
+        <div className="mt-3 h-[13px] w-[70%] rounded-[2px] bg-surface-sunk" />
+      </div>
+    );
+  }
+  if (!detail) return null;
+
+  return (
+    <div className={cn(card, "px-[22px] py-5")}>
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span className={label}>{reference(detail.id)}</span>
+        {detail.tier ? (
+          <span className="font-mono text-[11px] tracking-[.05em] text-ink-muted">
+            {detail.tier.toUpperCase()}
+          </span>
+        ) : null}
+      </div>
+
+      <p className="mt-2.5 mb-0 text-pretty text-[17px] leading-[27px] text-ink">
+        {detail.claim}
+      </p>
+
+      {/* ---- what it rests on ---- */}
+      {detail.premises.length > 0 ? (
+        <>
+          <div className={cn(label, "mt-5 mb-2.5")}>WHAT IT RESTS ON</div>
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {detail.premises.map((premise) => (
+              <li key={premise.id} className="flex items-start gap-2.5">
+                <span
+                  className={cn(
+                    "mt-1 font-mono text-[11px]",
+                    premise.satisfied ? "text-standing" : "text-time",
+                  )}
+                  aria-hidden
+                >
+                  {premise.satisfied ? "●" : "○"}
+                </span>
+                <span className="text-[15px] leading-[23px] text-ink">
+                  {premise.text}
+                  {!premise.satisfied && premise.evidence_key ? (
+                    <span className="block text-[14px] text-time">
+                      Needs {premise.evidence_key.replace(/_/g, " ")}
+                    </span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+
+      {/* ---- what they would say back ---- */}
+      {detail.insurer_replies.length > 0 ? (
+        <>
+          <div className={cn(label, "mt-5 mb-2.5")}>WHAT THEY WOULD SAY BACK</div>
+          <div className="flex flex-col gap-2.5">
+            {detail.insurer_replies.map((reply) => (
+              <div key={reply.id} className={well}>
+                <p className="m-0 text-pretty text-[15px] leading-[23px] text-ink">
+                  {reply.text}
+                </p>
+                <p
+                  className={cn(
+                    "mt-2 mb-0 text-[14px] leading-[21px] font-medium",
+                    reply.answered ? "text-standing" : "text-ink",
+                  )}
+                >
+                  {reply.verdict}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      {/* ---- the verdict, as a sentence ---- */}
+      <div className="mt-5 border-t border-rule pt-3.5">
+        <div className={cn(label, "mb-1.5")}>WHERE THAT LEAVES IT</div>
+        <p className="m-0 text-[16px] leading-[25px] font-medium text-ink">
+          {detail.verdict}
+        </p>
+        <p className="mt-1.5 mb-0 text-pretty text-[15px] leading-[23px] text-ink-muted">
+          {detail.tier_explanation}
+        </p>
+      </div>
+
+      {detail.missing_evidence.length > 0 ? (
+        <div className="mt-3.5 border-l-[3px] border-time pl-3.5">
+          <p className="m-0 text-pretty text-[15px] leading-[23px] text-ink">
+            This one needs{" "}
+            {detail.missing_evidence.map((k) => k.replace(/_/g, " ")).join(", ")} to
+            hold.
+          </p>
+          <Link
+            href="/case/evidence/"
+            className="mt-1.5 inline-block text-[15px] text-clay-deep underline underline-offset-[3px]"
+          >
+            Add it to the checklist
+          </Link>
+        </div>
+      ) : null}
+
+      {argument && argument.citations.length > 0 ? (
+        <p className="mt-3.5 mb-0 font-mono text-[11px] text-ink-muted">
+          {argument.citations
+            .map((c) => `${c.source} ${c.locator}`.trim())
+            .join(" · ")}
+        </p>
+      ) : null}
     </div>
   );
 }
