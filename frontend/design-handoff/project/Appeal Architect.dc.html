@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#131312; }
+  *, *::before, *::after { box-sizing: border-box; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  :root {
+    --ground:#F2EDE4; --surface:#FFFCF7; --surface-sunk:#EAE2D6;
+    --ink:#1C1A17; --ink-muted:#5E5850; --rule:#DED5C6; --stripe:#D2C8B8;
+
+    --forest:#14453A; --forest-deep:#0E332B; --forest-tint:#DCE8E0;
+    --clay:#C85A33; --clay-soft:#F7DDCE; --clay-deep:#9E4323;
+    --sky:#2F5E78; --sky-tint:#DCE7EE;
+    --wheat:#F2D9A8; --plum:#6B3A5B;
+
+    --time:#A9640F; --time-ample:#5E5850; --time-approaching:#B8822C;
+    --time-near:#A9640F; --time-imminent:#8A4409; --time-track:#E6D7BE;
+    --standing:#14453A; --standing-tint:#DCE8E0; --defeated:#837C72;
+    --focus:#C85A33; --overlay:rgb(28 26 23 / .46);
+    --band:#14332C; --band-ink:#F4EFE5; --band-muted:#A9BDB2; --band-rule:#2A4C43;
+    --e1:0 1px 2px rgb(40 30 18 / .06);
+    --e2:0 10px 30px -10px rgb(40 30 18 / .22);
+    --e3:0 24px 60px -24px rgb(20 51 44 / .35);
+  }
+  :where(a,button,[tabindex],input,textarea,select):focus-visible {
+    outline:2px solid var(--focus); outline-offset:2px; border-radius:6px;
+  }
+  a { color: var(--clay-deep); text-decoration-thickness:1px; text-underline-offset:3px; }
+  a:hover { color: var(--clay); }
+  @supports (animation-timeline: view()) {
+    [data-anim] { animation-timeline: view(); animation-range: entry 2% cover 34%; animation-delay: 0s; }
+    [data-anim="1"] { animation-range: entry 6% cover 40%; }
+    [data-anim="2"] { animation-range: entry 10% cover 46%; }
+    [data-anim="3"] { animation-range: entry 14% cover 52%; }
+    [data-anim="4"] { animation-range: entry 18% cover 58%; }
+    [data-anim="5"] { animation-range: entry 22% cover 64%; }
+    [data-anim="long"] { animation-range: entry 0% cover 86%; }
+  }
+  /* each section owns one gesture; none is reused */
+  @keyframes aa-lineup { from { transform:translateY(104%) } to { transform:none } }
+  @keyframes aa-marquee { from { transform:translateX(0) } to { transform:translateX(-50%) } }
+  @keyframes aa-drawdown { from { transform:scaleY(0) } to { transform:scaleY(1) } }
+  @keyframes aa-drawright { from { transform:scaleX(0) } to { transform:scaleX(1) } }
+  @keyframes aa-wiperight { from { clip-path:inset(0 100% 0 0) } to { clip-path:inset(0 0 0 0) } }
+  @keyframes aa-countup { from { transform:translateY(42%); opacity:0 } to { transform:none; opacity:1 } }
+  @keyframes aa-stationdot { from { transform:scale(0) } to { transform:scale(1) } }
+  @keyframes aa-nudge { from { opacity:0; transform:translateX(-18px) } to { opacity:1; transform:none } }
+  @keyframes aa-lift { from { opacity:0; transform:translateY(26px) } to { opacity:1; transform:none } }
+  @keyframes aa-rise { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:none } }
+  @keyframes aa-draw { from { transform:scaleY(0) } to { transform:scaleY(1) } }
+  @keyframes aa-fade { from { opacity:0 } to { opacity:1 } }
+  /* 1 hero — slow push on the ground, words lifting off it */
+  @keyframes aa-kenburns { from { transform:scale(1.08) } to { transform:scale(1) } }
+  @keyframes aa-heroword { from { opacity:0; transform:translateY(38px) } to { opacity:1; transform:none } }
+  /* 2 trust strip — a rule drawing across */
+  @keyframes aa-sweep { from { transform:scaleX(0) } to { transform:scaleX(1) } }
+  /* 3 stats — numerals wiped up from their own baseline */
+  @keyframes aa-wipeup { from { clip-path:inset(100% 0 0 0); transform:translateY(14px) } to { clip-path:inset(0 0 0 0); transform:none } }
+  /* 4 how it works — the top rule draws, then the step lifts */
+  @keyframes aa-steprule { from { transform:scaleX(0) } to { transform:scaleX(1) } }
+  @keyframes aa-stepbody { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:none } }
+  /* 5 capabilities — quote arrives from its margin, note answers from the other side */
+  @keyframes aa-fromleft { from { opacity:0; transform:translateX(-26px) } to { opacity:1; transform:none } }
+  @keyframes aa-fromright { from { opacity:0; transform:translateX(26px) } to { opacity:1; transform:none } }
+  /* 6 personas — portrait unmasks upward, card settles */
+  @keyframes aa-unmask { from { clip-path:inset(0 0 100% 0) } to { clip-path:inset(0 0 0 0) } }
+  @keyframes aa-settle { from { opacity:0; transform:translateY(22px) scale(.98) } to { opacity:1; transform:none } }
+  /* 7 pricing — cards deal in from a stack */
+  @keyframes aa-deal { from { opacity:0; transform:translateY(34px) rotate(-1.2deg) } to { opacity:1; transform:none } }
+  /* 8 faq — rows open from the left edge */
+  @keyframes aa-unroll { from { opacity:0; transform:translateX(-14px) } to { opacity:1; transform:none } }
+  /* 9 footer */
+  @keyframes aa-bandup { from { opacity:0; transform:translateY(40px) } to { opacity:1; transform:none } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:.001ms !important; animation-delay:0ms !important; transition-duration:.001ms !important; }
+  }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#131312;font-family:'IBM Plex Sans',system-ui,sans-serif;display:flex;flex-direction:column">
+
+  <div style="position:sticky;top:0;z-index:50;background:#1C1C1B;border-bottom:1px solid #2E2D2B;padding:10px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8D8A84;text-transform:uppercase;white-space:nowrap">Appeal Architect</span>
+      <span style="width:1px;height:16px;background:#3A3936"></span>
+      <div style="display:flex;flex-wrap:wrap;gap:2px">
+        <sc-for list="{{ screens }}" as="s" hint-placeholder-count="9">
+          <button onClick="{{ s.go }}" style="{{ s.tabStyle }}">{{ s.name }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;background:#121211;border:1px solid #333230;border-radius:8px;padding:2px;gap:2px">
+        <button onClick="{{ setDesktop }}" style="{{ deskBtn }}">1440</button>
+        <button onClick="{{ setMobile }}" style="{{ mobBtn }}">390</button>
+      </div>
+    </div>
+  </div>
+
+  <div data-stage="1" style="flex:1;display:flex;justify-content:center;padding:24px 16px 48px">
+    <div style="{{ stageStyle }}">
+      <div data-frame="1" style="{{ frameStyle }}">
+
+<sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+<div style="background:var(--ground);min-height:100%">
+
+  <div style="{{ navStyle }}">
+    <div style="{{ navInnerStyle }}">
+      <span style="{{ wordmarkStyle }}">Appeal Architect</span>
+      <div style="{{ navLinksStyle }}">
+        <a href="#how" style="{{ navLinkStyle }}">How it works</a>
+        <a href="#does" style="{{ navLinkStyle }}">What it does</a>
+        <a href="#pricing" style="{{ navLinkStyle }}">Pricing</a>
+        <a href="#faq" style="{{ navLinkStyle }}">Questions</a>
+        <button onClick="{{ goTriage }}" style="{{ navBtnStyle }}">Check my deadline</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="{{ heroFrameStyle }}">
+    <div style="{{ heroBgStyle }}">
+      <dc-import name="MediaSlot" slot-id="hero-bg" fill="{{ true }}" kind="video" label="Slow documentary footage: a person at a kitchen table opening a denial letter, late afternoon light" intrinsic="2560×1440" hint-size="100%,100%"></dc-import>
+    </div>
+    <div style="{{ heroScrimStyle }}"></div>
+    <div style="{{ heroColsStyle }}">
+      <sc-for list="{{ heroCols }}" as="hc" hint-placeholder-count="5">
+        <span style="{{ hc.style }}"></span>
+      </sc-for>
+    </div>
+    <div style="{{ heroInnerStyle }}">
+      <div style="{{ heroRailStyle }}">
+        <span style="{{ heroRailNumStyle }}">01</span>
+        <span style="{{ heroRailLineStyle }}"></span>
+        <span style="{{ heroRailTextStyle }}">Self-help document preparation</span>
+      </div>
+      <div style="{{ heroMainStyle }}">
+        <h1 style="{{ h1Style }}">
+          <span style="{{ lineClipStyle }}"><span style="{{ hw1 }}">Your denial,</span></span>
+          <span style="{{ lineClipStyle }}"><span style="{{ hw2 }}">formally refuted.</span></span>
+        </h1>
+        <div style="{{ heroBottomStyle }}">
+          <p style="{{ heroSubStyle }}">Under two in a thousand people appeal a denied health claim. About half of the people who do appeal get the decision reversed. The gap is not courage. It is that nobody tells you which rules apply to you, or when your door closes.</p>
+          <div style="{{ heroCtaStyle }}">
+            <button onClick="{{ goTriage }}" style="{{ heroPrimaryBtn }}">Find my deadline — free</button>
+            <button onClick="{{ goCases }}" style="{{ heroGhostBtn }}">See a worked case</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="{{ heroMetaStyle }}">
+      <sc-for list="{{ heroFacts }}" as="h" hint-placeholder-count="3">
+        <div style="{{ h.cellStyle }}">
+          <span style="{{ h.kStyle }}">{{ h.k }}</span>
+          <span style="{{ h.vStyle }}">{{ h.v }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="{{ marqueeWrapStyle }}">
+    <div style="{{ marqueeTrackStyle }}">
+      <sc-for list="{{ marqueeItems }}" as="mi" hint-placeholder-count="8">
+        <span style="{{ mi.style }}">{{ mi.t }}</span>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="{{ statBandStyle }}">
+    <div style="{{ statBgStyle }}">
+      <dc-import name="MediaSlot" slot-id="stat-backdrop" fill="{{ true }}" kind="image" label="Quiet backdrop for the statistics band" intrinsic="2100×900" hint-size="100%,100%"></dc-import>
+    </div>
+    <div style="{{ statInnerStyle }}">
+      <div style="{{ statHeadStyle }}">
+        <span style="{{ statIndexStyle }}">02</span>
+        <p style="{{ statLeadStyle }}">Almost nobody appeals. It works more often than not.</p>
+      </div>
+      <div style="{{ statGridStyle }}">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+          <div style="{{ s.cellStyle }}">
+            <span data-anim="{{ s.anim }}" style="{{ s.ruleStyle }}"></span>
+            <div style="{{ s.bodyStyle }}">
+              <div style="{{ lineClipStyle }}"><div data-anim="{{ s.anim }}" style="{{ s.numStyle }}">{{ s.n }}</div></div>
+              <div style="{{ s.labelStyle }}">{{ s.label }}</div>
+              <div style="{{ s.noteStyle }}">{{ s.note }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div id="how" style="{{ processSectionStyle }}">
+    <div style="{{ procHeadStyle }}">
+      <span style="{{ indexStyle }}">03</span>
+      <h2 style="{{ procTitleStyle }}">Three steps, and you are holding a filed appeal.</h2>
+      <p style="{{ procLeadStyle }}">No part of this asks you to understand insurance law. It asks you to confirm what your own letter says.</p>
+    </div>
+    <div style="{{ procTrackStyle }}">
+      <span data-anim="long" style="{{ procSpineStyle }}"></span>
+      <sc-for list="{{ steps }}" as="t" hint-placeholder-count="3">
+        <div style="{{ t.stationStyle }}">
+          <div style="{{ t.topStyle }}">
+            <span style="{{ t.numStyle }}">{{ t.num }}</span>
+            <h3 style="{{ t.titleStyle }}">{{ t.title }}</h3>
+            <p style="{{ t.bodyStyle }}">{{ t.body }}</p>
+          </div>
+          <span data-anim="{{ t.anim }}" style="{{ t.dotStyle }}"></span>
+          <div style="{{ t.spacerStyle }}"></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div id="does" style="{{ capSectionStyle }}">
+    <div style="{{ capHeadStyle }}">
+      <span style="{{ indexStyle }}">04</span>
+      <h2 style="{{ capTitleStyle }}">Their sentence on the left.<br />Your answer on the right.</h2>
+    </div>
+    <sc-for list="{{ caps }}" as="c" hint-placeholder-count="4">
+      <div style="{{ c.rowStyle }}">
+        <div style="{{ c.markerColStyle }}">
+          <span style="{{ c.markerStyle }}">{{ c.marker }}</span>
+        </div>
+        <div style="{{ c.quoteColStyle }}">
+          <div style="{{ c.sourceStyle }}">{{ c.source }}</div>
+          <div style="{{ c.quoteWrapStyle }}">
+            <span data-anim="{{ c.anim }}" style="{{ c.quoteRuleStyle }}"></span>
+            <blockquote style="{{ c.quoteStyle }}">{{ c.quote }}</blockquote>
+          </div>
+          <div data-anim="{{ c.mediaAnim }}" style="{{ c.mediaStyle }}">
+            <dc-import name="MediaSlot" slot-id="{{ c.slot }}" ratio="{{ c.ratio }}" kind="{{ c.kind }}" label="{{ c.slotLabel }}" intrinsic="{{ c.intrinsic }}" hint-size="100%,240px"></dc-import>
+          </div>
+        </div>
+        <div data-anim="{{ c.noteAnim }}" style="{{ c.noteColStyle }}">
+          <h3 style="{{ c.titleStyle }}">{{ c.title }}</h3>
+          <p style="{{ c.bodyStyle }}">{{ c.body }}</p>
+          <div style="{{ c.citeStyle }}">{{ c.cite }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="{{ personaSectionStyle }}">
+    <div style="{{ personaHeadStyle }}">
+      <span style="{{ indexStyle }}">05</span>
+      <h2 style="{{ personaTitleStyle }}">Three people arrive here, in three different states of mind.</h2>
+    </div>
+    <div style="{{ personaGridStyle }}">
+      <sc-for list="{{ personas }}" as="p" hint-placeholder-count="3">
+        <div style="{{ p.colStyle }}">
+          <div data-anim="{{ p.anim }}" style="{{ p.imgStyle }}">
+            <dc-import name="MediaSlot" slot-id="{{ p.slot }}" ratio="{{ p.ratio }}" kind="image" label="{{ p.alt }}" intrinsic="{{ p.intrinsic }}" hint-size="100%,100%"></dc-import>
+          </div>
+          <div style="{{ p.metaStyle }}">
+            <span style="{{ p.tagStyle }}">{{ p.tag }}</span>
+            <span style="{{ p.ruleStyle }}"></span>
+          </div>
+          <h3 style="{{ p.titleStyle }}">{{ p.title }}</h3>
+          <p style="{{ p.bodyStyle }}">{{ p.body }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div id="pricing" style="{{ priceSectionStyle }}">
+    <div style="{{ priceHeadStyle }}">
+      <span style="{{ indexStyle }}">06</span>
+      <h2 style="{{ priceTitleStyle }}">You find out whether you have a case before you pay.</h2>
+      <p style="{{ priceLeadStyle }}">The free check is the whole triage, not a teaser. If there is no route, it says so and you owe nothing.</p>
+    </div>
+    <div style="{{ priceGridStyle }}">
+      <sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+        <div style="{{ p.colStyle }}">
+          <span data-anim="{{ p.anim }}" style="{{ p.topRuleStyle }}"></span>
+          <div style="{{ p.headStyle }}">
+            <span style="{{ p.nameStyle }}">{{ p.name }}</span>
+            <sc-if value="{{ p.featured }}" hint-placeholder-val="{{ false }}">
+              <span style="{{ p.flagStyle }}">Most people choose this</span>
+            </sc-if>
+          </div>
+          <div style="{{ p.priceRowStyle }}">
+            <span style="{{ p.priceStyle }}">{{ p.price }}</span>
+            <span style="{{ p.unitStyle }}">{{ p.unit }}</span>
+          </div>
+          <p style="{{ p.blurbStyle }}">{{ p.blurb }}</p>
+          <div style="{{ p.itemsStyle }}">
+            <sc-for list="{{ p.items }}" as="i" hint-placeholder-count="4">
+              <div style="{{ i.rowStyle }}">
+                <span style="{{ i.numStyle }}">{{ i.n }}</span>
+                <span style="{{ i.textStyle }}">{{ i.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <button style="{{ p.btnStyle }}">{{ p.cta }}</button>
+        </div>
+      </sc-for>
+    </div>
+    <p style="{{ priceFootStyle }}">Advocate Pro, with multi-case dashboards, comes later. No price yet.</p>
+  </div>
+
+  <div id="faq" style="{{ faqSectionStyle }}">
+    <div style="{{ faqHeadStyle }}">
+      <span style="{{ indexStyle }}">07</span>
+      <h2 style="{{ faqTitleStyle }}">The things worth knowing before you start.</h2>
+    </div>
+    <div style="{{ faqWrapStyle }}">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="5">
+        <div style="{{ f.rowStyle }}">
+          <span data-anim="{{ f.anim }}" style="{{ f.ruleStyle }}"></span>
+          <button onClick="{{ f.toggle }}" style="{{ f.btnStyle }}">
+            <span style="{{ f.numStyle }}">{{ f.num }}</span>
+            <span style="{{ f.qStyle }}">{{ f.q }}</span>
+            <span style="{{ f.signStyle }}">{{ f.sign }}</span>
+          </button>
+          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ f.answerWrapStyle }}">
+              <p style="{{ f.aStyle }}">{{ f.a }}</p>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="{{ ctaSectionStyle }}">
+    <div style="{{ ctaInnerStyle }}">
+      <div style="{{ lineClipStyle }}"><h2 data-anim="0" style="{{ ctaTitleStyle }}">Find out what your deadline is.</h2></div>
+      <div style="{{ ctaRowStyle }}">
+        <p style="{{ ctaLeadStyle }}">Four questions. No account, no card. If there is no route left, it will tell you that instead of selling you something.</p>
+        <button onClick="{{ goTriage }}" style="{{ ctaBtnStyle }}">Start the free check</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="{{ footerStyle }}">
+    <div style="{{ footerTopStyle }}">
+      <div style="{{ footerBrandStyle }}">
+        <div style="{{ footerMarkStyle }}">Appeal Architect</div>
+        <div style="{{ footerTagStyle }}">Your denial, formally refuted. Every paragraph backed by a rule.</div>
+      </div>
+      <div style="{{ footerColStyle }}">
+        <span style="{{ footerColHeadStyle }}">Product</span>
+        <a href="#how" style="{{ footerLinkStyle }}">How it works</a>
+        <a href="#pricing" style="{{ footerLinkStyle }}">Pricing</a>
+        <a href="#faq" style="{{ footerLinkStyle }}">Questions</a>
+      </div>
+      <div style="{{ footerColStyle }}">
+        <span style="{{ footerColHeadStyle }}">Legal</span>
+        <a href="#terms" style="{{ footerLinkStyle }}">Terms</a>
+        <a href="#privacy" style="{{ footerLinkStyle }}">Privacy, in plain language</a>
+        <a href="#rules" style="{{ footerLinkStyle }}">Rules changelog</a>
+      </div>
+    </div>
+    <div style="{{ footerBottomStyle }}">
+      <p style="{{ disclaimerStyle }}">Appeal Architect prepares documents and explains procedure. It is not legal or medical advice, and it does not represent you. You review and file everything yourself.</p>
+      <p style="{{ stampStyle }}">Rules current as of 5 Oct 2026 · version 2026.10.1</p>
+    </div>
+  </div>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isTriage }}" hint-placeholder-val="{{ false }}">
+<div style="background:var(--ground);min-height:100%">
+  <div style="{{ navStyle }}">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:500">Appeal&nbsp;Architect</span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">Free check · no account</span>
+  </div>
+  <div style="{{ sectionStyle }}">
+    <div style="{{ gGridStyle }}">
+      <div style="min-width:0;max-width:640px">
+        <sc-if value="{{ tDone }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:14px">What we can tell you so far</div>
+            <h1 style="{{ pageTitleStyle }}">You are probably on the ERISA track, and your door is open until late March.</h1>
+            <div style="display:flex;flex-direction:column;gap:14px;margin:28px 0">
+              <div style="{{ card }}">
+                <div style="padding:20px 22px">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:8px">Your track</div>
+                  <div style="font-size:19px;font-weight:600;color:var(--ink);margin-bottom:8px">Employer plan — internal appeal, then independent external review</div>
+                  <p style="font-size:16px;line-height:26px;color:var(--ink-muted);margin:0 0 12px;text-wrap:pretty">Employer-sponsored plans follow federal rules. You get at least one internal appeal, and if that is refused you can take it to a reviewer who does not work for the insurer. Their decision binds the insurer.</p>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-muted);border-top:1px solid var(--rule);padding-top:10px">29 C.F.R. § 2560.503-1</div>
+                </div>
+              </div>
+              <div style="{{ card }}">
+                <div style="padding:20px 22px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+                  <div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:8px">Your likely deadline</div>
+                    <div style="font-size:30px;font-weight:600;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums">22 March 2027</div>
+                    <div style="font-size:15px;color:var(--time-ample);font-weight:500;margin-top:4px">About 168 days from today — on track</div>
+                  </div>
+                  <p style="flex:1;min-width:220px;font-size:15px;line-height:24px;color:var(--ink-muted);margin:0">Counted as 180 days from the date on your letter. Upload the letter and we will replace this estimate with the exact date and the clause it comes from.</p>
+                </div>
+              </div>
+              <div style="{{ card }}">
+                <div style="padding:20px 22px">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:8px">Is it worth appealing</div>
+                  <p style="font-size:16px;line-height:26px;color:var(--ink);margin:0;text-wrap:pretty">Probably yes. Denials for medical necessity turn on documentation, and documentation is the part you can still change. That is not a prediction about your case. Nobody can give you one.</p>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button onClick="{{ goCases }}" style="background:var(--ink);color:var(--ground);border-radius:10px;padding:14px 22px;font-size:16px;font-weight:500;min-height:48px">Upload the letter</button>
+              <button onClick="{{ tRestart }}" style="border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:10px;padding:14px 22px;font-size:16px;min-height:48px">Start over</button>
+            </div>
+            <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:18px;color:var(--ink-muted);margin:24px 0 0">Rules current as of 5 Oct 2026 · version 2026.10.1</p>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tNotDone }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);white-space:nowrap">{{ tProgress }}</span>
+              <div style="{{ tBarStyle }}"><div style="{{ tBarFillStyle }}"></div></div>
+            </div>
+            <h1 style="{{ pageTitleStyle }}">{{ tQ }}</h1>
+            <p style="{{ pageLeadStyle }}">{{ tHelp }}</p>
+            <div style="display:flex;flex-direction:column;gap:10px;max-width:560px">
+              <sc-for list="{{ tOpts }}" as="o" hint-placeholder-count="5">
+                <button onClick="{{ o.pick }}" style="{{ o.optStyle }}">
+                  <span style="{{ o.boxStyle }}"></span>
+                  <span>{{ o.t }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="margin-top:24px"><button onClick="{{ tBack }}" style="{{ tBackStyle }}">Back</button></div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="{{ tPanelStyle }}">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:6px">What this works out</div>
+        <sc-for list="{{ tOutputs }}" as="o" hint-placeholder-count="3">
+          <div style="{{ o.rowStyle }}">
+            <span style="{{ o.markStyle }}"></span>
+            <div>
+              <div style="font-size:16px;line-height:24px;color:var(--ink);font-weight:500">{{ o.t }}</div>
+              <div style="font-size:14px;line-height:21px;color:var(--ink-muted);margin-top:2px">{{ o.d }}</div>
+            </div>
+          </div>
+        </sc-for>
+        <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:18px 0 0;border-top:1px solid var(--rule);padding-top:16px">No account, no card, nothing stored unless you choose to open a case.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div style="{{ appShellStyle }}">
+  <nav style="{{ railStyle }}">
+    <div style="display:flex;align-items:center;gap:8px;padding:4px 12px 18px">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:500">Appeal&nbsp;Architect</span>
+    </div>
+    <sc-for list="{{ railItems }}" as="r" hint-placeholder-count="7">
+      <button onClick="{{ r.go }}" style="{{ r.btnStyle }}">
+        <span style="{{ r.dotStyle }}"></span>
+        <span>{{ r.name }}</span>
+      </button>
+    </sc-for>
+    <div style="{{ railStampStyle }}">Rules current as of 5 Oct 2026<br />version 2026.10.1</div>
+  </nav>
+
+  <div style="{{ appMainStyle }}">
+    <div style="{{ appTopStyle }}">
+      <div style="min-width:0">
+        <h2 style="{{ caseTitleStyle }}">Anthem Blue Cross · infliximab infusion</h2>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.04em;color:var(--ink-muted);margin-top:3px">CLM-4471902 · denied 14 Sep 2026 · CO-50</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="{{ headerPill }}">22 Mar 2027 · 168 days</span>
+      </div>
+    </div>
+
+    <div style="{{ appBodyStyle }}">
+
+<sc-if value="{{ isCases }}" hint-placeholder-val="{{ false }}">
+<div>
+  <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;justify-content:space-between;margin-bottom:26px">
+    <div style="min-width:0">
+      <h1 style="{{ pageTitleStyle }}">Your cases</h1>
+      <p style="{{ pageLeadStyle }}">Three open. Sorted by how soon each one needs you, not by when you added it.</p>
+    </div>
+    <button onClick="{{ toggleEmpty }}" style="{{ ghostBtn }}">{{ emptyLabel }}</button>
+  </div>
+
+  <sc-if value="{{ emptyOn }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1.5px dashed var(--rule);border-radius:16px;background:var(--surface);padding:48px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px">
+      <div style="width:120px">
+        <dc-import name="MediaSlot" slot-id="empty-cases" ratio="4 / 3" kind="illustration" label="A closed folder resting on a desk" intrinsic="640×480" hint-size="120px,90px"></dc-import>
+      </div>
+      <h2 style="font-size:21px;line-height:28px;font-weight:600;color:var(--ink);margin:0">No cases yet</h2>
+      <p style="font-size:16px;line-height:26px;color:var(--ink-muted);margin:0;max-width:44ch;text-wrap:pretty">Start with the denial letter. Photograph every page, or drop the PDF. We read it and tell you what your deadline is before you pay anything.</p>
+      <button onClick="{{ goUpload }}" style="{{ primaryBtn }}">Add a denial letter</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ casesOn }}" hint-placeholder-val="{{ true }}">
+    <div style="{{ stackStyle }}">
+      <sc-for list="{{ cases }}" as="c" hint-placeholder-count="3">
+        <button onClick="{{ c.go }}" style="{{ c.cardStyle }}">
+          <div style="{{ c.ring.wrap }}">
+            <div style="{{ c.ring.hole }}">
+              <span style="{{ c.ring.num }}">{{ c.days }}</span>
+              <span style="{{ c.ring.cap }}">DAYS</span>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:18px;line-height:26px;font-weight:600;color:var(--ink)">{{ c.ins }}</div>
+            <div style="font-size:15px;line-height:23px;color:var(--ink-muted);margin-top:2px">{{ c.reason }}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <span style="{{ c.stagePill }}">{{ c.stage }}</span>
+              <span style="{{ c.stagePill }}">{{ c.claim }}</span>
+            </div>
+          </div>
+          <div style="flex:0 0 auto;text-align:left">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">NEXT DEADLINE</div>
+            <div style="font-size:18px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:4px">{{ c.date }}</div>
+            <div style="{{ c.daysStyle }}">{{ c.daysLabel }}</div>
+          </div>
+        </button>
+      </sc-for>
+      <button onClick="{{ goUpload }}" style="border:1.5px dashed var(--rule);background:transparent;border-radius:16px;padding:20px;font-size:16px;color:var(--ink-muted);min-height:64px;text-align:left">Add another case</button>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
+<div>
+  <h1 style="{{ pageTitleStyle }}">Add your documents</h1>
+  <p style="{{ pageLeadStyle }}">Only the denial letter is required. Everything else makes the appeal stronger, and you can add it later.</p>
+  <div style="{{ uplGridStyle }}">
+    <div style="min-width:0;display:flex;flex-direction:column;gap:20px">
+      <div style="{{ uplZoneStyle }}">
+        <div style="width:96px">
+          <dc-import name="MediaSlot" slot-id="upload-icon" ratio="1 / 1" kind="illustration" label="A page being placed into a folder" intrinsic="512×512" hint-size="96px,96px"></dc-import>
+        </div>
+        <h2 style="font-size:19px;line-height:26px;font-weight:600;color:var(--ink);margin:0">Drop the letter here, or take a photo</h2>
+        <p style="font-size:15px;line-height:24px;color:var(--ink-muted);margin:0;max-width:46ch;text-wrap:pretty">PDF, JPG or PNG. Photograph every page, including the back. Flat light, all four corners in frame.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <button style="{{ primaryBtn }}">Choose a file</button>
+          <button style="{{ ghostBtn }}">Use the camera</button>
+        </div>
+      </div>
+      <div style="{{ stackStyle }}">
+        <sc-for list="{{ uplDocs }}" as="d" hint-placeholder-count="4">
+          <div style="{{ d.rowStyle }}">
+            <div style="min-width:0;flex:1">
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <span style="font-size:17px;font-weight:600;color:var(--ink)">{{ d.t }}</span>
+                <span style="{{ d.pillStyle }}">{{ d.req }}</span>
+              </div>
+              <p style="font-size:15px;line-height:23px;color:var(--ink-muted);margin:6px 0 0;text-wrap:pretty">{{ d.note }}</p>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-muted);margin-top:8px">{{ d.meta }}</div>
+              <div style="{{ d.barStyle }}"><div style="{{ d.fillStyle }}"></div></div>
+            </div>
+            <button style="{{ smallBtn }}">{{ d.action }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="{{ card }}">
+      <div style="padding:22px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:14px">Photographing it on a phone</div>
+        <div style="margin-bottom:18px">
+          <dc-import name="MediaSlot" slot-id="camera-guide" ratio="3 / 4" kind="image" label="A denial letter framed correctly in a phone camera, with edge guides" intrinsic="900×1200" hint-size="100%,260px"></dc-import>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ photoTips }}" as="p" hint-placeholder-count="4">
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:23px;color:var(--ink)">
+              <span style="flex:0 0 auto;width:7px;height:7px;margin-top:8px;background:var(--ink)"></span>
+              <span>{{ p.t }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:18px 0 0;border-top:1px solid var(--rule);padding-top:16px">Your files are encrypted and stored against this case. They are not shared with your insurer and never used to train anything.</p>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+    <button onClick="{{ goExtraction }}" style="{{ primaryBtn }}">Read the letter</button>
+    <button onClick="{{ goCases }}" style="{{ ghostBtn }}">Save and come back</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isExtraction }}" hint-placeholder-val="{{ false }}">
+<div>
+  <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;justify-content:space-between;margin-bottom:22px">
+    <div style="min-width:0">
+      <h1 style="{{ pageTitleStyle }}">What we read in your letter</h1>
+      <p style="{{ pageLeadStyle }}">Each fact sits next to the sentence it came from. Confirm it, correct it, or reject it. Two need your eyes.</p>
+    </div>
+    <button onClick="{{ toggleExtract }}" style="{{ ghostBtn }}">{{ extractLabel }}</button>
+  </div>
+
+  <sc-if value="{{ extracting }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:560px">
+      <div style="{{ card }}">
+        <div style="padding:26px 24px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:18px">Working through it — about 40 seconds</div>
+          <sc-for list="{{ stages }}" as="s" hint-placeholder-count="5">
+            <div style="{{ s.rowStyle }}">
+              <span style="{{ s.markStyle }}"></span>
+              <span style="{{ s.textStyle }}">{{ s.t }}</span>
+            </div>
+          </sc-for>
+          <p style="font-size:15px;line-height:24px;color:var(--ink-muted);margin:20px 0 0">You can close this page. We will email you when it is ready, and the case keeps its place.</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ reviewing }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="{{ extGridStyle }}">
+      <div style="min-width:0;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ facts }}" as="f" hint-placeholder-count="8">
+          <div style="{{ f.rowStyle }}">
+            <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+              <div style="min-width:0;flex:1">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">{{ f.k }}</div>
+                <sc-if value="{{ f.isEditing }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:8px">
+                    <input value="{{ f.v }}" style="{{ inputStyle }}" />
+                    <div style="display:flex;gap:8px;margin-top:10px">
+                      <button onClick="{{ f.save }}" style="{{ inkSmallBtn }}">Save correction</button>
+                      <button onClick="{{ f.edit }}" style="{{ smallBtn }}">Cancel</button>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.notEditing }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-size:17px;line-height:26px;color:var(--ink);font-weight:500;margin-top:3px">{{ f.v }}</div>
+                </sc-if>
+              </div>
+              <span style="{{ f.stPill }}">{{ f.stLabel }}</span>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px;border-top:1px solid var(--rule);padding-top:12px">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-muted)">{{ f.span }}</span>
+              <span style="{{ f.confStyle }}">{{ f.confLabel }}</span>
+              <span style="flex:1"></span>
+              <sc-if value="{{ f.notEditing }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:8px">
+                  <button onClick="{{ f.confirm }}" style="{{ smallBtn }}">Confirm</button>
+                  <button onClick="{{ f.edit }}" style="{{ smallBtn }}">Correct</button>
+                  <button onClick="{{ f.reject }}" style="{{ smallBtn }}">Not in the letter</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="{{ docPanelStyle }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted)">Your letter · page 1 of 3</span>
+          <div style="display:flex;gap:6px">
+            <button style="{{ smallBtn }}">1</button>
+            <button style="{{ smallBtn }}">2</button>
+            <button style="{{ smallBtn }}">3</button>
+          </div>
+        </div>
+        <dc-import name="MediaSlot" slot-id="doc-scan" ratio="17 / 22" kind="image" label="Page one of the denial letter, with the extracted spans highlighted" intrinsic="1700×2200" hint-size="100%,320px"></dc-import>
+        <div style="{{ wellStyle }}">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted);margin-bottom:8px">Page 1, line 9–11</div>
+          <blockquote style="margin:0;border-left:1.5px solid var(--ink);padding:2px 0 2px 16px;font-family:'Newsreader',Georgia,serif;font-style:italic;font-size:17px;line-height:29px;color:var(--ink)">The requested service is not medically necessary as defined in the plan. Reason code CO-50.</blockquote>
+        </div>
+        <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:16px 0 0">Tap a fact to jump to its place on the page. Tap a highlight to see the fact it produced.</p>
+      </div>
+    </div>
+    <div style="{{ extFooterStyle }}">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0">
+        <div style="{{ extBarStyle }}"><div style="{{ extFillStyle }}"></div></div>
+        <span style="font-size:15px;color:var(--ink)">{{ confirmedLine }}</span>
+      </div>
+      <button onClick="{{ goRoadmap }}" style="{{ primaryBtn }}">Build my roadmap</button>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isRoadmap }}" hint-placeholder-val="{{ false }}">
+<div>
+  <h1 style="{{ pageTitleStyle }}">Your route, and when each door closes</h1>
+  <p style="{{ pageLeadStyle }}">You are at step one. Nothing after it starts until the step before it finishes, so there is only ever one thing to do next.</p>
+
+  <div style="{{ card }}">
+    <div style="padding:20px 22px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+      <div style="{{ nextRing.wrap }}">
+        <div style="{{ nextRing.hole }}">
+          <span style="{{ nextRing.num }}">168</span>
+          <span style="{{ nextRing.cap }}">DAYS</span>
+        </div>
+      </div>
+      <div style="min-width:0;flex:1">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:6px">Next thing due</div>
+        <div style="font-size:21px;line-height:28px;font-weight:600;color:var(--ink)">File the internal appeal by 22 March 2027</div>
+        <p style="font-size:15px;line-height:24px;color:var(--ink-muted);margin:6px 0 0;text-wrap:pretty">You have time. We will remind you at 30, 14, 7, 3 and 1 days, and again the morning it is due.</p>
+      </div>
+      <button onClick="{{ goLetter }}" style="{{ ghostBtn }}">Open the draft</button>
+    </div>
+  </div>
+
+  <div style="margin:28px 0 14px;display:flex;align-items:baseline;gap:14px">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);white-space:nowrap">Four steps</span>
+    <span style="flex:1;height:1px;background:var(--rule)"></span>
+  </div>
+
+  <div style="{{ roadRowStyle }}">
+    <sc-for list="{{ roadSteps }}" as="s" hint-placeholder-count="4">
+      <button onClick="{{ s.open }}" style="{{ s.cardStyle }}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-muted)">{{ s.n }}</span>
+          <span style="{{ s.whoPill }}">{{ s.who }}</span>
+        </div>
+        <div style="display:flex;gap:14px;align-items:center;margin-top:14px">
+          <div style="{{ s.ring.wrap }}">
+            <div style="{{ s.ring.hole }}">
+              <span style="{{ s.ring.num }}">{{ s.days }}</span>
+              <span style="{{ s.ring.cap }}">DAYS</span>
+            </div>
+          </div>
+          <div style="min-width:0">
+            <div style="font-size:17px;line-height:24px;font-weight:600;color:var(--ink)">{{ s.title }}</div>
+            <div style="{{ s.dateStyle }}">{{ s.date }}</div>
+            <div style="{{ s.daysStyle }}">{{ s.stateLabel }}</div>
+          </div>
+        </div>
+        <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:14px 0 0;text-wrap:pretty">{{ s.need }}</p>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:18px;color:var(--ink-muted);border-top:1px solid var(--rule);margin-top:14px;padding-top:10px">{{ s.rule }}</div>
+      </button>
+    </sc-for>
+  </div>
+  <p style="font-size:15px;line-height:24px;color:var(--ink-muted);margin:20px 0 0;max-width:68ch;text-wrap:pretty">Open any step to see the date it was counted from and the exact words of the rule that sets the count. If we cannot work a date out with confidence, the step says so instead of showing a guess.</p>
+
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div onClick="{{ closeDrawer }}" style="{{ scrimStyle }}"></div>
+      <div style="{{ drawerStyle }}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px">
+          <div style="min-width:0">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted)">Step {{ dStep.n }}</div>
+            <h2 style="font-size:26px;line-height:34px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:4px 0 0">{{ dStep.title }}</h2>
+          </div>
+          <button onClick="{{ closeDrawer }}" style="{{ smallBtn }}">Close</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:6px">Due</div>
+            <div style="font-size:26px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em">{{ dStep.date }}</div>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:6px">How that date was worked out</div>
+            <p style="font-size:16px;line-height:27px;color:var(--ink);margin:0;text-wrap:pretty">{{ dStep.calc }}</p>
+          </div>
+          <div style="{{ wellStyle }}">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted);margin-bottom:8px">{{ dStep.rule }}</div>
+            <blockquote style="margin:0;border-left:1.5px solid var(--ink);padding:2px 0 2px 16px;font-family:'Newsreader',Georgia,serif;font-style:italic;font-size:17px;line-height:29px;color:var(--ink)">{{ dStep.quote }}</blockquote>
+          </div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:6px">What this step needs</div>
+            <p style="font-size:16px;line-height:27px;color:var(--ink);margin:0">{{ dStep.need }}</p>
+          </div>
+          <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:0;border-top:1px solid var(--rule);padding-top:16px">Deadlines are our best reading of your plan and the regulations. Check the date against your own letter before you rely on it.</p>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isGraph }}" hint-placeholder-val="{{ false }}">
+<div>
+  <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;justify-content:space-between;margin-bottom:22px">
+    <div style="min-width:0">
+      <h1 style="{{ pageTitleStyle }}">Their reason, and what answers it</h1>
+      <p style="{{ pageLeadStyle }}">Three arguments hold up whatever the insurer says back. Two only help under a narrow reading. One does not work, and we have left it out of your letter.</p>
+    </div>
+    <button onClick="{{ replay }}" style="{{ ghostBtn }}">Replay</button>
+  </div>
+
+  <div style="{{ gGridStyle }}">
+    <div style="min-width:0" key="{{ gkey }}">
+      <div style="{{ claimStyle }}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="width:9px;height:9px;background:var(--ink)"></span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted)">What the insurer says · {{ claim.code }}</span>
+        </div>
+        <blockquote style="margin:0;font-family:'Newsreader',Georgia,serif;font-style:italic;font-size:19px;line-height:32px;color:var(--ink)">{{ claim.text }}</blockquote>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-muted);margin-top:14px;border-top:1px solid var(--rule);padding-top:10px">{{ claim.meta }}</div>
+      </div>
+
+      <div style="{{ gBusStyle }}">
+        <div style="position:absolute;left:50%;top:0;width:1px;height:24px;background:var(--rule)"></div>
+        <div style="position:absolute;left:25%;right:25%;top:24px;height:1px;background:var(--rule)"></div>
+        <div style="position:absolute;left:25%;top:24px;width:1px;height:24px;background:var(--standing)"></div>
+        <div style="position:absolute;left:75%;top:24px;width:1px;height:24px;background:var(--ink-muted)"></div>
+      </div>
+
+      <div style="{{ gLaneWrapStyle }}">
+        <div style="min-width:0">
+          <div style="border-top:1.5px solid var(--standing);padding-top:12px;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="font-size:13px;line-height:1;color:var(--standing)">●</span>
+              <span style="font-size:17px;font-weight:600;color:var(--ink)">Solid ground</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-muted)">3</span>
+            </div>
+            <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:6px 0 0;max-width:42ch;text-wrap:pretty">These stand up to whatever the insurer answers. Your letter leads with them.</p>
+          </div>
+          <div style="{{ stackStyle }}">
+            <sc-for list="{{ gSolid }}" as="n" hint-placeholder-count="3">
+              <button onClick="{{ n.pick }}" style="{{ n.nodeStyle }}">
+                <div style="{{ n.connStyle }}"></div>
+                <div style="display:flex;align-items:flex-start;gap:10px">
+                  <span style="{{ n.markStyle }}">{{ n.markChar }}</span>
+                  <div style="min-width:0;flex:1">
+                    <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">{{ n.ref }}</span>
+                      <h3 style="{{ n.titleStyle }}">{{ n.title }}</h3>
+                    </div>
+                    <p style="{{ n.assertStyle }}">{{ n.assert }}</p>
+                    <div style="margin-top:12px"><span style="{{ n.statusPill }}">{{ n.status }}</span></div>
+                    <sc-if value="{{ n.showInline }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;gap:10px">
+                        <div>
+                          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted);margin-bottom:4px">What they could say back</div>
+                          <div style="font-size:15px;line-height:24px;color:var(--ink)">{{ n.reply }}</div>
+                        </div>
+                        <div style="{{ n.verdictStyle }}">{{ n.verdict }}</div>
+                        <div style="font-size:15px;line-height:24px;color:var(--ink-muted)">{{ n.why }}</div>
+                        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:18px;color:var(--ink-muted)">Needs: {{ n.needs }}</div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="min-width:0">
+          <div style="border-top:1.5px dashed var(--ink-muted);padding-top:12px;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="font-size:13px;line-height:1;color:var(--ink-muted)">◇</span>
+              <span style="font-size:17px;font-weight:600;color:var(--ink)">Worth adding</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-muted)">2</span>
+            </div>
+            <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:6px 0 0;max-width:42ch;text-wrap:pretty">The insurer has a fair answer to each of these. Useful as extra weight, not as your main point.</p>
+          </div>
+          <div style="{{ stackStyle }}">
+            <sc-for list="{{ gAdd }}" as="n" hint-placeholder-count="2">
+              <button onClick="{{ n.pick }}" style="{{ n.nodeStyle }}">
+                <div style="{{ n.connStyle }}"></div>
+                <div style="display:flex;align-items:flex-start;gap:10px">
+                  <span style="{{ n.markStyle }}">{{ n.markChar }}</span>
+                  <div style="min-width:0;flex:1">
+                    <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">{{ n.ref }}</span>
+                      <h3 style="{{ n.titleStyle }}">{{ n.title }}</h3>
+                    </div>
+                    <p style="{{ n.assertStyle }}">{{ n.assert }}</p>
+                    <div style="margin-top:12px"><span style="{{ n.statusPill }}">{{ n.status }}</span></div>
+                    <sc-if value="{{ n.showInline }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;gap:10px">
+                        <div>
+                          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted);margin-bottom:4px">What they could say back</div>
+                          <div style="font-size:15px;line-height:24px;color:var(--ink)">{{ n.reply }}</div>
+                        </div>
+                        <div style="{{ n.verdictStyle }}">{{ n.verdict }}</div>
+                        <div style="font-size:15px;line-height:24px;color:var(--ink-muted)">{{ n.why }}</div>
+                        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:18px;color:var(--ink-muted)">Needs: {{ n.needs }}</div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:28px">
+        <div style="border-top:1px solid var(--rule);padding-top:12px;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <span style="font-size:13px;line-height:1;color:var(--defeated)">✕</span>
+            <span style="font-size:17px;font-weight:600;color:var(--ink)">Left out</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-muted)">1</span>
+          </div>
+          <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:6px 0 0;max-width:52ch;text-wrap:pretty">We checked this one and it does not hold. It stays visible so you know it was considered.</p>
+        </div>
+        <div style="{{ stackStyle }}">
+          <sc-for list="{{ gOut }}" as="n" hint-placeholder-count="1">
+            <button onClick="{{ n.pick }}" style="{{ n.nodeStyle }}">
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <span style="{{ n.markStyle }}">{{ n.markChar }}</span>
+                <div style="min-width:0;flex:1">
+                  <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">{{ n.ref }}</span>
+                    <h3 style="{{ n.titleStyle }}">{{ n.title }}</h3>
+                  </div>
+                  <p style="{{ n.assertStyle }}">{{ n.why }}</p>
+                </div>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="{{ gDetailStyle }}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <span style="{{ selPill }}">{{ selTierLabel }}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">{{ sel.ref }}</span>
+      </div>
+      <h2 style="font-size:21px;line-height:28px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px">{{ sel.title }}</h2>
+      <p style="font-size:16px;line-height:27px;color:var(--ink);margin:0 0 20px;text-wrap:pretty">{{ sel.assert }}</p>
+      <div style="{{ wellStyle }}">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted);margin-bottom:6px">What the insurer could say back</div>
+        <div style="font-size:16px;line-height:26px;color:var(--ink)">{{ sel.reply }}</div>
+      </div>
+      <div style="margin-top:18px">
+        <div style="{{ selVerdictStyle }}">{{ sel.verdict }}</div>
+        <p style="font-size:15px;line-height:25px;color:var(--ink-muted);margin:8px 0 0;text-wrap:pretty">{{ sel.why }}</p>
+      </div>
+      <div style="border-top:1px solid var(--rule);margin-top:20px;padding-top:14px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted);margin-bottom:6px">Evidence this argument needs</div>
+        <div style="font-size:15px;line-height:24px;color:var(--ink)">{{ sel.needs }}</div>
+        <div style="margin-top:12px"><span style="{{ selPill }}">{{ sel.status }}</span></div>
+      </div>
+      <button onClick="{{ goEvidence }}" style="{{ ghostBtn }}">Go to the evidence list</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEvidence }}" hint-placeholder-val="{{ false }}">
+<div>
+  <h1 style="{{ pageTitleStyle }}">What to gather</h1>
+  <p style="{{ pageLeadStyle }}">Eight items. Each one says which argument needs it, so nothing here is padding. Six are already on file.</p>
+  <div style="{{ twoColStyle }}">
+    <div style="min-width:0;{{ stackStyle }}">
+      <sc-for list="{{ evItems }}" as="e" hint-placeholder-count="8">
+        <div style="{{ e.rowStyle }}">
+          <button onClick="{{ e.toggle }}" style="{{ e.markStyle }}" aria-label="Mark as on file"></button>
+          <div style="min-width:0;flex:1">
+            <div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+              <div style="font-size:17px;line-height:25px;font-weight:600;color:var(--ink);min-width:0">{{ e.t }}</div>
+              <span style="{{ e.stPill }}">{{ e.stLabel }}</span>
+            </div>
+            <p style="font-size:15px;line-height:23px;color:var(--ink-muted);margin:6px 0 0;text-wrap:pretty">{{ e.how }}</p>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.04em;color:var(--ink-muted);margin-top:10px;border-top:1px solid var(--rule);padding-top:9px">Supports {{ e.why }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="{{ card }}">
+      <div style="padding:22px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:12px">Physician letter · what it has to say</div>
+        <p style="font-size:15px;line-height:24px;color:var(--ink-muted);margin:0 0 16px;text-wrap:pretty">Give these four points to the treating doctor. The letter has to be in their own words, on their letterhead, signed and dated.</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ docPoints }}" as="p" hint-placeholder-count="4">
+            <div style="display:flex;gap:11px;align-items:flex-start">
+              <span style="flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-muted);margin-top:3px">{{ p.n }}</span>
+              <span style="font-size:15px;line-height:24px;color:var(--ink)">{{ p.t }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
+          <button style="{{ inkSmallBtn }}">Copy these points</button>
+          <button style="{{ smallBtn }}">Download template</button>
+        </div>
+        <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:18px 0 0;border-top:1px solid var(--rule);padding-top:16px">We do not write this letter for the doctor. A reviewer can tell when a physician letter was not written by a physician.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLetter }}" hint-placeholder-val="{{ false }}">
+<div>
+  <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;justify-content:space-between;margin-bottom:22px">
+    <div style="min-width:0">
+      <h1 style="{{ pageTitleStyle }}">Your appeal letter</h1>
+      <p style="{{ pageLeadStyle }}">Built from the arguments that hold. Tap any paragraph to see which argument put it there. Edit anything — it is your letter and your signature.</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button style="{{ ghostBtn }}">Export PDF</button>
+      <button style="{{ primaryBtn }}">Export DOCX</button>
+    </div>
+  </div>
+  <div style="{{ letterGridStyle }}">
+    <div style="min-width:0">
+      <div style="{{ letterSheetStyle }}">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:18px;color:var(--ink-muted);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:22px">
+          M. OKONKWO · 2219 LAUREL ST, RICHMOND VA 23220<br />
+          ANTHEM BLUE CROSS, APPEALS · P.O. BOX 60007, LOS ANGELES CA 90060<br />
+          RE: CLAIM CLM-4471902 · APPEAL OF ADVERSE DETERMINATION DATED 14 SEP 2026
+        </div>
+        <div style="font-family:'Newsreader',Georgia,serif;font-size:17px;line-height:30px;color:var(--ink);margin-bottom:18px">To the appeals reviewer,</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ letterParas }}" as="p" hint-placeholder-count="6">
+            <div>
+              <div style="margin-bottom:6px"><span style="{{ p.badgeStyle }}">{{ p.badge }}</span></div>
+              <button onClick="{{ p.pick }}" style="{{ p.paraStyle }}">{{ p.text }}</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-family:'Newsreader',Georgia,serif;font-size:17px;line-height:30px;color:var(--ink);margin-top:22px">
+          Sincerely,<br /><br />
+          M. Okonkwo<br />
+          Member ID AB4471902 · 5 October 2026
+        </div>
+        <p style="font-size:14px;line-height:22px;color:var(--ink);margin:26px 0 0;border-top:1px solid var(--rule);padding-top:16px">This letter was prepared with Appeal Architect, a document preparation tool. It is not legal advice and no lawyer has reviewed it. The member reviews, signs and files it themselves.</p>
+      </div>
+    </div>
+    <div style="min-width:0;display:flex;flex-direction:column;gap:16px">
+      <div style="{{ card }}">
+        <div style="padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <span style="{{ selPill }}">{{ selTierLabel }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-muted)">{{ sel.ref }}</span>
+          </div>
+          <div style="font-size:17px;line-height:25px;font-weight:600;color:var(--ink);margin-bottom:8px">{{ sel.title }}</div>
+          <p style="font-size:15px;line-height:24px;color:var(--ink-muted);margin:0 0 14px;text-wrap:pretty">{{ sel.why }}</p>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:18px;color:var(--ink-muted);border-top:1px solid var(--rule);padding-top:10px">Needs: {{ sel.needs }}</div>
+        </div>
+      </div>
+      <div style="{{ card }}">
+        <div style="padding:20px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:12px">Before you send it</div>
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <sc-for list="{{ mailList }}" as="m" hint-placeholder-count="5">
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:23px;color:var(--ink)">
+                <span style="flex:0 0 auto;width:7px;height:7px;margin-top:8px;background:var(--ink)"></span>
+                <span>{{ m.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="{{ card }}">
+        <div style="padding:20px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:10px">Due 22 March 2027</div>
+          <div style="font-size:15px;line-height:24px;color:var(--time-ample);font-weight:500">168 days left — on track</div>
+          <p style="font-size:14px;line-height:22px;color:var(--ink-muted);margin:10px 0 0">One item of evidence is still missing. The letter is complete without it, but A2 is stronger with it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+    </div>
+  </div>
+
+  <nav style="{{ mobBarStyle }}">
+    <sc-for list="{{ mobBar }}" as="b" hint-placeholder-count="5">
+      <button onClick="{{ b.go }}" style="{{ b.btnStyle }}">
+        <span style="{{ b.dotStyle }}"></span>
+        <span>{{ b.name }}</span>
+      </button>
+    </sc-for>
+  </nav>
+</div>
+</sc-if>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
+const FRAMES = { desktop: { w: 1440, h: 900 }, mobile: { w: 390, h: 844 } };
+
+const SCREENS = [
+  ['landing','Landing'], ['triage','Triage'], ['cases','Cases'], ['upload','Upload'],
+  ['extraction','Extraction'], ['roadmap','Roadmap'], ['graph','Argument graph'],
+  ['evidence','Evidence'], ['letter','Letter']
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'landing', mode: 'desktop', theme: 'light', scale: 1,
+    faq: null, node: 'a1', stepOpen: null, drawer: false,
+    facts: {}, editing: null, ev: {}, gkey: 0, empty: false,
+    tq: 0, ta: {}, para: null, tier: 'solid', cap: null,
+    extracting: false, stage: 3, upl: 0
+  };
+
+  // The stage is the full document width minus the wrapper's 16px side padding.
+  // Measured from documentElement rather than a node ref: this runtime does not
+  // wire ref="{{ }}" holes, so any node-dependent path never runs.
+  componentDidMount() {
+    this._onResize = () => this.fit();
+    window.addEventListener('resize', this._onResize);
+    if (window.ResizeObserver) {
+      this._ro = new ResizeObserver(() => this.fit());
+      this._ro.observe(document.documentElement);
+    }
+    this.fit();
+    let n = 0;
+    this._iv = setInterval(() => { this.fit(); if (++n > 12) clearInterval(this._iv); }, 120);
+  }
+  componentWillUnmount() {
+    if (this._ro) this._ro.disconnect();
+    clearInterval(this._iv);
+    window.removeEventListener('resize', this._onResize);
+  }
+
+  fit() {
+    const w = document.documentElement.clientWidth || window.innerWidth;
+    if (!w) return;
+    const f = FRAMES[this.state.mode];
+    const s = Math.max(0.1, Math.min(1, (w - 32) / f.w));
+    if (Math.abs(s - this.state.scale) > 0.003) this.setState({ scale: s });
+  }
+
+  set(patch) { this.setState(patch, () => this.fit()); }
+
+  // ---------- data ----------
+  statsData() {
+    const m = this.state.mode === 'mobile';
+    return [
+      { n: '0.2', suf: '%', label: 'of denied claims are ever appealed', note: 'Fewer than two people in a thousand push back.' },
+      { n: '50', suf: '%', label: 'of filed appeals are overturned', note: 'Across internal review and independent external review.' },
+      { n: '180', suf: ' days', label: 'is a common internal-appeal window', note: 'Yours depends on your plan type. We work out which one you are on.' }
+    ].map((s, i) => ({
+      ...s, anim: String(i),
+      cellStyle: { position: 'relative', paddingTop: m ? '26px' : '34px', minWidth: 0 },
+      ruleStyle: {
+        position: 'absolute', left: 0, right: 0, top: 0, height: '1px',
+        background: 'rgb(244 239 229 / .32)', transformOrigin: 'left',
+        animation: 'aa-drawright 820ms cubic-bezier(.65,0,.35,1) both'
+      },
+      bodyStyle: {},
+      numStyle: {
+        fontSize: m ? '68px' : '128px', lineHeight: m ? '66px' : '116px', fontWeight: 600,
+        letterSpacing: '-0.05em', color: i === 1 ? 'var(--wheat)' : 'var(--band-ink)',
+        fontVariantNumeric: 'tabular-nums', display: 'block',
+        animation: 'aa-countup 780ms cubic-bezier(.16,.84,.32,1) both'
+      },
+      labelStyle: {
+        fontSize: m ? '16px' : '17px', lineHeight: m ? '25px' : '26px', color: 'var(--band-ink)',
+        marginTop: m ? '14px' : '20px', maxWidth: '280px', textWrap: 'pretty'
+      },
+      noteStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', lineHeight: '19px',
+        color: 'var(--band-muted)', marginTop: '10px', maxWidth: '300px'
+      }
+    }));
+  }
+
+  capsData() {
+    const m = this.state.mode === 'mobile';
+    const raw = [
+      { source: 'Your plan document, § 11.2',
+        quote: 'You have the right to request an internal appeal within the timeframe specified in your plan documents.',
+        title: 'Your deadlines, and the rule each one came from',
+        body: 'We read your plan type from the letter, then work out every date: when the internal appeal is due, how long they have to answer, and when the external review window opens and closes. Open any date to see the trigger date it was counted from and the regulation that sets the count.',
+        cite: '29 C.F.R. § 2560.503-1(h)(3)(i) · counted from 14 Sep 2026',
+        slot: 'feature-roadmap', ratio: '16 / 10', kind: 'image',
+        slotLabel: 'The procedural roadmap with deadlines', intrinsic: '1600×1000' },
+      { source: 'Your denial letter, page 1',
+        quote: 'The requested service is not medically necessary as defined in the plan.',
+        title: 'Solid ground, and worth adding',
+        body: 'We treat that sentence as an argument and build the counter-arguments that attack it. Then we check each one against what the insurer would most likely say back. Three survive whatever they answer. Two only help under a narrow reading, so they are labelled that way instead of being passed off as strong.',
+        cite: 'Reason code CO-50 · 3 solid ground · 2 worth adding · 1 left out',
+        slot: 'feature-graph', ratio: '16 / 10', kind: 'image',
+        slotLabel: 'The argument graph, solid ground against worth adding', intrinsic: '1600×1000' },
+      { source: 'Your denial letter, page 2',
+        quote: 'Plan provision 7.4(b) excludes services that are investigational.',
+        title: 'Every paragraph backed by a rule',
+        body: 'The letter is assembled only from arguments that hold. Each paragraph carries the node it came from, so you can click a sentence and see exactly why it is in there. You edit it, you sign it, you send it. We tell you where to send it and how to prove it arrived on time.',
+        cite: 'Exports to PDF and DOCX · prints on US Letter with correct margins',
+        slot: 'feature-letter', ratio: '4 / 5', kind: 'image',
+        slotLabel: 'A generated appeal letter page with citation markers', intrinsic: '1200×1500' },
+      { source: 'Your denial letter, page 3',
+        quote: 'You may submit any additional documentation you wish the reviewer to consider.',
+        title: 'The evidence list writes itself',
+        body: 'That sentence is where most appeals quietly fail. We turn it into a specific list: which records, from whom, covering which dates, and the exact points your doctor\u2019s letter has to make for this case. Each item says which argument needs it, so nothing on the list is there for padding.',
+        cite: '8 items · 6 on file · 1 requested · 1 optional',
+        slot: 'feature-evidence', ratio: '16 / 10', kind: 'video',
+        slotLabel: 'Evidence checklist items being satisfied', intrinsic: '1600×1000' }
+    ];
+    return raw.map((c, i) => {
+      const flip = !m && i % 2 === 1;
+      return { ...c,
+        marker: '0' + (i + 1),
+        anim: String(i % 3), mediaAnim: String((i + 1) % 3), noteAnim: String((i + 2) % 3),
+        rowStyle: {
+          display: 'grid',
+          gridTemplateColumns: m ? '1fr' : (flip ? '56px 4fr 7fr' : '56px 7fr 4fr'),
+          columnGap: m ? '0' : '32px', rowGap: m ? '18px' : '0',
+          alignItems: 'start',
+          padding: m ? '34px 0' : '64px 0',
+          borderTop: '1px solid var(--rule)'
+        },
+        markerColStyle: { order: 1, minWidth: 0, display: m ? 'none' : 'block' },
+        markerStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', letterSpacing: '.1em',
+          color: 'var(--ink-muted)', display: 'block', paddingTop: '4px'
+        },
+        quoteColStyle: { order: m ? 1 : (flip ? 3 : 2), minWidth: 0 },
+        sourceStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', letterSpacing: '.12em',
+          textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: '14px'
+        },
+        quoteWrapStyle: { position: 'relative', paddingLeft: '22px' },
+        quoteRuleStyle: {
+          position: 'absolute', left: 0, top: 0, bottom: 0, width: '2px',
+          background: 'var(--clay)', transformOrigin: 'top',
+          animation: 'aa-drawdown 700ms cubic-bezier(.65,0,.35,1) both'
+        },
+        quoteStyle: {
+          margin: 0, fontFamily: "'Newsreader',Georgia,serif", fontStyle: 'italic',
+          fontSize: m ? '20px' : '23px', lineHeight: m ? '33px' : '37px', color: 'var(--ink)',
+          maxWidth: '540px', textWrap: 'pretty'
+        },
+        mediaStyle: {
+          marginTop: m ? '26px' : '36px', overflow: 'hidden',
+          animation: 'aa-wiperight 880ms cubic-bezier(.65,0,.35,1) both'
+        },
+        noteColStyle: {
+          order: m ? 2 : (flip ? 2 : 3), minWidth: 0,
+          paddingLeft: m ? '18px' : 0,
+          borderLeft: m ? '2px solid var(--clay)' : 'none',
+          animation: 'aa-nudge 640ms cubic-bezier(.16,.84,.32,1) both'
+        },
+        titleStyle: {
+          fontSize: m ? '21px' : '25px', lineHeight: m ? '29px' : '33px', fontWeight: 600,
+          letterSpacing: '-0.018em', color: 'var(--ink)', margin: '0 0 14px', textWrap: 'pretty'
+        },
+        bodyStyle: {
+          fontSize: '16px', lineHeight: '27px', color: 'var(--ink-muted)',
+          margin: '0 0 20px', textWrap: 'pretty'
+        },
+        citeStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', lineHeight: '18px',
+          letterSpacing: '.03em', color: 'var(--ink-muted)',
+          borderTop: '1px solid var(--rule)', paddingTop: '12px'
+        }
+      };
+    });
+  }
+
+  // ---------- shared atoms ----------
+  tone(days) {
+    if (days > 60) return { c: 'var(--time-ample)', w: 500, word: 'on track' };
+    if (days > 14) return { c: 'var(--time-approaching)', w: 500, word: 'approaching' };
+    if (days > 3) return { c: 'var(--time-near)', w: 600, word: 'close' };
+    return { c: 'var(--time-imminent)', w: 600, word: 'act now' };
+  }
+  ring(days, total, size) {
+    const t = this.tone(days);
+    const pct = Math.max(0.04, Math.min(1, 1 - days / total));
+    return {
+      wrap: { position: 'relative', flex: '0 0 auto', width: size + 'px', height: size + 'px', borderRadius: '50%',
+        background: 'conic-gradient(' + t.c + ' ' + (pct * 360) + 'deg, var(--time-track) 0)' },
+      hole: { position: 'absolute', inset: '4px', borderRadius: '50%', background: 'var(--surface)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1px' },
+      num: { fontSize: size > 70 ? '22px' : '17px', fontWeight: t.w, color: t.c, fontVariantNumeric: 'tabular-nums', lineHeight: 1 },
+      cap: { fontFamily: "'IBM Plex Mono',monospace", fontSize: '9px', letterSpacing: '.06em', color: 'var(--ink-muted)' }
+    };
+  }
+  pill(kind) {
+    const map = {
+      solid: { bg: 'var(--standing-tint)', bd: 'var(--standing)', fg: 'var(--standing)', st: 'solid' },
+      add:   { bg: 'transparent', bd: 'var(--ink-muted)', fg: 'var(--ink-muted)', st: 'dashed' },
+      out:   { bg: 'transparent', bd: 'var(--defeated)', fg: 'var(--defeated)', st: 'solid' },
+      ink:   { bg: 'transparent', bd: 'var(--ink)', fg: 'var(--ink)', st: 'solid' }
+    }[kind] || { bg: 'transparent', bd: 'var(--rule)', fg: 'var(--ink-muted)', st: 'solid' };
+    return { display: 'inline-flex', alignItems: 'center', gap: '6px', fontFamily: "'IBM Plex Mono',monospace",
+      fontSize: '11px', letterSpacing: '.04em', padding: '4px 9px', borderRadius: '2px',
+      border: '1px ' + map.st + ' ' + map.bd, background: map.bg, color: map.fg, fontWeight: 500, whiteSpace: 'nowrap' };
+  }
+
+  argData() {
+    return [
+      { id: 'a1', tier: 'solid', ref: 'A1', title: 'The plan\u2019s own criteria are met',
+        assert: 'Your plan defines medical necessity by the MCG care guidelines in force on the date of service. Your chart meets all four of the criteria it lists.',
+        needs: 'Chart notes 12 Mar \u2013 2 Sep 2026 · MCG criteria excerpt, 2026 edition',
+        status: 'All evidence on file', ok: true,
+        reply: 'They could argue a later edition of the guideline applies.',
+        verdict: 'Does not defeat it',
+        why: 'The plan names the edition in force on 14 Sep 2026. That edition is attached with its publication date.' },
+      { id: 'a2', tier: 'solid', ref: 'A2', title: 'Step therapy was completed',
+        assert: 'Two preferred agents were tried and documented as failed, each for fourteen weeks, before this treatment was requested.',
+        needs: 'Pharmacy fill history · two physician notes',
+        status: '1 of 2 notes on file', ok: false,
+        reply: 'They could say the trials were too short to count.',
+        verdict: 'Does not defeat it',
+        why: 'Their own step-therapy policy sets the minimum trial at twelve weeks. Both trials ran fourteen.' },
+      { id: 'a3', tier: 'solid', ref: 'A3', title: 'Their own clinical policy covers this',
+        assert: 'Insurer clinical policy CP-0241 lists this exact indication as covered when prior agents have failed.',
+        needs: 'Policy bulletin CP-0241, version effective 1 Jun 2026',
+        status: 'All evidence on file', ok: true,
+        reply: 'They could say the bulletin was superseded before the date of service.',
+        verdict: 'Does not defeat it',
+        why: 'The version in force on 14 Sep 2026 is attached, with its revision history page.' },
+      { id: 'b1', tier: 'add', ref: 'B1', title: 'A state continuity-of-care mandate',
+        assert: 'State law requires continuity of an ongoing course of treatment while a coverage dispute is open.',
+        needs: 'State statute text \u00a7 38.2-3407.9',
+        status: 'Optional \u2014 not yet attached', ok: false,
+        reply: 'They could say the mandate does not reach self-funded plans.',
+        verdict: 'They can knock this one back',
+        why: 'Your plan is self-funded, so state insurance mandates may not apply to it. Worth raising as a secondary point, not as a main one.' },
+      { id: 'b2', tier: 'add', ref: 'B2', title: 'Interrupting treatment causes documented harm',
+        assert: 'Stopping the infusion schedule carries a specific, documented clinical risk within a known timeframe.',
+        needs: 'Physician letter, point 4',
+        status: 'Requested from Dr. Alvarez', ok: false,
+        reply: 'They could say harm is not part of the medical-necessity test.',
+        verdict: 'They can knock this one back',
+        why: 'Persuasive to a human reviewer, but the plan language does not require them to weigh it. It helps; it does not carry the appeal.' },
+      { id: 'c1', tier: 'out', ref: 'C1', title: 'The denial letter was sent late',
+        assert: 'The insurer answered outside the window allowed for a post-service claim.',
+        needs: '\u2014', status: 'Left out of the letter', ok: false,
+        reply: '\u2014',
+        verdict: 'Left out',
+        why: 'The letter is dated eleven days after the claim, inside the thirty-day window. The argument does not hold, so it is not in your appeal.' }
+    ];
+  }
+
+  appVals(m) {
+    const S = this.state;
+    const card = { background: 'var(--surface)', border: '1px solid var(--rule)', borderRadius: '16px' };
+    const mono = { fontFamily: "'IBM Plex Mono',monospace" };
+    const label = { fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', letterSpacing: '.06em', color: 'var(--ink-muted)' };
+    const go = (s) => () => this.set({ screen: s });
+    const appScreens = ['cases','upload','extraction','roadmap','graph','evidence','letter'];
+    const isApp = appScreens.indexOf(S.screen) >= 0;
+
+    const railItems = [
+      ['cases','Case file'], ['upload','Documents'], ['extraction','Extracted facts'],
+      ['roadmap','Roadmap'], ['graph','Arguments'], ['evidence','Evidence'], ['letter','Letter']
+    ];
+    const mobItems = [['cases','Case'],['roadmap','Route'],['graph','Argument'],['evidence','Evidence'],['letter','Letter']];
+
+    // ---------- triage ----------
+    const tQs = [
+      { q: 'Where does your health insurance come from?',
+        help: 'This decides which rulebook you are under, and that changes every deadline.',
+        opts: ['Through a job \u2014 mine or a family member\u2019s', 'I bought it myself on the marketplace', 'Medicare or Medicare Advantage', 'Medicaid', 'I am not sure'] },
+      { q: 'What reason does the letter give?',
+        help: 'It is usually one line near the top, often with a code beside it.',
+        opts: ['Not medically necessary', 'Not covered by the plan', 'No prior authorisation', 'Out of network', 'Experimental or investigational', 'Something else'] },
+      { q: 'What date is on the letter?',
+        help: 'Most deadlines count from this date, not from when you opened it.',
+        opts: ['Within the last week', 'One to four weeks ago', 'One to three months ago', 'More than three months ago', 'I cannot find a date'] },
+      { q: 'Has the treatment already happened?',
+        help: 'Claims before treatment and claims after treatment run on different clocks.',
+        opts: ['No, it has not happened yet', 'Yes, it already happened', 'Partly \u2014 it started and then stopped'] }
+    ];
+
+    const facts = [
+      { id: 'f1', k: 'Claim number', v: 'CLM-4471902', conf: 'high', span: 'page 1, line 4' },
+      { id: 'f2', k: 'Date of denial', v: '14 September 2026', conf: 'high', span: 'page 1, header' },
+      { id: 'f3', k: 'Reason code', v: 'CO-50', conf: 'high', span: 'page 1, line 9' },
+      { id: 'f4', k: 'Stated reason', v: 'Not medically necessary as defined in the plan', conf: 'high', span: 'page 1, line 9\u201311' },
+      { id: 'f5', k: 'Service denied', v: 'Infliximab infusion \u2014 J1745', conf: 'high', span: 'page 1, line 6' },
+      { id: 'f6', k: 'Plan type', v: 'Employer-sponsored, self-funded (ERISA)', conf: 'medium', span: 'page 2, line 2' },
+      { id: 'f7', k: 'Policy section cited', v: '7.4(b)', conf: 'low', span: 'page 2, line 14' },
+      { id: 'f8', k: 'Appeal address', v: 'P.O. Box 60007, Los Angeles CA 90060', conf: 'medium', span: 'page 3, line 3' }
+    ];
+    const defaults = { f1:'confirmed', f2:'confirmed', f3:'confirmed', f4:'confirmed', f5:'confirmed', f6:'confirmed', f7:'pending', f8:'pending' };
+    const fstate = (id) => S.facts[id] || defaults[id];
+    const confirmedCount = facts.filter(f => { const s = fstate(f.id); return s === 'confirmed' || s === 'edited'; }).length;
+
+    const stages = [
+      'Reading the letter', 'Finding the reason codes', 'Matching your plan type',
+      'Checking which deadlines apply', 'Building the counter-arguments'
+    ];
+
+    const roadSteps = [
+      { n: '01', title: 'Internal appeal', who: 'You file', date: '22 Mar 2027', days: 168, total: 180,
+        need: 'Written appeal, physician letter, supporting records',
+        rule: '29 C.F.R. \u00a7 2560.503-1(h)(3)(i)',
+        calc: 'Your plan allows 180 days from the date of the adverse determination. The determination is dated 14 Sep 2026, so day 180 falls on 22 Mar 2027. Day one is the day after the letter date.',
+        quote: 'A claimant shall have at least 180 days following receipt of a notification of an adverse benefit determination within which to appeal the determination.',
+        state: 'current' },
+      { n: '02', title: 'Insurer responds', who: 'They answer', date: 'within 30 days', days: 30, total: 30,
+        need: 'Nothing from you. We log the date they received it.',
+        rule: '29 C.F.R. \u00a7 2560.503-1(i)(2)(iii)',
+        calc: 'For a post-service claim the plan has 60 days; for a pre-service claim, 30. Yours is pre-service, so 30 days from the date they receive the appeal.',
+        quote: 'The plan administrator shall notify the claimant of the benefit determination on review within a reasonable period of time appropriate to the medical circumstances.',
+        state: 'ahead' },
+      { n: '03', title: 'External review', who: 'You request', date: '4 months after a final denial', days: 120, total: 120,
+        need: 'Request form, the final denial, the same evidence file',
+        rule: '45 C.F.R. \u00a7 147.137(b)(2)',
+        calc: 'The window opens the day the internal appeal is finally denied and runs four months. It does not start until that happens.',
+        quote: 'A request for external review must be filed within four months after the date of receipt of a notice of an adverse benefit determination or final internal adverse benefit determination.',
+        state: 'ahead' },
+      { n: '04', title: 'Independent decision', who: 'Reviewer decides', date: 'within 45 days', days: 45, total: 45,
+        need: 'Nothing from you. The decision binds the insurer.',
+        rule: '45 C.F.R. \u00a7 147.137(c)(2)(xi)',
+        calc: 'The independent review organisation has 45 days from the date it accepts the request. An expedited track exists if your doctor certifies urgency.',
+        quote: 'The assigned independent review organization must provide written notice of the final external review decision within 45 days after it receives the request for external review.',
+        state: 'ahead' }
+    ];
+
+    const evItems = [
+      { id: 'e1', t: 'Chart notes, 12 Mar \u2013 2 Sep 2026', why: 'A1', how: 'Request from the treating clinic. Ask for the full visit notes, not the summary.', st: 'have' },
+      { id: 'e2', t: 'MCG criteria excerpt, 2026 edition', why: 'A1', how: 'We pulled the four criteria your plan names. Check the edition date matches.', st: 'have' },
+      { id: 'e3', t: 'Pharmacy fill history', why: 'A2', how: 'Your pharmacy can print 24 months on request, usually same day.', st: 'have' },
+      { id: 'e4', t: 'Physician note \u2014 adalimumab trial', why: 'A2', how: 'From Dr. Alvarez. Must show start date, dose and why it was stopped.', st: 'have' },
+      { id: 'e5', t: 'Physician note \u2014 etanercept trial', why: 'A2', how: 'Call the office and ask for the 14-week follow-up note specifically.', st: 'missing' },
+      { id: 'e6', t: 'Insurer clinical policy CP-0241', why: 'A3', how: 'We have the version in force on 14 Sep 2026, with its revision page.', st: 'have' },
+      { id: 'e7', t: 'Physician letter of medical necessity', why: 'A1 A2 B2', how: 'Use the template below. Four points, in the doctor\u2019s own words, on letterhead.', st: 'progress' },
+      { id: 'e8', t: 'State statute \u00a7 38.2-3407.9 text', why: 'B1', how: 'Optional. Only strengthens a secondary argument.', st: 'optional' }
+    ];
+
+    const letterParas = [
+      { id: 'p1', ref: null, text: 'I am appealing the denial of coverage for infliximab infusion therapy, HCPCS code J1745, under claim CLM-4471902. The denial is dated 14 September 2026 and gives reason code CO-50, stating that the service is not medically necessary as defined in the plan. This letter sets out why that conclusion does not hold under the plan\u2019s own terms.' },
+      { id: 'p2', ref: 'A1', text: 'Section 4.2 of the plan defines medical necessity by reference to the MCG care guidelines in force on the date of service. The relevant guideline lists four criteria. The enclosed chart notes, covering 12 March to 2 September 2026, document that all four are met, and the guideline excerpt enclosed is the edition in force on 14 September 2026.' },
+      { id: 'p3', ref: 'A2', text: 'The plan\u2019s step-therapy requirement has been satisfied. Two preferred agents were tried before this request: adalimumab from 3 January to 10 April 2026, and etanercept from 24 April to 31 July 2026. Each trial ran fourteen weeks. The plan\u2019s own policy sets the minimum trial at twelve. The enclosed pharmacy fill history and physician notes document both.' },
+      { id: 'p4', ref: 'A3', text: 'Your own clinical policy CP-0241, in the version effective 1 June 2026 and enclosed here with its revision page, lists this indication as covered where prior agents have failed. The facts above place this request within that policy as it stood on the date of service.' },
+      { id: 'p5', ref: 'B1', text: 'Separately, and as a secondary point, state law requires continuity of an ongoing course of treatment while a coverage dispute is open. I recognise that this requirement may not reach a self-funded plan, and I raise it as additional context rather than as a basis for reversal.' },
+      { id: 'p6', ref: null, text: 'I am asking you to reverse the denial and authorise the requested course of treatment. Enclosed are the chart notes, the pharmacy fill history, two physician notes, the clinical policy with its revision page, and a letter of medical necessity from the treating physician. I would be grateful for your decision within the thirty days allowed.' }
+    ];
+
+    const navBtn = (active) => ({
+      display: 'flex', alignItems: 'center', gap: '10px', width: '100%', textAlign: 'left',
+      padding: '10px 12px', minHeight: '44px', borderRadius: '8px', fontSize: '15px',
+      color: active ? 'var(--ink)' : 'var(--ink-muted)',
+      background: active ? 'var(--surface)' : 'transparent',
+      border: '1px solid ' + (active ? 'var(--rule)' : 'transparent'), fontWeight: active ? 500 : 400
+    });
+
+    const sel = this.argData().filter(a => a.id === S.node)[0] || this.argData()[0];
+    const openStep = S.stepOpen === null ? null : roadSteps[S.stepOpen];
+
+    return {
+      card, mono, label, isApp,
+      isCases: S.screen === 'cases', isUpload: S.screen === 'upload',
+      isExtraction: S.screen === 'extraction', isRoadmap: S.screen === 'roadmap',
+      isGraph: S.screen === 'graph', isEvidence: S.screen === 'evidence',
+      isLetter: S.screen === 'letter', isTriage: S.screen === 'triage',
+
+      appShellStyle: { display: 'flex', flexDirection: m ? 'column' : 'row', minHeight: '100%', background: 'var(--ground)' },
+      railStyle: m ? { display: 'none' } : {
+        flex: '0 0 252px', width: '252px', borderRight: '1px solid var(--rule)',
+        padding: '22px 16px', display: 'flex', flexDirection: 'column', gap: '4px',
+        position: 'sticky', top: 0, alignSelf: 'flex-start', height: '898px', background: 'var(--ground)'
+      },
+      railItems: railItems.map(([id, name]) => ({ id, name, go: go(id), btnStyle: navBtn(S.screen === id),
+        dotStyle: { width: '5px', height: '5px', borderRadius: '50%', flex: '0 0 auto', background: S.screen === id ? 'var(--ink)' : 'var(--rule)' } })),
+      mobBar: mobItems.map(([id, name]) => ({ id, name, go: go(id), btnStyle: {
+        flex: 1, minHeight: '52px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px',
+        fontSize: '11px', color: S.screen === id ? 'var(--ink)' : 'var(--ink-muted)', fontWeight: S.screen === id ? 600 : 400 },
+        dotStyle: { width: '16px', height: '2px', background: S.screen === id ? 'var(--ink)' : 'transparent' } })),
+      mobBarStyle: m ? { position: 'sticky', bottom: 0, zIndex: 20, display: 'flex', gap: '2px',
+        background: 'var(--surface)', borderTop: '1px solid var(--rule)', padding: '4px 6px env(safe-area-inset-bottom)' } : { display: 'none' },
+
+      appMainStyle: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' },
+      appTopStyle: {
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap',
+        padding: m ? '14px 20px' : '18px 32px', borderBottom: '1px solid var(--rule)',
+        position: 'sticky', top: 0, background: 'var(--ground)', zIndex: 10
+      },
+      appBodyStyle: { padding: m ? '20px 20px 32px' : '28px 32px 48px', flex: 1 },
+      caseTitleStyle: { fontSize: m ? '17px' : '19px', lineHeight: m ? '24px' : '26px', fontWeight: 600, color: 'var(--ink)', margin: 0 },
+      pageTitleStyle: { fontSize: m ? '27px' : '36px', lineHeight: m ? '33px' : '42px', fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--ink)', margin: '0 0 10px' },
+      pageLeadStyle: { fontSize: m ? '17px' : '18px', lineHeight: m ? '28px' : '29px', color: 'var(--ink-muted)', margin: '0 0 28px', maxWidth: '68ch', textWrap: 'pretty' },
+      railStampStyle: { ...mono, fontSize: '11px', lineHeight: '17px', color: 'var(--ink-muted)', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--rule)' },
+      headerPill: this.pill('ink'),
+      primaryBtn: { background: 'var(--ink)', color: 'var(--ground)', borderRadius: '10px', padding: '13px 20px', fontSize: '16px', fontWeight: 500, minHeight: '46px' },
+      ghostBtn: { border: '1px solid var(--rule)', background: 'var(--surface)', color: 'var(--ink)', borderRadius: '10px', padding: '11px 16px', fontSize: '15px', minHeight: '44px' },
+      smallBtn: { border: '1px solid var(--rule)', background: 'var(--surface)', color: 'var(--ink)', borderRadius: '8px', padding: '9px 13px', fontSize: '14px', minHeight: '44px' },
+      inkSmallBtn: { background: 'var(--ink)', color: 'var(--ground)', borderRadius: '8px', padding: '9px 13px', fontSize: '14px', fontWeight: 500, minHeight: '44px' },
+      wellStyle: { background: 'var(--surface-sunk)', border: '1px solid var(--rule)', borderRadius: '2px', padding: m ? '14px' : '16px 18px' },
+      twoColStyle: { display: 'grid', gridTemplateColumns: m ? '1fr' : '1fr 340px', gap: m ? '20px' : '28px', alignItems: 'start' },
+      stackStyle: { display: 'flex', flexDirection: 'column', gap: m ? '12px' : '14px' },
+      inputStyle: { width: '100%', minHeight: '46px', padding: '11px 13px', borderRadius: '6px', border: '1.5px solid var(--ink)', background: 'var(--surface)', color: 'var(--ink)', fontSize: '16px', fontFamily: "'IBM Plex Sans',system-ui,sans-serif" },
+
+      // triage
+      tIndex: S.tq, tDone: S.tq >= tQs.length, tNotDone: S.tq < tQs.length,
+      tProgress: 'Question ' + Math.min(S.tq + 1, tQs.length) + ' of ' + tQs.length,
+      tBarStyle: { height: '3px', background: 'var(--rule)', borderRadius: '2px', overflow: 'hidden', maxWidth: '420px' },
+      tBarFillStyle: { height: '100%', width: (Math.min(S.tq, tQs.length) / tQs.length * 100) + '%', background: 'var(--ink)', transition: 'width 260ms cubic-bezier(.65,0,.35,1)' },
+      tQ: tQs[Math.min(S.tq, tQs.length - 1)].q,
+      tHelp: tQs[Math.min(S.tq, tQs.length - 1)].help,
+      tOpts: tQs[Math.min(S.tq, tQs.length - 1)].opts.map((o, i) => {
+        const picked = S.ta[S.tq] === i;
+        return { t: o, pick: () => this.setState({ ta: { ...S.ta, [S.tq]: i }, tq: S.tq + 1 }),
+          optStyle: { display: 'flex', alignItems: 'center', gap: '14px', width: '100%', textAlign: 'left',
+            minHeight: '60px', padding: '14px 18px', borderRadius: '10px', background: 'var(--surface)',
+            border: '1px solid ' + (picked ? 'var(--ink)' : 'var(--rule)'), fontSize: m ? '17px' : '17px', color: 'var(--ink)' },
+          boxStyle: { flex: '0 0 auto', width: '16px', height: '16px', borderRadius: '2px',
+            border: '1.5px solid ' + (picked ? 'var(--ink)' : 'var(--rule)'), background: picked ? 'var(--ink)' : 'transparent' } };
+      }),
+      tBack: () => this.setState({ tq: Math.max(0, S.tq - 1) }),
+      tRestart: () => this.setState({ tq: 0, ta: {} }),
+      tBackStyle: { minHeight: '44px', padding: '10px 16px', borderRadius: '10px', border: '1px solid var(--rule)', color: 'var(--ink-muted)', fontSize: '15px', visibility: S.tq === 0 ? 'hidden' : 'visible' },
+      tPanelStyle: m ? { display: 'none' } : { ...card, padding: '24px', position: 'sticky', top: '24px' },
+      tOutputs: [
+        { t: 'Which appeal track you are on', d: 'The rulebook that governs your plan', done: S.tq >= 1 },
+        { t: 'Your likely deadline', d: 'With the regulation that sets it', done: S.tq >= 3 },
+        { t: 'Whether appealing is worth it', d: 'Honestly, including when it is not', done: S.tq >= 4 }
+      ].map(o => ({ ...o, rowStyle: { display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '14px 0', borderTop: '1px solid var(--rule)', opacity: o.done ? 1 : 0.45, transition: 'opacity 260ms' },
+        markStyle: { flex: '0 0 auto', width: '9px', height: '9px', marginTop: '7px', borderRadius: '50%', background: o.done ? 'var(--standing)' : 'transparent', border: '1.5px solid ' + (o.done ? 'var(--standing)' : 'var(--rule)') } })),
+
+      goUpload: go('upload'), goExtraction: go('extraction'), goRoadmap: go('roadmap'),
+      goGraph: go('graph'), goEvidence: go('evidence'), goLetter: go('letter'),
+
+      // cases
+      toggleEmpty: () => this.setState({ empty: !S.empty }),
+      emptyOn: S.empty, casesOn: !S.empty,
+      emptyLabel: S.empty ? 'Show case list' : 'Show empty state',
+      cases: [
+        { ins: 'Anthem Blue Cross', claim: 'CLM-4471902', reason: 'Not medically necessary \u2014 CO-50',
+          stage: 'Internal appeal \u00b7 drafting', date: '22 Mar 2027', days: 168, total: 180, go: go('roadmap') },
+        { ins: 'UnitedHealthcare', claim: 'CLM-3390118', reason: 'No prior authorisation \u2014 CO-197',
+          stage: 'Awaiting insurer response', date: '11 Nov 2026', days: 37, total: 60, go: go('roadmap') },
+        { ins: 'Cigna', claim: 'CLM-7725640', reason: 'Step therapy not completed \u2014 CO-B7',
+          stage: 'External review window open', date: '9 Oct 2026', days: 4, total: 120, go: go('roadmap') }
+      ].map(c => {
+        const t = this.tone(c.days);
+        return { ...c, ring: this.ring(c.days, c.total, m ? 56 : 64),
+          daysLabel: c.days + ' days left \u00b7 ' + t.word,
+          daysStyle: { fontSize: '14px', color: t.c, fontWeight: t.w },
+          cardStyle: { ...card, padding: m ? '18px' : '22px 24px', display: 'flex',
+            flexDirection: m ? 'column' : 'row', gap: m ? '16px' : '24px',
+            alignItems: m ? 'stretch' : 'center', textAlign: 'left', width: '100%', cursor: 'pointer' },
+          stagePill: this.pill('plain') };
+      }),
+
+      // upload
+      uplZoneStyle: { border: '1.5px dashed var(--rule)', borderRadius: '16px', background: 'var(--surface)',
+        padding: m ? '28px 20px' : '48px 40px', textAlign: 'center', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', gap: '14px' },
+      uplGridStyle: { display: 'grid', gridTemplateColumns: m ? '1fr' : '7fr 5fr', gap: m ? '24px' : '32px', alignItems: 'start' },
+      uplDocs: [
+        { t: 'Denial letter', req: 'Required', note: 'PDF or a photo of every page.', st: 'done', meta: 'denial-letter.pdf \u00b7 3 pages \u00b7 uploaded' },
+        { t: 'Explanation of benefits', req: 'Helps', note: 'Shows the amounts and the codes they used.', st: 'uploading', meta: 'eob-sept.pdf \u00b7 62%' },
+        { t: 'Plan documents', req: 'Helps', note: 'The summary plan description, or the full booklet.', st: 'none', meta: 'Not added' },
+        { t: 'Medical records', req: 'Later', note: 'We will tell you exactly which ones once the arguments are built.', st: 'none', meta: 'Not added' }
+      ].map(d => ({ ...d,
+        action: d.st === 'done' ? 'Replace' : d.st === 'uploading' ? 'Cancel' : 'Add',
+        pillStyle: this.pill(d.st === 'done' ? 'solid' : 'plain'),
+        barStyle: { height: '2px', background: 'var(--rule)', borderRadius: '2px', overflow: 'hidden', marginTop: '10px', display: d.st === 'uploading' ? 'block' : 'none' },
+        fillStyle: { height: '100%', width: '62%', background: 'var(--ink)' },
+        rowStyle: { ...card, padding: '18px 20px', display: 'flex', gap: '16px', alignItems: 'flex-start', justifyContent: 'space-between' } })),
+
+      photoTips: [
+        { t: 'Lay it flat. All four corners inside the frame.' },
+        { t: 'Shoot every page, including any page that looks like boilerplate.' },
+        { t: 'No flash. Window light or room light is better.' },
+        { t: 'If a line is blurred, retake it. We will flag what we cannot read, but a clear scan saves you the correction.' }
+      ],
+
+      // extraction
+      extracting: S.extracting, reviewing: !S.extracting,
+      toggleExtract: () => this.setState({ extracting: !S.extracting }),
+      extractLabel: S.extracting ? 'Show the review' : 'Show it working',
+      stages: stages.map((t, i) => ({ t, done: i < S.stage, active: i === S.stage,
+        rowStyle: { display: 'flex', gap: '14px', alignItems: 'center', padding: '13px 0', borderBottom: '1px solid var(--rule)' },
+        textStyle: { fontSize: '17px', color: i <= S.stage ? 'var(--ink)' : 'var(--ink-muted)', fontWeight: i === S.stage ? 500 : 400, opacity: i > S.stage ? 0.55 : 1 },
+        markStyle: { flex: '0 0 auto', width: '10px', height: '10px', borderRadius: '50%',
+          background: i < S.stage ? 'var(--standing)' : 'transparent',
+          border: '1.5px solid ' + (i <= S.stage ? 'var(--standing)' : 'var(--rule)') } })),
+      extGridStyle: { display: 'grid', gridTemplateColumns: m ? '1fr' : '1fr 1fr', gap: m ? '20px' : '24px', alignItems: 'start' },
+      docPanelStyle: { ...card, padding: m ? '20px' : '28px', position: m ? 'static' : 'sticky', top: '24px' },
+      facts: facts.map(f => {
+        const st = fstate(f.id);
+        const isEditing = S.editing === f.id;
+        const tones = { confirmed: 'solid', edited: 'solid', pending: 'plain', rejected: 'out' };
+        return { ...f, st, isEditing, notEditing: !isEditing,
+          stLabel: st === 'confirmed' ? 'Confirmed' : st === 'edited' ? 'Edited by you' : st === 'rejected' ? 'Rejected' : 'Needs a look',
+          stPill: this.pill(tones[st]),
+          confLabel: f.conf === 'high' ? 'Clear in the scan' : f.conf === 'medium' ? 'Readable, worth checking' : 'The scan is unclear here',
+          confStyle: { ...mono, fontSize: '11px', color: f.conf === 'low' ? 'var(--time)' : 'var(--ink-muted)' },
+          rowStyle: { ...card, padding: '16px 18px', borderLeft: '3px solid ' + (st === 'confirmed' || st === 'edited' ? 'var(--standing)' : st === 'rejected' ? 'var(--defeated)' : 'var(--time)'), borderRadius: '2px 10px 10px 2px' },
+          confirm: () => this.setState({ facts: { ...S.facts, [f.id]: 'confirmed' }, editing: null }),
+          edit: () => this.setState({ editing: isEditing ? null : f.id }),
+          reject: () => this.setState({ facts: { ...S.facts, [f.id]: 'rejected' }, editing: null }),
+          save: () => this.setState({ facts: { ...S.facts, [f.id]: 'edited' }, editing: null }) };
+      }),
+      confirmedLine: confirmedCount + ' of 8 facts confirmed \u00b7 2 still need you',
+      extBarStyle: { height: '3px', background: 'var(--rule)', borderRadius: '2px', overflow: 'hidden', width: '180px' },
+      extFillStyle: { height: '100%', width: (confirmedCount / 8 * 100) + '%', background: 'var(--ink)', transition: 'width 260ms' },
+      extFooterStyle: { position: 'sticky', bottom: 0, display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between',
+        background: 'var(--surface)', border: '1px solid var(--rule)', borderRadius: '12px', padding: '14px 18px', marginTop: '20px', boxShadow: 'var(--e2)' },
+
+      // roadmap
+      nextRing: this.ring(168, 180, m ? 64 : 76),
+      roadSteps: roadSteps.map((s, i) => {
+        const t = this.tone(s.days);
+        return { ...s, i,
+          ring: this.ring(s.days, s.total, m ? 60 : 72),
+          current: s.state === 'current',
+          stateLabel: s.state === 'current' ? 'Open now · ' + t.word : 'Starts after step ' + String(i).padStart(2, '0'),
+          open: () => this.setState({ stepOpen: i, drawer: true }),
+          cardStyle: { ...card, padding: m ? '18px' : '20px', flex: m ? 'none' : '1 1 0', minWidth: 0,
+            borderWidth: s.state === 'current' ? '1.5px' : '1px',
+            borderColor: s.state === 'current' ? 'var(--ink)' : 'var(--rule)', textAlign: 'left', cursor: 'pointer' },
+          whoPill: this.pill(s.state === 'current' ? 'ink' : 'plain'),
+          dateStyle: { fontSize: m ? '19px' : '21px', fontWeight: 600, color: 'var(--ink)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' },
+          daysStyle: { fontSize: '14px', color: t.c, fontWeight: t.w } };
+      }),
+      roadRowStyle: { display: 'flex', flexDirection: m ? 'column' : 'row', gap: m ? '14px' : '16px', alignItems: 'stretch' },
+      drawerOpen: S.drawer && openStep !== null,
+      closeDrawer: () => this.setState({ drawer: false }),
+      dStep: openStep || roadSteps[0],
+      drawerStyle: { position: 'fixed', right: 0, top: 0, bottom: 0, width: m ? '100%' : '460px',
+        background: 'var(--surface)', borderLeft: '1px solid var(--rule)', boxShadow: 'var(--e2)',
+        padding: m ? '20px' : '28px', overflowY: 'auto', zIndex: 60, animation: 'aa-fade 180ms cubic-bezier(.16,.84,.32,1)' },
+      scrimStyle: { position: 'fixed', inset: 0, background: 'var(--overlay)', zIndex: 55 },
+
+      // graph
+      replay: () => this.setState({ gkey: S.gkey + 1 }),
+      gkey: S.gkey,
+      claim: { code: 'CO-50', text: 'The requested service is not medically necessary as defined in the plan.', meta: 'Denial letter, page 1 \u00b7 14 Sep 2026' },
+      claimStyle: { border: '1.5px solid var(--ink)', borderRadius: '2px', background: 'var(--surface)',
+        padding: m ? '18px' : '22px 24px', maxWidth: m ? 'none' : '620px', margin: m ? '0' : '0 auto', animation: 'aa-rise 420ms cubic-bezier(.16,.84,.32,1) both' },
+      gSolid: this.argData().filter(a => a.tier === 'solid').map((a, i) => this.nodeView(a, i, m)),
+      gAdd: this.argData().filter(a => a.tier === 'add').map((a, i) => this.nodeView(a, i + 3, m)),
+      gOut: this.argData().filter(a => a.tier === 'out').map((a, i) => this.nodeView(a, i + 5, m)),
+      gLaneWrapStyle: { display: 'grid', gridTemplateColumns: m ? '1fr' : '1fr 1fr', gap: m ? '28px' : '32px', marginTop: m ? '0' : '0' },
+      gBusStyle: m ? { display: 'none' } : { position: 'relative', height: '48px', margin: '0 auto', width: '100%', maxWidth: '760px' },
+      gDetailStyle: m ? { display: 'none' } : { ...card, padding: '24px', position: 'sticky', top: '24px' },
+      gGridStyle: { display: 'grid', gridTemplateColumns: m ? '1fr' : '1fr 360px', gap: m ? '0' : '32px', alignItems: 'start' },
+      sel,
+      selTierLabel: sel.tier === 'solid' ? 'Solid ground' : sel.tier === 'add' ? 'Worth adding' : 'Left out',
+      selPill: this.pill(sel.tier),
+      selVerdictStyle: { fontSize: '16px', lineHeight: '26px', fontWeight: 500,
+        color: sel.tier === 'solid' ? 'var(--standing)' : sel.tier === 'add' ? 'var(--ink)' : 'var(--defeated)' },
+
+      // evidence
+      evItems: evItems.map(e => {
+        const st = S.ev[e.id] || e.st;
+        const map = { have: ['On file', 'solid'], missing: ['Not yet', 'plain'], progress: ['Requested', 'plain'], optional: ['Optional', 'add'] };
+        return { ...e, st,
+          stLabel: map[st][0], stPill: this.pill(map[st][1]),
+          markStyle: { flex: '0 0 auto', width: '18px', height: '18px', marginTop: '3px', borderRadius: '2px',
+            border: '1.5px ' + (st === 'optional' ? 'dashed' : 'solid') + ' ' + (st === 'have' ? 'var(--standing)' : 'var(--rule)'),
+            background: st === 'have' ? 'var(--standing)' : 'transparent' },
+          rowStyle: { ...card, padding: m ? '16px' : '18px 20px', display: 'flex', gap: '14px', alignItems: 'flex-start', opacity: st === 'have' ? 0.78 : 1 },
+          toggle: () => this.setState({ ev: { ...S.ev, [e.id]: st === 'have' ? 'missing' : 'have' } }) };
+      }),
+      docPoints: [
+        'State the diagnosis and the date it was first made.',
+        'List each preferred agent tried: the drug, the dose, the exact dates, and why it was stopped.',
+        'Say which of the plan\u2019s four medical-necessity criteria the patient meets, naming each one.',
+        'State what happens clinically if the infusion schedule is interrupted, and over what timeframe.'
+      ].map((t, i) => ({ t, n: '0' + (i + 1) })),
+
+      // letter
+      letterParas: letterParas.map(p => ({ ...p,
+        active: S.para === p.id,
+        pick: () => this.setState({ para: S.para === p.id ? null : p.id, node: p.ref ? p.ref.toLowerCase() : S.node }),
+        paraStyle: { fontFamily: "'Newsreader',Georgia,serif", fontSize: m ? '17px' : '18px', lineHeight: m ? '30px' : '31px',
+          color: 'var(--ink)', margin: 0, padding: m ? '10px 12px' : '12px 16px', borderRadius: '2px',
+          background: S.para === p.id ? 'var(--standing-tint)' : 'transparent',
+          borderLeft: '2px solid ' + (S.para === p.id ? 'var(--standing)' : 'transparent'),
+          cursor: 'pointer', textAlign: 'left', width: '100%', display: 'block' },
+        badgeStyle: { ...mono, fontSize: '11px', letterSpacing: '.04em', color: p.ref ? 'var(--standing)' : 'var(--ink-muted)',
+          border: '1px solid ' + (p.ref ? 'var(--standing)' : 'var(--rule)'), borderRadius: '2px', padding: '2px 6px', background: 'var(--surface)' },
+        badge: p.ref || 'procedural' })),
+      letterGridStyle: { display: 'grid', gridTemplateColumns: m ? '1fr' : '1fr 320px', gap: m ? '20px' : '28px', alignItems: 'start' },
+      letterSheetStyle: { ...card, padding: m ? '22px 18px' : '44px 56px', borderRadius: '2px', boxShadow: 'var(--e1)' },
+      mailList: [
+        'Send to the appeals address on page 3 of the denial letter, not the claims address.',
+        'Include every enclosure listed in the final paragraph.',
+        'Use certified mail with return receipt, or the insurer portal if it issues a timestamped confirmation.',
+        'Keep the receipt. The postmark date is what proves you filed on time.',
+        'Upload the receipt here so the case record holds it.'
+      ].map(t => ({ t }))
+    };
+  }
+
+  nodeView(a, i, m) {
+    const S = this.state;
+    const active = S.node === a.id;
+    const tierStyle = {
+      solid: { border: '1.5px solid var(--standing)', bar: 'var(--standing)', dash: 'solid' },
+      add:   { border: '1.5px dashed var(--ink-muted)', bar: 'transparent', dash: 'dashed' },
+      out:   { border: '1px solid var(--defeated)', bar: 'transparent', dash: 'solid' }
+    }[a.tier];
+    return { ...a, active,
+      showInline: active && m,
+      tierLabel: a.tier === 'solid' ? 'Solid ground' : a.tier === 'add' ? 'Worth adding' : 'Left out',
+      verdictStyle: { fontSize: '15px', lineHeight: '24px', fontWeight: 500,
+        color: a.tier === 'solid' ? 'var(--standing)' : a.tier === 'add' ? 'var(--ink)' : 'var(--defeated)' },
+      pick: () => this.setState({ node: a.id }),
+      markChar: a.tier === 'solid' ? '\u25CF' : a.tier === 'add' ? '\u25C7' : '\u2715',
+      markStyle: { fontSize: '12px', lineHeight: 1, color: a.tier === 'solid' ? 'var(--standing)' : a.tier === 'add' ? 'var(--ink-muted)' : 'var(--defeated)' },
+      nodeStyle: {
+        position: 'relative', width: '100%', textAlign: 'left', borderRadius: '10px',
+        background: a.tier === 'out' ? 'transparent' : 'var(--surface)',
+        border: tierStyle.border, borderLeft: a.tier === 'solid' ? '3px solid var(--standing)' : tierStyle.border,
+        padding: m ? '16px' : '18px 20px', cursor: 'pointer',
+        boxShadow: active ? '0 0 0 2px var(--focus)' : 'none',
+        backgroundImage: a.tier === 'out' ? 'repeating-linear-gradient(45deg, transparent 0 6px, var(--stripe) 6px 7px)' : 'none',
+        animation: 'aa-rise 420ms cubic-bezier(.16,.84,.32,1) both', animationDelay: (260 + i * 110) + 'ms'
+      },
+      titleStyle: { fontSize: m ? '17px' : '17px', lineHeight: '25px', fontWeight: 600, color: a.tier === 'out' ? 'var(--defeated)' : 'var(--ink)',
+        textDecoration: a.tier === 'out' ? 'line-through' : 'none', margin: 0 },
+      assertStyle: { fontSize: '15px', lineHeight: '24px', color: 'var(--ink-muted)', margin: '8px 0 0', textWrap: 'pretty' },
+      statusPill: this.pill(a.ok ? 'solid' : a.tier === 'out' ? 'out' : 'plain'),
+      connStyle: m ? { display: 'none' } : { position: 'absolute', left: '-1px', top: '-18px', width: '1px', height: '18px',
+        background: a.tier === 'solid' ? 'var(--standing)' : 'var(--ink-muted)', opacity: a.tier === 'out' ? 0 : 1 }
+    };
+  }
+
+  renderVals() {
+    const { mode, scale, screen } = this.state;
+    const m = mode === 'mobile';
+    const f = FRAMES[mode];
+    const pad = m ? 20 : 80;
+
+    const tab = (active) => ({
+      fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', letterSpacing: '.04em',
+      padding: '5px 9px', borderRadius: '6px', whiteSpace: 'nowrap',
+      color: active ? '#131312' : '#9A968F',
+      background: active ? '#E8E5DF' : 'transparent'
+    });
+    const seg = (active) => ({
+      fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', padding: '5px 10px',
+      borderRadius: '6px', color: active ? '#131312' : '#9A968F',
+      background: active ? '#E8E5DF' : 'transparent'
+    });
+
+    const section = {
+      maxWidth: m ? 'none' : '1280px', margin: '0 auto',
+      padding: m ? '48px 20px' : '88px 80px 0'
+    };
+
+    return {
+      ...this.appVals(m),
+      mode, isMobile: m,
+      stageStyle: { width: Math.max(1, f.w * scale), height: Math.max(1, f.h * scale) },
+      frameStyle: {
+        width: f.w + 'px', height: f.h + 'px', transform: 'scale(' + scale + ')',
+        transformOrigin: 'top left', overflowY: 'auto', overflowX: 'hidden',
+        background: 'var(--ground)', color: 'var(--ink)',
+        borderRadius: m ? '28px' : '10px',
+        border: '1px solid #D5CCBC',
+        boxShadow: '0 18px 50px -18px rgb(40 30 18 / .5)'
+      },
+      screens: SCREENS.map(([id, name]) => ({
+        id, name, tabStyle: tab(screen === id), go: () => this.set({ screen: id })
+      })),
+      setDesktop: () => this.set({ mode: 'desktop' }),
+      setMobile: () => this.set({ mode: 'mobile' }),
+      deskBtn: seg(!m), mobBtn: seg(m),
+
+      isLanding: screen === 'landing',
+
+      goTriage: () => this.set({ screen: 'triage' }),
+      goCases: () => this.set({ screen: 'cases' }),
+
+      lineClipStyle: { display: 'block', overflow: 'hidden' },
+      indexStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', letterSpacing: '.18em',
+        color: 'var(--clay-deep)', display: 'block', marginBottom: m ? '18px' : '0'
+      },
+
+      // ---- nav ----
+      navStyle: {
+        position: 'sticky', top: 0, zIndex: 40, background: 'var(--ground)',
+        borderBottom: '1px solid var(--rule)'
+      },
+      navInnerStyle: {
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px',
+        padding: m ? '0 20px' : '0 56px', height: m ? '60px' : '72px',
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto'
+      },
+      wordmarkStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', letterSpacing: '.2em',
+        textTransform: 'uppercase', color: 'var(--ink)', fontWeight: 500, whiteSpace: 'nowrap'
+      },
+      navLinksStyle: { display: m ? 'none' : 'flex', alignItems: 'center', gap: '36px' },
+      navLinkStyle: {
+        fontSize: '14px', color: 'var(--ink-muted)', textDecoration: 'none', whiteSpace: 'nowrap'
+      },
+      navBtnStyle: {
+        background: 'var(--ink)', color: 'var(--ground)', borderRadius: '2px',
+        padding: '0 20px', height: '44px', fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap'
+      },
+
+      // ---- hero (01) ----
+      heroFrameStyle: {
+        position: 'relative', overflow: 'hidden', background: 'var(--forest-deep)',
+        minHeight: m ? '620px' : '780px', display: 'flex', flexDirection: 'column'
+      },
+      heroBgStyle: { position: 'absolute', inset: 0 },
+      heroScrimStyle: {
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(170deg, rgb(14 51 43 / .40) 0%, rgb(14 51 43 / .70) 46%, rgb(8 30 25 / .95) 100%)'
+      },
+      heroColsStyle: m ? { display: 'none' } : {
+        position: 'absolute', inset: '0 56px', display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)', pointerEvents: 'none'
+      },
+      heroCols: [0, 1, 2, 3].map(() => ({
+        style: { borderRight: '1px solid rgb(244 239 229 / .07)' }
+      })),
+      heroInnerStyle: {
+        position: 'relative', flex: 1, display: 'grid',
+        gridTemplateColumns: m ? '1fr' : '56px 1fr',
+        padding: m ? '92px 20px 36px' : '128px 56px 48px',
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto', width: '100%', alignContent: 'end'
+      },
+      heroRailStyle: m ? { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '26px' } : {
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '14px', paddingTop: '8px'
+      },
+      heroRailNumStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', letterSpacing: '.18em', color: 'var(--wheat)'
+      },
+      heroRailLineStyle: m
+        ? { width: '28px', height: '1px', background: 'rgb(244 239 229 / .4)' }
+        : { width: '1px', height: '72px', background: 'rgb(244 239 229 / .3)' },
+      heroRailTextStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '10px', letterSpacing: '.18em',
+        textTransform: 'uppercase', color: 'rgb(244 239 229 / .62)',
+        writingMode: m ? 'horizontal-tb' : 'vertical-rl', whiteSpace: 'nowrap'
+      },
+      heroMainStyle: { minWidth: 0 },
+      h1Style: {
+        fontSize: m ? '46px' : '104px', lineHeight: m ? '47px' : '96px', fontWeight: 600,
+        letterSpacing: '-0.042em', color: '#FFFCF7', margin: '0 0 36px'
+      },
+      hw1: { display: 'block', animation: 'aa-lineup 860ms cubic-bezier(.19,1,.22,1) both', animationDelay: '80ms' },
+      hw2: { display: 'block', color: 'var(--wheat)', animation: 'aa-lineup 860ms cubic-bezier(.19,1,.22,1) both', animationDelay: '200ms' },
+      heroBottomStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : 'minmax(0,560px) 1fr',
+        gap: m ? '26px' : '56px', alignItems: 'end'
+      },
+      heroSubStyle: {
+        fontSize: m ? '16px' : '17px', lineHeight: m ? '28px' : '29px',
+        color: 'rgb(244 239 229 / .78)', margin: 0, textWrap: 'pretty',
+        animation: 'aa-lift 760ms cubic-bezier(.16,.84,.32,1) both', animationDelay: '420ms'
+      },
+      heroCtaStyle: {
+        display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: m ? 'flex-start' : 'flex-end',
+        animation: 'aa-lift 760ms cubic-bezier(.16,.84,.32,1) both', animationDelay: '540ms'
+      },
+      heroPrimaryBtn: {
+        background: 'var(--clay)', color: '#FFFCF7', borderRadius: '2px', padding: '0 26px',
+        height: '52px', fontSize: '15px', fontWeight: 500
+      },
+      heroGhostBtn: {
+        border: '1px solid rgb(255 252 247 / .3)', background: 'transparent',
+        color: '#FFFCF7', borderRadius: '2px', padding: '0 26px', height: '52px', fontSize: '15px', fontWeight: 500
+      },
+      heroMetaStyle: {
+        position: 'relative', display: 'grid',
+        gridTemplateColumns: m ? '1fr' : 'repeat(3, 1fr)',
+        borderTop: '1px solid rgb(244 239 229 / .16)',
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto', width: '100%'
+      },
+      heroFacts: [
+        { k: 'Fixed promise', v: 'Every paragraph backed by a rule' },
+        { k: 'Free to start', v: 'Four questions, no account' },
+        { k: 'Rules current', v: '5 Oct 2026 · version 2026.10.1' }
+      ].map((h, i) => ({ ...h,
+        cellStyle: {
+          display: 'flex', flexDirection: 'column', gap: '7px',
+          padding: m ? '16px 20px' : '22px 28px',
+          borderLeft: (m || i === 0) ? 'none' : '1px solid rgb(244 239 229 / .16)',
+          borderTop: (m && i > 0) ? '1px solid rgb(244 239 229 / .12)' : 'none',
+          animation: 'aa-lift 700ms cubic-bezier(.16,.84,.32,1) both',
+          animationDelay: (640 + i * 90) + 'ms'
+        },
+        kStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '10px', letterSpacing: '.18em',
+          textTransform: 'uppercase', color: 'rgb(169 189 178 / .9)'
+        },
+        vStyle: { fontSize: '15px', lineHeight: '23px', color: '#F4EFE5', fontWeight: 500 }
+      })),
+
+      // ---- promise marquee ----
+      marqueeWrapStyle: {
+        overflow: 'hidden', borderBottom: '1px solid var(--rule)',
+        background: 'var(--ground)', padding: m ? '13px 0' : '15px 0'
+      },
+      marqueeTrackStyle: {
+        display: 'flex', width: 'max-content',
+        animation: 'aa-marquee 46s linear infinite'
+      },
+      marqueeItems: (() => {
+        const base = [
+          'Every paragraph backed by a rule',
+          'Deadlines counted from your own letter',
+          'Arguments the insurer cannot knock back',
+          'Encrypted. Never shared with your insurer.',
+          'No outcome is ever promised'
+        ];
+        const out = [];
+        for (let pass = 0; pass < 2; pass++) {
+          base.forEach((t, i) => {
+            out.push({ t: t, style: {
+              fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', letterSpacing: '.16em',
+              textTransform: 'uppercase', color: i % 2 ? 'var(--clay-deep)' : 'var(--ink-muted)',
+              padding: '0 32px', borderRight: '1px solid var(--rule)', whiteSpace: 'nowrap'
+            } });
+          });
+        }
+        return out;
+      })(),
+
+      // ---- statistics (02) ----
+      statBandStyle: { position: 'relative', overflow: 'hidden', background: 'var(--band)' },
+      statBgStyle: { position: 'absolute', inset: 0, opacity: .13 },
+      statInnerStyle: {
+        position: 'relative', maxWidth: m ? 'none' : '1440px', margin: '0 auto',
+        padding: m ? '56px 20px' : '96px 56px'
+      },
+      statHeadStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : '56px 1fr',
+        marginBottom: m ? '44px' : '72px'
+      },
+      statIndexStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', letterSpacing: '.18em',
+        color: 'var(--wheat)', marginBottom: m ? '16px' : 0
+      },
+      statLeadStyle: {
+        fontSize: m ? '27px' : '40px', lineHeight: m ? '34px' : '48px', fontWeight: 600,
+        letterSpacing: '-0.025em', color: 'var(--band-ink)', margin: 0, maxWidth: '520px', textWrap: 'pretty'
+      },
+      statGridStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : 'repeat(3, 1fr)',
+        columnGap: m ? 0 : '32px', rowGap: m ? '38px' : 0
+      },
+      stats: this.statsData(),
+
+      // ---- process (03) ----
+      processSectionStyle: {
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto',
+        padding: m ? '64px 20px' : '112px 56px 124px'
+      },
+      procHeadStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : '56px minmax(0,1.5fr) minmax(0,1fr)',
+        columnGap: m ? 0 : '32px', alignItems: 'start', marginBottom: m ? '44px' : '80px'
+      },
+      procTitleStyle: {
+        fontSize: m ? '30px' : '40px', lineHeight: m ? '37px' : '46px', fontWeight: 600,
+        letterSpacing: '-0.028em', color: 'var(--ink)', margin: 0, textWrap: 'balance'
+      },
+      procLeadStyle: {
+        fontSize: '16px', lineHeight: '27px', color: 'var(--ink-muted)',
+        margin: m ? '16px 0 0' : '6px 0 0', maxWidth: '340px', textWrap: 'pretty'
+      },
+      // Desktop: one hairline across the top of the track, every station hung
+      // beneath it from the same baseline. Mobile: the same rule stood on its end.
+      procTrackStyle: {
+        position: 'relative', display: 'grid',
+        gridTemplateColumns: m ? '1fr' : 'repeat(3, minmax(0, 1fr))',
+        columnGap: m ? 0 : '48px',
+        paddingLeft: m ? '28px' : 0, paddingTop: m ? 0 : '1px'
+      },
+      procSpineStyle: m ? {
+        position: 'absolute', left: '3px', top: '8px', bottom: '8px', width: '1px',
+        background: 'var(--ink)', transformOrigin: 'top',
+        animation: 'aa-drawdown 1100ms cubic-bezier(.65,0,.35,1) both'
+      } : {
+        position: 'absolute', left: 0, right: 0, top: 0, height: '1px',
+        background: 'var(--ink)', transformOrigin: 'left',
+        animation: 'aa-drawright 1200ms cubic-bezier(.65,0,.35,1) both'
+      },
+      steps: [
+        { num: '01', title: 'Upload the letter', body: 'Photograph it with your phone or drop the PDF. We read the reason code, the claim number, the dates and the policy sections it cites.' },
+        { num: '02', title: 'Confirm what we read', body: 'Every fact sits beside the exact sentence it came from. You confirm, edit or reject each one. Nothing moves on until the required facts are confirmed.' },
+        { num: '03', title: 'See the route and the argument', body: 'Your appeal track, your deadlines with the rule behind each, the arguments that hold against their stated reason, and the letter that uses only those.' }
+      ].map((t, i) => {
+        return { ...t, anim: String(i),
+          stationStyle: {
+            position: 'relative', minWidth: 0,
+            paddingBottom: m ? '44px' : 0,
+            display: 'flex', flexDirection: 'column'
+          },
+          topStyle: {
+            paddingTop: m ? 0 : '34px',
+            display: 'flex', flexDirection: 'column',
+            animation: 'aa-lift 680ms cubic-bezier(.16,.84,.32,1) both',
+            animationDelay: m ? '0ms' : (i * 110) + 'ms'
+          },
+          numStyle: {
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: m ? '12px' : '13px',
+            letterSpacing: '.18em', color: 'var(--clay-deep)', marginBottom: '14px'
+          },
+          titleStyle: {
+            fontSize: m ? '21px' : '23px', lineHeight: m ? '29px' : '31px', fontWeight: 600,
+            letterSpacing: '-0.018em', color: 'var(--ink)', margin: '0 0 10px',
+            maxWidth: m ? '270px' : '15ch', minHeight: m ? 0 : '62px', textWrap: 'balance'
+          },
+          bodyStyle: {
+            fontSize: '15px', lineHeight: '26px', color: 'var(--ink-muted)', margin: 0,
+            maxWidth: m ? '330px' : '34ch', textWrap: 'pretty'
+          },
+          // The dot sits ON the rule at the head of its own column.
+          dotStyle: m ? {
+            position: 'absolute', left: '-28px', top: '6px', width: '7px', height: '7px',
+            background: 'var(--clay)', borderRadius: '50%',
+            animation: 'aa-stationdot 420ms cubic-bezier(.16,.84,.32,1) both'
+          } : {
+            position: 'absolute', left: '-4px', top: '-4px', width: '9px', height: '9px',
+            background: 'var(--clay)', borderRadius: '50%',
+            animation: 'aa-stationdot 420ms cubic-bezier(.16,.84,.32,1) both',
+            animationDelay: (260 + i * 110) + 'ms'
+          },
+          spacerStyle: { display: 'none' }
+        };
+      }),
+
+      // ---- capabilities (04) ----
+      capSectionStyle: {
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto', padding: m ? '0 20px 56px' : '0 56px 96px'
+      },
+      capHeadStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : '56px 1fr',
+        columnGap: m ? 0 : '32px', marginBottom: m ? '32px' : '56px'
+      },
+      capTitleStyle: {
+        fontSize: m ? '30px' : '44px', lineHeight: m ? '37px' : '50px', fontWeight: 600,
+        letterSpacing: '-0.03em', color: 'var(--ink)', margin: 0
+      },
+      caps: this.capsData(),
+
+      // ---- personas (05) ----
+      personaSectionStyle: {
+        background: 'var(--surface-sunk)', borderTop: '1px solid var(--rule)',
+        borderBottom: '1px solid var(--rule)',
+        padding: m ? '56px 20px' : '104px 56px 120px'
+      },
+      personaHeadStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : '56px 1fr',
+        columnGap: m ? 0 : '32px', maxWidth: m ? 'none' : '1440px', margin: '0 auto',
+        marginBottom: m ? '36px' : '64px'
+      },
+      personaTitleStyle: {
+        fontSize: m ? '30px' : '40px', lineHeight: m ? '37px' : '46px', fontWeight: 600,
+        letterSpacing: '-0.028em', color: 'var(--ink)', margin: 0, maxWidth: '520px', textWrap: 'pretty'
+      },
+      personaGridStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : 'repeat(3, 1fr)',
+        columnGap: m ? 0 : '32px', rowGap: m ? '44px' : 0,
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto', alignItems: 'start'
+      },
+      personas: [
+        { slot: 'persona-1', ratio: '4 / 5', intrinsic: '1000×1250', alt: 'A person at a kitchen table with a letter, mid-afternoon', tag: 'First time', title: 'You just got the letter', body: 'Three days ago. You have read it four times. You do not know whether this is normal or how long you have. Start with the free check.' },
+        { slot: 'persona-2', ratio: '4 / 3', intrinsic: '1200×900', alt: 'A person managing a chronic condition at a laptop, prior correspondence beside them', tag: 'Been here before', title: 'This is the fourth one this year', body: 'You know the process. You want the workspace, the dates, and the letter, without being explained things you already know.' },
+        { slot: 'persona-3', ratio: '1 / 1', intrinsic: '1100×1100', alt: 'A caregiver on a phone in a waiting room, handling it for someone else', tag: 'For someone else', title: 'You are handling it for someone else', body: 'For a parent or a child, on a phone, between other things. The case holds its state and the reminders find you.' }
+      ].map((p, i) => ({ ...p,
+        anim: String(i),
+        colStyle: { minWidth: 0, paddingTop: m ? 0 : [0, 72, 28][i] + 'px' },
+        imgStyle: {
+          overflow: 'hidden',
+          animation: 'aa-wiperight 900ms cubic-bezier(.65,0,.35,1) both'
+        },
+        metaStyle: { display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0 12px' },
+        tagStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '10px', letterSpacing: '.18em',
+          textTransform: 'uppercase', color: 'var(--clay-deep)', whiteSpace: 'nowrap'
+        },
+        ruleStyle: { flex: 1, height: '1px', background: 'var(--rule)' },
+        titleStyle: {
+          fontSize: m ? '21px' : '22px', lineHeight: m ? '29px' : '30px', fontWeight: 600,
+          letterSpacing: '-0.018em', color: 'var(--ink)', margin: '0 0 10px', maxWidth: '250px'
+        },
+        bodyStyle: { fontSize: '15px', lineHeight: '26px', color: 'var(--ink-muted)', margin: 0, maxWidth: '330px', textWrap: 'pretty' }
+      })),
+
+      // ---- pricing (06) ----
+      priceSectionStyle: {
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto', padding: m ? '64px 20px' : '112px 56px'
+      },
+      priceHeadStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : '56px 1.45fr 1fr',
+        columnGap: m ? 0 : '48px', alignItems: 'end', marginBottom: m ? '40px' : '72px'
+      },
+      priceTitleStyle: {
+        fontSize: m ? '30px' : '40px', lineHeight: m ? '37px' : '46px', fontWeight: 600,
+        letterSpacing: '-0.028em', color: 'var(--ink)', margin: 0, textWrap: 'pretty'
+      },
+      priceLeadStyle: {
+        fontSize: '16px', lineHeight: '27px', color: 'var(--ink-muted)',
+        margin: m ? '16px 0 0' : 0, maxWidth: '350px', textWrap: 'pretty', justifySelf: m ? 'start' : 'end'
+      },
+      priceGridStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : 'repeat(3, 1fr)',
+        columnGap: m ? 0 : '32px', rowGap: m ? '40px' : 0, alignItems: 'start'
+      },
+      plans: [
+        { name: 'Free check', price: '$0', unit: '', featured: false,
+          blurb: 'Four questions. Find out which track you are on and roughly when your door closes.',
+          raw: ['Likely appeal track', 'Estimated deadline with the rule', 'An honest read on whether to appeal', 'No account needed'],
+          cta: 'Start the free check' },
+        { name: 'Appeal Package', price: '$149', unit: 'once, per case', featured: true,
+          blurb: 'Everything needed to prepare and file one appeal, through external review if it gets there.',
+          raw: ['Document extraction you confirm line by line', 'Roadmap with every deadline cited', 'Argument graph: solid ground and worth adding', 'Evidence checklist and physician-letter template', 'Letter editor, PDF and DOCX export', 'Reminders at 30, 14, 7, 3 and 1 days'],
+          cta: 'Open a case' },
+        { name: 'Ongoing', price: '$19', unit: 'per month', featured: false,
+          blurb: 'For people denied more than once a year, and for caregivers running several at a time.',
+          raw: ['Unlimited cases', 'Plan documents saved and reused', 'Family members and dependants', 'Reminder emails for every open deadline'],
+          cta: 'Choose ongoing' }
+      ].map((p, i) => ({ ...p,
+        anim: String(i),
+        colStyle: {
+          position: 'relative', minWidth: 0, paddingTop: '22px',
+          borderLeft: m ? 'none' : (i === 0 ? 'none' : '1px solid var(--rule)'),
+          paddingLeft: m ? 0 : (i === 0 ? 0 : '32px'),
+          display: 'flex', flexDirection: 'column'
+        },
+        topRuleStyle: {
+          position: 'absolute', top: 0, left: m ? 0 : (i === 0 ? 0 : '32px'), right: 0,
+          height: p.featured ? '3px' : '1px',
+          background: p.featured ? 'var(--clay)' : 'var(--ink)', transformOrigin: 'left',
+          animation: 'aa-drawright 760ms cubic-bezier(.65,0,.35,1) both'
+        },
+        headStyle: { display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginBottom: '18px' },
+        nameStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', letterSpacing: '.16em',
+          textTransform: 'uppercase', color: 'var(--ink)', fontWeight: 500
+        },
+        flagStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '10px', letterSpacing: '.14em',
+          textTransform: 'uppercase', color: 'var(--clay-deep)'
+        },
+        priceRowStyle: { display: 'flex', alignItems: 'baseline', gap: '9px', marginBottom: '14px' },
+        priceStyle: {
+          fontSize: m ? '48px' : '60px', lineHeight: '1', fontWeight: 600, letterSpacing: '-0.04em',
+          color: 'var(--ink)', fontVariantNumeric: 'tabular-nums'
+        },
+        unitStyle: { fontSize: '14px', color: 'var(--ink-muted)' },
+        blurbStyle: { fontSize: '15px', lineHeight: '25px', color: 'var(--ink-muted)', margin: '0 0 24px', maxWidth: '310px', textWrap: 'pretty' },
+        itemsStyle: { display: 'flex', flexDirection: 'column', marginBottom: '28px' },
+        items: p.raw.map((t, j) => ({ t, n: String(j + 1).padStart(2, '0'),
+          rowStyle: { display: 'flex', gap: '14px', alignItems: 'baseline', padding: '11px 0', borderTop: '1px solid var(--rule)' },
+          numStyle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: '10px', letterSpacing: '.1em', color: 'var(--ink-muted)', flex: '0 0 auto' },
+          textStyle: { fontSize: '15px', lineHeight: '24px', color: 'var(--ink)' } })),
+        btnStyle: p.featured
+          ? { marginTop: 'auto', width: '100%', height: '50px', borderRadius: '2px', background: 'var(--clay)', color: '#FFFCF7', fontSize: '15px', fontWeight: 500 }
+          : { marginTop: 'auto', width: '100%', height: '50px', borderRadius: '2px', border: '1px solid var(--ink)', background: 'transparent', color: 'var(--ink)', fontSize: '15px', fontWeight: 500 }
+      })),
+      priceFootStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', lineHeight: '18px',
+        letterSpacing: '.06em', color: 'var(--ink-muted)', margin: m ? '32px 0 0' : '48px 0 0'
+      },
+
+      // ---- faq (07) ----
+      faqSectionStyle: {
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto', padding: m ? '0 20px 64px' : '0 56px 112px'
+      },
+      faqHeadStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : '56px 1fr',
+        columnGap: m ? 0 : '32px', marginBottom: m ? '28px' : '48px'
+      },
+      faqTitleStyle: {
+        fontSize: m ? '30px' : '40px', lineHeight: m ? '37px' : '46px', fontWeight: 600,
+        letterSpacing: '-0.028em', color: 'var(--ink)', margin: 0, maxWidth: '470px', textWrap: 'pretty'
+      },
+      faqWrapStyle: { display: 'flex', flexDirection: 'column', width: '100%' },
+      faqs: [
+        { q: 'Is this legal advice?', a: 'No. Appeal Architect prepares documents and explains procedure. It is not legal or medical advice, and it does not represent you. You review and file everything yourself. If your case needs a lawyer, we will say so rather than pretend otherwise.' },
+        { q: 'What happens to my documents?', a: 'They are encrypted and stored against your case so you can come back to them. They are not sold, not used to train anything, and not shared with your insurer. You can delete a case, or your whole account, from Settings, and the files go with it.' },
+        { q: 'Does this work for Medicare or Medicaid?', a: 'Partly. Medicare Advantage and Medicaid managed care follow different rules, with shorter deadlines and different review bodies. The free check tells you which track you are on. If we cannot route your case accurately we will tell you instead of guessing.' },
+        { q: 'What if my deadline has already passed?', a: 'Sometimes there is still a route — a late filing with good cause, a second claim, or an external review window that runs on a different clock. Run the free check and it will say plainly whether a door is still open.' },
+        { q: 'What if I buy the package and change my mind?', a: 'Full refund within 14 days as long as you have not exported a letter. If the rules engine cannot determine your track, you are refunded automatically and we tell you why.' }
+      ].map((f, i) => {
+        const open = this.state.faq === i;
+        return { ...f, open, anim: String(Math.min(i, 5)), num: String(i + 1).padStart(2, '0'),
+          sign: open ? '\u2212' : '+',
+          rowStyle: { position: 'relative', width: '100%' },
+          ruleStyle: {
+            position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
+            background: open ? 'var(--clay)' : 'var(--rule)', transformOrigin: 'left',
+            animation: 'aa-drawright 620ms cubic-bezier(.65,0,.35,1) both'
+          },
+          btnStyle: {
+            width: '100%', display: 'grid',
+            gridTemplateColumns: m ? '32px 1fr 28px' : '56px 1fr 28px',
+            columnGap: m ? '8px' : '32px', alignItems: 'baseline', textAlign: 'left',
+            padding: m ? '22px 0' : '28px 0', minHeight: '64px'
+          },
+          numStyle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', letterSpacing: '.14em', color: open ? 'var(--clay-deep)' : 'var(--ink-muted)' },
+          qStyle: { fontSize: m ? '18px' : '21px', lineHeight: m ? '27px' : '30px', fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--ink)' },
+          signStyle: { fontFamily: "'IBM Plex Mono',monospace", fontSize: '18px', color: open ? 'var(--clay)' : 'var(--ink-muted)', justifySelf: 'end' },
+          answerWrapStyle: {
+            display: 'grid', gridTemplateColumns: m ? '1fr' : '56px 1fr',
+            columnGap: m ? 0 : '32px', paddingBottom: m ? '26px' : '34px'
+          },
+          aStyle: {
+            gridColumn: m ? '1' : '2', fontSize: m ? '16px' : '17px', lineHeight: '29px',
+            color: 'var(--ink-muted)', margin: 0, maxWidth: '680px', textWrap: 'pretty'
+          },
+          toggle: () => this.setState({ faq: open ? null : i })
+        };
+      }),
+
+      // ---- closing call (08) ----
+      ctaSectionStyle: { background: 'var(--clay)', color: '#FFFCF7' },
+      ctaInnerStyle: {
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto',
+        padding: m ? '56px 20px' : '96px 56px 104px'
+      },
+      ctaTitleStyle: {
+        fontSize: m ? '36px' : '72px', lineHeight: m ? '40px' : '72px', fontWeight: 600,
+        letterSpacing: '-0.04em', color: '#FFFCF7', margin: 0,
+        animation: 'aa-lineup 820ms cubic-bezier(.19,1,.22,1) both'
+      },
+      ctaRowStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : 'minmax(0,540px) 1fr',
+        gap: m ? '26px' : '48px', alignItems: 'end',
+        marginTop: m ? '28px' : '48px', paddingTop: m ? '28px' : '40px',
+        borderTop: '1px solid rgb(255 252 247 / .3)'
+      },
+      ctaLeadStyle: { fontSize: m ? '16px' : '17px', lineHeight: '28px', color: 'rgb(255 252 247 / .86)', margin: 0, textWrap: 'pretty' },
+      ctaBtnStyle: {
+        justifySelf: m ? 'start' : 'end', background: '#FFFCF7', color: 'var(--clay-deep)',
+        borderRadius: '2px', padding: '0 30px', height: '54px', fontSize: '15px', fontWeight: 600
+      },
+
+      // ---- footer ----
+      footerStyle: {
+        background: 'var(--band)', color: 'var(--band-ink)',
+        padding: m ? '48px 20px 36px' : '80px 56px 48px'
+      },
+      footerTopStyle: {
+        display: 'grid', gridTemplateColumns: m ? '1fr' : '2fr 1fr 1fr',
+        gap: m ? '32px' : '48px', maxWidth: m ? 'none' : '1440px', margin: '0 auto'
+      },
+      footerBrandStyle: { minWidth: 0 },
+      footerMarkStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', letterSpacing: '.2em',
+        textTransform: 'uppercase', color: 'var(--band-ink)', fontWeight: 500, marginBottom: '14px'
+      },
+      footerTagStyle: { fontSize: '15px', lineHeight: '25px', color: 'var(--band-muted)', maxWidth: '290px' },
+      footerColStyle: { display: 'flex', flexDirection: 'column', gap: '12px' },
+      footerColHeadStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '10px', letterSpacing: '.18em',
+        textTransform: 'uppercase', color: 'var(--band-muted)', marginBottom: '2px'
+      },
+      footerLinkStyle: { fontSize: '14px', color: 'var(--band-ink)', textDecoration: 'none' },
+      footerBottomStyle: {
+        maxWidth: m ? 'none' : '1440px', margin: '0 auto',
+        borderTop: '1px solid var(--band-rule)', marginTop: m ? '36px' : '64px',
+        paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '14px'
+      },
+      disclaimerStyle: { fontSize: '13px', lineHeight: '22px', color: 'var(--band-ink)', margin: 0, maxWidth: '830px' },
+      stampStyle: {
+        fontFamily: "'IBM Plex Mono',monospace", fontSize: '10px', lineHeight: '17px',
+        letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--band-muted)', margin: 0
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

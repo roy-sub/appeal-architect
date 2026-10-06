@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* Appeal Architect — design tokens.
+   Light only (dark mode removed by request). Values mirror
+   project/tokens.css exactly; the @theme block below exposes them to Tailwind. */
+
+:root {
+  /* ground & ink */
+  --ground: #F2EDE4;
+  --surface: #FFFCF7;
+  --surface-sunk: #EAE2D6;
+  --ink: #1C1A17;
+  --ink-muted: #5E5850;
+  --rule: #DED5C6;
+  --stripe: #D2C8B8;
+
+  /* brand: forest is the institution, clay is the advocate */
+  --forest: #14453A;
+  --forest-deep: #0E332B;
+  --forest-tint: #DCE8E0;
+  --clay: #C85A33;
+  --clay-soft: #F7DDCE;
+  --clay-deep: #9E4323;
+  --sky: #2F5E78;
+  --sky-tint: #DCE7EE;
+  --wheat: #F2D9A8;
+  --plum: #6B3A5B;
+  --paper: #FFFCF7;
+
+  /* time (deadlines only) */
+  --time: #A9640F;
+  --time-ample: #5E5850;
+  --time-approaching: #B8822C;
+  --time-near: #A9640F;
+  --time-imminent: #8A4409;
+  --time-track: #E6D7BE;
+
+  /* standing (does an argument hold) */
+  --standing: #14453A;
+  --standing-tint: #DCE8E0;
+  --defeated: #837C72;
+
+  /* interaction & bands */
+  --focus: #C85A33;
+  --overlay: rgb(28 26 23 / 0.46);
+  --band: #14332C;
+  --band-ink: #F4EFE5;
+  --band-muted: #A9BDB2;
+  --band-rule: #2A4C43;
+
+  /* elevation */
+  --e1: 0 1px 2px rgb(40 30 18 / 0.06);
+  --e2: 0 10px 30px -10px rgb(40 30 18 / 0.22);
+  --e3: 0 24px 60px -24px rgb(20 51 44 / 0.35);
+
+  /* motion */
+  --ease-exit: cubic-bezier(.4, 0, 1, 1);
+  --ease-enter: cubic-bezier(.16, .84, .32, 1);
+  --ease-move: cubic-bezier(.65, 0, .35, 1);
+  --ease-expo: cubic-bezier(.19, 1, .22, 1);
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-surface-sunk: var(--surface-sunk);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-stripe: var(--stripe);
+  --color-paper: var(--paper);
+
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-forest-tint: var(--forest-tint);
+  --color-clay: var(--clay);
+  --color-clay-soft: var(--clay-soft);
+  --color-clay-deep: var(--clay-deep);
+  --color-sky: var(--sky);
+  --color-sky-tint: var(--sky-tint);
+  --color-wheat: var(--wheat);
+  --color-plum: var(--plum);
+
+  --color-time: var(--time);
+  --color-time-ample: var(--time-ample);
+  --color-time-approaching: var(--time-approaching);
+  --color-time-near: var(--time-near);
+  --color-time-imminent: var(--time-imminent);
+  --color-time-track: var(--time-track);
+
+  --color-standing: var(--standing);
+  --color-standing-tint: var(--standing-tint);
+  --color-defeated: var(--defeated);
+
+  --color-band: var(--band);
+  --color-band-ink: var(--band-ink);
+  --color-band-muted: var(--band-muted);
+  --color-band-rule: var(--band-rule);
+
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-doc: var(--font-newsreader), Georgia, serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --radius-sharp: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-e1: var(--e1);
+  --shadow-e2: var(--e2);
+  --shadow-e3: var(--e3);
+
+  --ease-enter: var(--ease-enter);
+  --ease-move: var(--ease-move);
+  --ease-exit: var(--ease-exit);
+
+  --animate-marquee: aa-marquee 46s linear infinite;
+  --animate-fade: aa-fade 180ms var(--ease-enter);
+  --animate-kenburns: aa-kenburns 14s var(--ease-enter) both;
+}
+
+@keyframes aa-marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+@keyframes aa-fade { from { opacity: 0 } to { opacity: 1 } }
+/* Hero plate: one slow push, then still (motion.md § Landing 01). */
+@keyframes aa-kenburns { from { transform: scale(1.08) } to { transform: scale(1) } }
+
+html { background: var(--ground); color: var(--ink); -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-sans); background: var(--ground); }
+button { cursor: pointer; }
+
+:where(a, button, [tabindex], input, textarea, select):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.text-pretty { text-wrap: pretty; }
+.text-balance { text-wrap: balance; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Defeated arguments and media placeholders share the hatch. */
+.hatch { background-image: repeating-linear-gradient(45deg, transparent 0 6px, var(--stripe) 6px 7px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* The letter prints on US Letter with correct margins. */
+@media print {
+  @page { size: letter; margin: 1in; }
+  body { background: #fff; }
+  .no-print { display: none !important; }
+  .print-sheet { border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+}

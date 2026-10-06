@@ -1,0 +1,89 @@
+/* Appeal Architect — design tokens
+   Light only. Dark mode removed by request.
+   Agrees exactly with tailwind.theme.ts. */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap');
+
+:root {
+  /* ---- ground & ink (warm paper, not grey) ---- */
+  --ground:        #F2EDE4;
+  --surface:       #FFFCF7;
+  --surface-sunk:  #EAE2D6;
+  --ink:           #1C1A17;
+  --ink-muted:     #5E5850;
+  --rule:          #DED5C6;
+  --stripe:        #D2C8B8;
+
+  /* ---- brand: forest is the institution, clay is the advocate ---- */
+  --forest:        #14453A;   /* primary brand, "standing", AA on surface at 8.9:1 */
+  --forest-deep:   #0E332B;   /* hero ground, deepest band */
+  --forest-tint:   #DCE8E0;
+  --clay:          #C85A33;   /* the single action colour */
+  --clay-soft:     #F7DDCE;
+  --clay-deep:     #9E4323;   /* clay on light: 5.1:1, used for text and links */
+  --sky:           #2F5E78;   /* third voice, step 02 and capability 02 */
+  --sky-tint:      #DCE7EE;
+  --wheat:         #F2D9A8;   /* highlight on dark grounds only */
+  --plum:          #6B3A5B;   /* fourth capability accent */
+
+  /* ---- time (deadlines only) ---- */
+  --time:            #A9640F;
+  --time-ample:      #5E5850;   /* >60 days — no hue */
+  --time-approaching:#B8822C;   /* 60–15 */
+  --time-near:       #A9640F;   /* 14–4  */
+  --time-imminent:   #8A4409;   /* ≤3    */
+  --time-track:      #E6D7BE;
+
+  /* ---- standing (does an argument hold) ---- */
+  --standing:       #14453A;
+  --standing-tint:  #DCE8E0;
+  --defeated:       #837C72;
+
+  /* ---- interaction ---- */
+  --focus:          #C85A33;
+  --overlay:        rgb(28 26 23 / 0.46);
+  --band:           #14332C;   /* dark full-bleed band */
+  --band-ink:       #F4EFE5;
+  --band-muted:     #A9BDB2;
+  --band-rule:      #2A4C43;
+
+  /* ---- elevation ---- */
+  --e1: 0 1px 2px rgb(40 30 18 / 0.06);
+  --e2: 0 10px 30px -10px rgb(40 30 18 / 0.22);
+  --e3: 0 24px 60px -24px rgb(20 51 44 / 0.35);
+
+  /* ---- radius ---- */
+  --r-sharp: 2px;  --r-sm: 6px;  --r-md: 10px;  --r-lg: 16px;  --r-xl: 24px;
+
+  /* ---- spacing (4px base) ---- */
+  --s1: 4px;  --s2: 8px;   --s3: 12px;  --s4: 16px;  --s5: 24px;  --s6: 32px;
+  --s7: 48px; --s8: 64px;  --s9: 96px;  --s10: 128px; --s11: 160px;
+
+  /* ---- type ---- */
+  --font-sans:  'IBM Plex Sans', system-ui, sans-serif;
+  --font-doc:   'Newsreader', Georgia, serif;
+  --font-mono:  'IBM Plex Mono', ui-monospace, monospace;
+
+  /* ---- motion ---- */
+  --ease-exit:  cubic-bezier(.4, 0, 1, 1);
+  --ease-enter: cubic-bezier(.16, .84, .32, 1);
+  --ease-move:  cubic-bezier(.65, 0, .35, 1);
+  --dur-1: 120ms; --dur-2: 180ms; --dur-3: 260ms; --dur-4: 420ms; --dur-5: 700ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+:where(a, button, [tabindex], input, textarea, select):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+a { color: var(--clay-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--clay); }

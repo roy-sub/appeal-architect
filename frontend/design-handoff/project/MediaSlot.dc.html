@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<sc-if value="{{ notFill }}" hint-placeholder-val="{{ true }}">
+<div style="position:relative;width:100%;aspect-ratio:{{ ratio }};border-radius:10px;overflow:hidden;background:var(--surface-sunk);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+  <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg, transparent 0 7px, var(--stripe) 7px 8px);opacity:.55"></div>
+  <sc-if value="{{ roomy }}" hint-placeholder-val="{{ true }}">
+    <div style="position:relative;text-align:center;max-width:320px;display:flex;flex-direction:column;gap:6px;align-items:center">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:16px;letter-spacing:.06em;color:var(--ink-muted);text-transform:uppercase;border:1px solid var(--rule);background:var(--surface);border-radius:2px;padding:2px 7px">{{ kind }}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:18px;color:var(--ink-muted)">{{ label }}</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ tight }}" hint-placeholder-val="{{ false }}">
+    <div style="position:relative;display:flex;align-items:center;gap:8px;min-width:0;padding:0 8px">
+      <span style="flex:0 0 auto;width:6px;height:6px;background:var(--ink-muted);opacity:.5"></span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ label }}</span>
+    </div>
+  </sc-if>
+  <sc-if value="{{ roomy }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:10px;bottom:9px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:14px;color:var(--ink-muted);opacity:.8">{{ slotId }}</div>
+  </sc-if>
+  <sc-if value="{{ roomy }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;right:10px;bottom:9px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:14px;color:var(--ink-muted);opacity:.8">{{ intrinsic }}</div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isFill }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;overflow:hidden;background:var(--surface-sunk)">
+  <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg, transparent 0 9px, var(--stripe) 9px 10px);opacity:.4"></div>
+  <div style="position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);opacity:.75">
+    <span style="width:6px;height:6px;background:var(--ink-muted)"></span>
+    <span>{{ slotId }}</span>
+    <span>·</span>
+    <span>{{ kind }}</span>
+    <span>·</span>
+    <span>{{ intrinsic }}</span>
+  </div>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:280},&quot;slotId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;hero-bg&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;ratio&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;16 / 9&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;kind&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;image&quot;,&quot;video&quot;,&quot;illustration&quot;,&quot;image strip&quot;],&quot;default&quot;:&quot;image&quot;,&quot;tsType&quot;:&quot;'image'|'video'|'illustration'|'image strip'&quot;},&quot;label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;What this slot depicts&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;intrinsic&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1280×720&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;fill&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const fill = p.fill === true || p.fill === 'true';
+    // A slot shorter than ~64px cannot hold the stacked caption without the
+    // corner stamps colliding with it, so it falls back to a single inline line.
+    const r = String(p.ratio || '16 / 9').split('/');
+    const rw = parseFloat(r[0]) || 16, rh = parseFloat(r[1]) || 9;
+    const squat = rh > 0 && rw / rh >= 5;
+    return {
+      ratio: p.ratio || '16 / 9',
+      kind: p.kind || 'image',
+      label: p.label || 'What this slot depicts',
+      slotId: p.slotId || 'slot',
+      intrinsic: p.intrinsic || '1280×720',
+      isFill: fill, notFill: !fill,
+      roomy: !fill && !squat,
+      tight: !fill && squat
+    };
+  }
+}
+</script>
+</body>
+</html>
