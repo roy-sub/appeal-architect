@@ -1,0 +1,8 @@
+# What a filing must contain at each review level.
+rule_id,level,key,label,detail,plan_type,citation_source,citation_locator,mandatory,verified,effective_date
+fed.required.claim_identifiers,internal_1,claim_identifiers,Claim and member identifiers,"The claim number and member ID exactly as the denial letter prints them",*,45 CFR 147.136,(b)(2),true,false,
+fed.required.denial_letter,internal_1,denial_letter,A copy of the denial letter,"The notice of adverse benefit determination you are appealing",*,45 CFR 147.136,(b)(2),true,false,
+fed.required.statement_of_reasons,internal_1,statement_of_reasons,Why the denial is wrong,"Your grounds, in writing",*,45 CFR 147.136,(b)(2),true,false,
+fed.required.rep_authorisation,internal_1,rep_authorisation,Authorisation for your representative,"Required only when someone other than the member files",*,29 CFR 2560.503-1,(b)(4),false,false,
+fed.required.free_copies_request,internal_1,free_copies_request,Request for your claim file,"You may ask for free copies of the documents the insurer relied on",*,29 CFR 2560.503-1,(h),false,false,
+fed.required.external_review_form,external,external_review_form,The external review request form,"Issued by your state or by HHS, depending on who runs the process",*,45 CFR 147.136,(d),true,false,

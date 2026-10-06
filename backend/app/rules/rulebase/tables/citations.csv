@@ -1,0 +1,15 @@
+# Citation text for each rule id. The quote column is transcribed verbatim where
+# we have the source text and left empty where we do not -- an empty quote with
+# verified=false is honest; an invented quote is not.
+rule_id,source,locator,title,quote,url,verified
+fed.internal_appeal.window,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.erisa.internal_appeal.window,29 CFR 2560.503-1,(h)(3)(i),ERISA claims procedure regulation,,https://www.ecfr.gov/current/title-29/section-2560.503-1,false
+fed.insurer_response.pre_service,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.insurer_response.post_service,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.insurer_response.urgent,45 CFR 147.136,(b)(2)(ii)(B),Expedited notification of benefit determinations,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.external_review.window,45 CFR 147.136,(d),External review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.external_review.decision,45 CFR 147.136,(d)(2),Federal external review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.external_review.decision_expedited,45 CFR 147.136,(d)(2)(ii),Expedited external review,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.documents.free_copies,29 CFR 2560.503-1,(h),Appeal of adverse benefit determinations,,https://www.ecfr.gov/current/title-29/section-2560.503-1,false
+ma.redetermination.window,42 CFR 422.582,(b),Request for a standard redetermination,,https://www.ecfr.gov/current/title-42/section-422.582,false
+medicaid.plan_appeal.window,42 CFR 438.402,(c)(2)(ii),Timely filing of a plan appeal,,https://www.ecfr.gov/current/title-42/section-438.402,false

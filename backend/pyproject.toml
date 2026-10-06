@@ -1,3 +1,86 @@
+[project]
+name = "appeal-architect-backend"
+version = "0.1.0"
+description = "Appeal Architect API: symbolic rules engine, argumentation solver, and an LLM that only reads and writes prose"
+requires-python = ">=3.12"
+
+dependencies = [
+  # web
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.3",
+  "python-multipart>=0.0.9",
+
+  # auth
+  "pyjwt>=2.9",
+
+  # symbolic engine -- the rules and argumentation packages
+  "clingo>=5.7",
+  "clorm>=1.6",
+
+  # dates. Deadline arithmetic is safety-critical; see rules/calendar.py.
+  #
+  # The build spec names `workalendar` for US federal holidays. It cannot be
+  # installed: its transitive dependency `pymeeus` fails to build its wheel on
+  # Python 3.13. `holidays` is the agreed substitute (PLAN.md Q1) and sits behind
+  # a one-function adapter so the source stays swappable. The adapter is tested
+  # against a table transcribed from 5 U.S.C. 6103, so the deadline tests do not
+  # depend on any library being correct.
+  "python-dateutil>=2.9",
+  "holidays>=0.57",
+
+  # persistence and storage
+  "supabase>=2.6",
+
+  # documents -- phase 4 and 6
+  "pypdfium2>=4.30",
+  "pytesseract>=0.3.13",
+  "pillow>=10.4",
+  "python-docx>=1.1",
+  "weasyprint>=62",
+
+  # LLM -- phase 4. Importable ONLY by app/services/llm.py.
+  "anthropic>=0.40",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.24",
+  "httpx>=0.27",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["rules/rulebase/*", "rules/rulebase/**/*", "argumentation/schemes/*", "templates/*"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["error::DeprecationWarning:app.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+# Third-party packages without shipped type information.
+[[tool.mypy.overrides]]
+module = ["clingo.*", "clorm.*", "holidays.*", "supabase.*", "pytesseract.*", "pypdfium2.*", "weasyprint.*"]
+ignore_missing_imports = true

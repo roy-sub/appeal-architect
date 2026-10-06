@@ -3,7 +3,7 @@
 Consumer web app that helps a person fight a health-insurance denial. It works out the
 appeal track and deadlines, with the rule behind each. It builds the counter-arguments
 against the insurer's stated reason, then writes the appeal letter from the arguments that
-hold. Read `design-handoff/project/uploads/Appeal Design Brief.md` before any product decision.
+hold. Read `../design/project/uploads/Appeal Design Brief.md` before any product decision.
 
 ## Commands
 
@@ -13,7 +13,7 @@ npm run dev          # http://localhost:3000
 npm run build        # static export → out/
 npm run lint         # eslint (flat config)
 npm run typecheck    # tsc --noEmit
-npm run export:data  # regenerate backend/app/data.py from lib/case-data.ts
+npm run check:tokens # fails if the palette has drifted from /design
 ```
 
 Node ≥ 20.9 (`.nvmrc` pins 22). Next.js 15 App Router with `output: "export"`: no SSR, no
@@ -30,8 +30,11 @@ Tailwind CSS v4 (CSS-first config in `app/globals.css`), shadcn-style primitives
 ```
 app/
   page.tsx                      Landing (sections in components/landing/)
+  providers.tsx                 TanStack Query + AuthProvider
   triage/page.tsx               Free triage: 4 questions → track, deadline, honest verdict
-  (workspace)/layout.tsx        Authenticated shell: rail (desktop) / bottom bar (mobile)
+  (auth)/signin/                Magic link; says what happens to their documents, here
+  (auth)/auth/callback/         Where the magic link lands (client-side, no server)
+  (workspace)/layout.tsx        Authenticated shell + AuthGate
   (workspace)/cases/            Case list + empty state
   (workspace)/case/documents/   Upload wizard
   (workspace)/case/facts/       Extraction review + named "working" stages
@@ -45,27 +48,34 @@ components/
   landing/                      hero.tsx (nav, hero, marquee), sections.tsx, faq.tsx
   workspace/shell.tsx           AppShell, CaseHeader, PageHead, shared class atoms
   workspace/case-context.tsx    Client case state shared across workspace screens
+  workspace/auth-gate.tsx       Client-side guard (static export has no middleware)
+  workspace/not-configured.tsx  Notice shown when the backend is not wired up
   reveal.tsx                    The one animation wrapper (see Motion)
   media-slot.tsx                Deferred-asset placeholder (roomy / tight / fill)
   deadline-ring.tsx, status-pill.tsx
 lib/
-  case-data.ts                  Demo case (single source; backend copy is generated)
+  api.ts                        Typed backend client: bearer token, problem+json, warming state
+  supabase.ts                   Browser auth client
+  auth.tsx                      Session context, magic-link sign-in
+  query-keys.ts                 One key factory, so invalidation is not guesswork
+  case-data.ts                  Demo case. Still read by the screens that are not
+                                yet wired to the API; deleted in phase 5.
   landing-content.ts            Landing copy
   motion.ts                     Easings, durations, named gestures
   time.ts                       Deadline tone thresholds
   site.ts                       Fixed strings: disclaimer, rules stamp
-design-handoff/                 Original Claude Design export. Reference only, not built.
+(design lives at the repo root, ../design/ — original Claude Design export, read-only)
 ```
 
 ## Sources of truth, in priority order
 
-1. `design-handoff/project/Appeal Architect.dc.html`: the final prototype. Visual values
+1. `../design/project/Appeal Architect.dc.html`: the final prototype. Visual values
    (px sizes, spacing, colours) were taken from it exactly.
-2. `design-handoff/chats/chat1.md`: the user's decisions while iterating (light mode only,
+2. `../design/chats/chat1.md`: the user's decisions while iterating (light mode only,
    forest/clay palette, landing redesign, "how it works" desktop fix).
-3. `design-handoff/project/components.md`, `motion.md`, `media-manifest.md`: behaviour
+3. `../design/project/components.md`, `motion.md`, `media-manifest.md`: behaviour
    specs. Where they disagree with the prototype on visuals, the prototype wins.
-4. `design-handoff/project/design-plan.md`: its palette section is **outdated** (it predates
+4. `../design/project/design-plan.md`: its palette section is **outdated** (it predates
    the forest/clay palette). Its principles still apply.
 
 ## Rules that must not break
@@ -105,7 +115,11 @@ design-handoff/                 Original Claude Design export. Reference only, n
 - **Media:** every image or video goes through `<MediaSlot>` with the id, ratio and intrinsic
   size from `media-manifest.md`. To ship an asset, render it inside the same box, so the
   layout is unchanged.
-- **Case data** is demo data in `lib/case-data.ts`. After editing it, run `npm run export:data`.
+- **Case data.** The case list reads the API through `lib/api.ts`. The other eight
+  screens still read demo data from `lib/case-data.ts`; phase 5 replaces those reads.
+  No screen reads both — demo data is not a fallback for a failed request.
+- **Dates.** The frontend never does date arithmetic beyond "days until". Every
+  deadline is computed server-side and sent as a date, with the rule it came from.
 
 ## Status
 
@@ -129,25 +143,46 @@ Also built:
 
 ### Known issues and decisions to confirm
 
-- **Deadline arithmetic in the copy is wrong.** 180 days after 14 Sep 2026 is **13 Mar
-  2027**, not "22 Mar 2027 / 168 days" as the prototype shows everywhere (header pill,
-  roadmap, triage, letter, `case-data.ts`). The backend computes 13 Mar. Fix the copy and
-  data together.
+- **Deadline arithmetic in the copy is wrong — and it is the dangerous direction.**
+  The prototype says 22 Mar 2027 / 168 days everywhere (header pill, roadmap, triage,
+  letter, `case-data.ts`). 180 days after 14 Sep 2026 is **13 Mar 2027**. The copy is
+  9 days late, so someone trusting it could file after their window closed.
+  Resolved in `PLAN.md` §3.2: the engine computes the date and the copy renders what
+  it returns. There is a second layer — the rule counts from *receipt*, the prototype
+  counts from the letter date, and the regulation does not settle which — so the real
+  answer is a conservative date plus an ambiguity note, not a confident single date.
+  The RuleDrawer copy needs rewriting to say so. Phase 5.
 - The stats band shows units ("%", "days") that the prototype omitted ("0.2 of denied claims").
 - Triage page got the prototype's standard margins (its style key was undefined there).
 - "Build my roadmap" is gated until every fact is resolved (the brief requires it; the
   prototype did not).
 - Media ratios follow the prototype, which differs from `media-manifest.md` (features 16/10
-  vs 4/3; personas 4/5, 4/3, 1/1 vs all 4/3). Pick one when real assets arrive.
-- Triage verdict is static copy whatever the answers; wire to `POST /api/triage`.
+  vs 4/3; personas 4/5, 4/3, 1/1 vs all 4/3). Resolved in `PLAN.md` §3.6: take the
+  manifest, which was re-synced later in the design chat than the prototype was last
+  touched. Not yet applied to the slots.
+- Triage verdict is static copy whatever the answers; wire to `POST /api/v1/public/triage` (phase 7).
 - Export DOCX and Download template are inert; Export PDF uses `window.print()`.
 - Upload inputs open the picker or camera but process nothing.
-- The argument graph is hand-laid-out per the prototype. The brief mentions React Flow;
-  not needed at the current graph size.
+- The argument graph is hand-laid-out per the prototype. Resolved in `PLAN.md` §3.3:
+  React Flow + dagre for structure (it must lay out arbitrary solver output, not a fixed
+  set of six nodes), the prototype's exact visual for every node, lane and connector.
+  Phase 5.
 - Footer legal links (`#terms`, `#privacy`, `#rules`) point nowhere yet.
 - Not yet placed: `trust-strip`, `graph-legend`, `letter-preview`, `og-card` slots.
 - Spec components not yet built: `Field` (no-red error state), `DestructiveDialog`, toasts,
   `MarginNote` connector hairline, accordion height animation.
+
+### Wired to the backend so far
+
+- **Sign in / sign up** (`/signin/`) and the magic-link callback.
+- **The case list** reads `GET /api/v1/cases`, with a real empty state, a loading
+  skeleton, and a warming state for the free-tier backend's cold start.
+- `AuthGate` guards the workspace. With no Supabase keys configured the screens
+  still render and show an explicit notice, so the design work stays inspectable
+  without a backend.
+- No theme switch, and no dark palette. The build spec's phase 1 asks for one;
+  the design chat removed dark mode by explicit instruction, and appearance is
+  design's authority. See `PLAN.md` §3.1.
 
 ## Next build (brief §6, deferred by the user's scope answer)
 
@@ -158,4 +193,5 @@ Escalation (external review flow) · Settings (profile, dependants, notification
 toasts, modals, destructive confirmation · email templates (magic link; deadline reminders
 at 30/14/7/3/1 days; extraction complete; letter ready) · 404 and 500.
 
-Then: replace `lib/case-data.ts` reads with calls to `../backend` (see `backend/README.md`).
+Then phase 5: replace the remaining `lib/case-data.ts` reads with API calls through
+`lib/api.ts`, and delete the demo data.

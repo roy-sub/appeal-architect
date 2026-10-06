@@ -276,7 +276,22 @@ These are mine unless you object; I am not asking about them.
 
 ---
 
-## 6. What I need from you before Phase 1
+## 6. Answers received — these are now decided
+
+Asked and answered 2026-10-06. All four came back as the recommended option.
+
+| # | Question | Decision |
+|---|---|---|
+| Q1 | `workalendar` won't install | **Substitute `holidays` behind the `rules/calendar.py` adapter**, with the federal-holiday table unit-tested independently of the library. |
+| Q2 | Supabase project | **You create the free project now.** I deliver migration 001, RLS, the JWT dependency, the magic-link screens and `.env.example`; `docs/DEPLOY.md` carries the four values you paste. |
+| Q3 | CA/NY/TX overrides | **Wired but empty.** Zero override rows, so the defeasible pattern falls through to the federal baseline. Synthetic state `XX` proves the override path in the golden tests. No invented state deadline, anywhere. |
+| Q4 | LLM model | **Keep `claude-sonnet-4-6`.** Matches §8's call shape exactly on the highest-stakes LLM path. Stays an env var; revisit cost in Phase 8 with real usage. |
+
+Q5 (§4.4's `procedural` paragraph tag) and Q6 (Phase 5 reshaped to re-pointing the built
+screens) were not blocking, so I am proceeding on the recommendations in 3.5 and 2 and will
+raise each again at the phase boundary where it bites. Say now if either is wrong.
+
+### The questions as asked, for the record
 
 ### Q1 — `workalendar` cannot install. Substitute `holidays`? (blocker)
 

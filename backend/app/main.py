@@ -1,60 +1,85 @@
-"""Appeal Architect API (scaffold).
+"""Appeal Architect API.
 
-Serves the triage check and the demo case the frontend renders.
-Not yet wired to the frontend, which still reads lib/case-data.ts.
+A symbolic rules engine determines the appeal route, the review levels, the
+deadlines and the required elements. An argumentation solver computes which
+counter-arguments are acceptable. An LLM reads documents and writes prose, and
+does nothing else.
+
+That separation is the product, so it is enforced structurally rather than by
+convention: ``app/rules/**`` and ``app/argumentation/**`` have no import path to
+the Anthropic SDK, and ``tests/test_boundary.py`` fails the build if one appears.
+See docs/ARCHITECTURE.md.
 """
-from datetime import date
-from typing import Literal
 
-from fastapi import FastAPI, HTTPException
+from __future__ import annotations
+
+import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from starlette.exceptions import HTTPException
 
-from . import data, rules
-
-app = FastAPI(title="Appeal Architect API", version="0.1.0")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+from app.api.v1 import router as v1_router
+from app.api.v1.health import router as health_router
+from app.config import get_settings
+from app.problem import (
+    Problem,
+    http_exception_handler,
+    problem_handler,
+    validation_handler,
 )
 
-
-class TriageRequest(BaseModel):
-    source: Literal["employer", "marketplace", "medicare", "medicaid", "unsure"]
-    letter_date: date | None = None
+logger = logging.getLogger("appeal_architect")
 
 
-@app.get("/api/health")
-def health():
-    return {"ok": True, "rules_version": rules.RULES_VERSION}
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    settings = get_settings()
+    if settings.is_production:
+        missing = settings.missing_for_production()
+        if missing:
+            # Loud, not fatal: a backend that refuses to boot takes the whole
+            # site down, but a backend that silently cannot send deadline
+            # reminders is worse than one that complains on every line of the log.
+            logger.error("Production start with missing configuration: %s", "; ".join(missing))
+    else:
+        logger.info("Service status: %s", settings.service_status())
+    yield
 
 
-@app.post("/api/triage")
-def triage(req: TriageRequest):
-    return rules.determine(req.source, req.letter_date, date.today())
+def create_app() -> FastAPI:
+    settings = get_settings()
+    app = FastAPI(
+        title="Appeal Architect API",
+        version="0.1.0",
+        description=__doc__,
+        lifespan=lifespan,
+        # Interactive docs are a development affordance, not a production surface.
+        docs_url=None if settings.is_production else "/docs",
+        redoc_url=None,
+        openapi_url=None if settings.is_production else "/openapi.json",
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origin_list,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "X-Internal-Job-Secret"],
+    )
+
+    # Every error leaves as problem+json with a machine-readable code, so the
+    # frontend has exactly one error shape to parse.
+    app.add_exception_handler(Problem, problem_handler)
+    app.add_exception_handler(HTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_handler)
+
+    app.include_router(health_router)
+    app.include_router(v1_router)
+    return app
 
 
-@app.get("/api/cases")
-def list_cases():
-    # Sorted by how soon each case needs the user, not by when it was added.
-    return sorted(data.CASES, key=lambda c: c["days"])
-
-
-@app.get("/api/cases/{claim}")
-def get_case(claim: str):
-    case = next((c for c in data.CASES if c["claim"] == claim), None)
-    if case is None:
-        raise HTTPException(404, "Case not found")
-    if claim != data.DEMO_CLAIM:
-        return {"case": case}
-    return {
-        "case": case,
-        "facts": data.FACTS,
-        "roadmap": data.ROAD_STEPS,
-        "claim": data.CLAIM,
-        "arguments": data.ARGS,
-        "evidence": data.EVIDENCE,
-        "letter": data.LETTER_PARAS,
-    }
+app = create_app()

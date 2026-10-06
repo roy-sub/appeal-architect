@@ -1,0 +1,17 @@
+# TX state overrides -- INTENTIONALLY EMPTY.
+#
+# No row here means no override, so the federal baseline in deadlines.csv governs
+# for TX. That is correct and honest.
+#
+# This file has no rows because we have no TX statute source. We will not write a
+# plausible-looking deadline into it: a wrong date shown to a user with a citation
+# beside it is the most harmful artefact this codebase could contain, and a user
+# who relies on it can lose their appeal rights permanently.
+#
+# To fill this in, add one row per override with the statute text to hand, then set
+# verified=true only once you have read the cited section yourself.
+#
+# The override MECHANISM is proven by the synthetic state 'XX' in
+# tests/golden/ -- the federal-default-vs-state-override path is fully exercised
+# without any real value being invented.
+rule_id,item,count,unit,trigger,citation_source,citation_locator,verified,effective_date,note

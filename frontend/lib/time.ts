@@ -1,5 +1,5 @@
 // Urgency by proximity, never alarm. No hue at all above 60 days.
-// Thresholds and words: design-handoff/project/components.md § DeadlineRing.
+// Thresholds and words: ../design/project/components.md § DeadlineRing.
 export type Tone = { color: string; weight: 500 | 600; word: string };
 
 export function tone(days: number): Tone {
