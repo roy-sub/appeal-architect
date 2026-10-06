@@ -1,0 +1,28 @@
+id: mn.step_therapy_completed
+denial_reason: not_medically_necessary
+side: patient
+claim_template: >
+  The plan's own step-therapy requirement has been satisfied: the preferred
+  treatments were tried for the required period and documented as unsuccessful.
+premises:
+  - id: prior_trials
+    text: The preferred treatments were actually tried
+    evidence: pharmacy_history
+  - id: trials_documented
+    text: Each trial and its outcome is documented by the prescriber
+    evidence: physician_notes
+  - id: duration_met
+    text: Each trial ran at least as long as the plan's policy requires
+    evidence: plan_clinical_policy
+attacks:
+  - target: insurer.not_medically_necessary
+    kind: undermine
+known_rebuttals:
+  - id: mn.step_therapy_completed.rebuttal.duration
+    text: The insurer says the trials were too short to count
+    kind: undercut
+    defeated_by_evidence: plan_clinical_policy
+strength: strong
+citations:
+  - source: plan_document
+    locator: step therapy policy

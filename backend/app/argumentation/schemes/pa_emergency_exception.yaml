@@ -1,0 +1,25 @@
+id: pa.emergency_exception
+denial_reason: prior_auth_missing
+side: patient
+claim_template: >
+  Prior authorisation was not required because the care was emergency care, which
+  the plan and federal law exempt.
+premises:
+  - id: emergency_presentation
+    text: The presentation met the prudent-layperson standard for an emergency
+    evidence: medical_records
+  - id: timing
+    text: There was no opportunity to seek authorisation before treatment
+    evidence: physician_letter
+attacks:
+  - target: insurer.prior_auth_missing
+    kind: undermine
+known_rebuttals:
+  - id: pa.emergency_exception.rebuttal.not_emergency
+    text: The insurer says the presentation did not amount to an emergency
+    kind: rebut
+    defeated_by_evidence: emergency_record
+strength: strong
+citations:
+  - source: 45 CFR 147.138
+    locator: (b)

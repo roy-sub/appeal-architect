@@ -1,0 +1,27 @@
+id: mn.treating_physician
+denial_reason: not_medically_necessary
+side: patient
+claim_template: >
+  The physician treating {condition} has determined that {service} is medically
+  necessary, and has set out the clinical reasoning in writing.
+premises:
+  - id: physician_opinion
+    text: The treating physician states in writing that the service is necessary
+    evidence: physician_letter
+  - id: clinical_basis
+    text: That opinion rests on documented findings, not assertion alone
+    evidence: medical_records
+attacks:
+  - target: insurer.not_medically_necessary
+    kind: rebut
+known_rebuttals:
+  - id: mn.treating_physician.rebuttal.not_binding
+    text: >
+      The insurer says a treating physician's opinion does not bind its own
+      medical director
+    kind: undercut
+    defeated_by_evidence: specialty_match_documentation
+strength: conditional
+citations:
+  - source: plan_document
+    locator: definition of medical necessity

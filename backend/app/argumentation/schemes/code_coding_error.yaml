@@ -1,0 +1,26 @@
+id: code.coding_error
+denial_reason: coding_error
+side: patient
+claim_template: >
+  The claim was submitted with a code that does not match the service delivered.
+  Corrected coding brings it within cover.
+premises:
+  - id: service_delivered
+    text: The record shows what was actually delivered
+    evidence: medical_records
+  - id: correct_code
+    text: The correct code for that service is identified
+    evidence: corrected_claim
+attacks:
+  - target: insurer.coding_error
+    kind: undermine
+known_rebuttals:
+  - id: code.coding_error.rebuttal.resubmit_required
+    text: >
+      The insurer says a corrected claim must be resubmitted rather than appealed
+    kind: undercut
+    defeated_by_evidence: plan_document
+strength: strong
+citations:
+  - source: plan_document
+    locator: claims submission

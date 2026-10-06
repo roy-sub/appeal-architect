@@ -1,0 +1,22 @@
+id: oon.referred_in_network
+denial_reason: out_of_network
+side: patient
+claim_template: >
+  An in-network physician referred this care, and a member who follows an
+  in-network referral should not bear the network consequence of it.
+premises:
+  - id: referral_exists
+    text: There is a written referral from an in-network provider
+    evidence: referral_record
+attacks:
+  - target: insurer.out_of_network
+    kind: undercut
+known_rebuttals:
+  - id: oon.referred_in_network.rebuttal.member_duty
+    text: The insurer says the member was still required to verify network status
+    kind: rebut
+    defeated_by_evidence: plan_document
+strength: conditional
+citations:
+  - source: plan_document
+    locator: referral requirements

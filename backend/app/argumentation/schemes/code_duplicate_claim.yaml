@@ -1,0 +1,22 @@
+id: code.duplicate_claim
+denial_reason: coding_error
+side: patient
+claim_template: >
+  This was denied as a duplicate, but the records show two distinct services on
+  the dates in question.
+premises:
+  - id: distinct_services
+    text: The record documents two separate encounters or procedures
+    evidence: medical_records
+attacks:
+  - target: insurer.coding_error
+    kind: undermine
+known_rebuttals:
+  - id: code.duplicate_claim.rebuttal.same_encounter
+    text: The insurer says both lines describe the same encounter
+    kind: rebut
+    defeated_by_evidence: medical_records
+strength: strong
+citations:
+  - source: plan_document
+    locator: duplicate claim handling

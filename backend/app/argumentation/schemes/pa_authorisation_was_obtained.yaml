@@ -1,0 +1,24 @@
+id: pa.authorisation_was_obtained
+denial_reason: prior_auth_missing
+side: patient
+claim_template: >
+  Prior authorisation was obtained. The denial appears to rest on a record that
+  does not reflect it.
+premises:
+  - id: auth_exists
+    text: There is a record of the authorisation being given
+    evidence: prior_auth_record
+attacks:
+  - target: insurer.prior_auth_missing
+    kind: undermine
+known_rebuttals:
+  - id: pa.authorisation_was_obtained.rebuttal.different_code
+    text: >
+      The insurer says the authorisation covered a different procedure code or
+      date range
+    kind: undercut
+    defeated_by_evidence: prior_auth_record
+strength: strong
+citations:
+  - source: plan_document
+    locator: prior authorisation record

@@ -1,0 +1,25 @@
+id: code.modifier_omitted
+denial_reason: coding_error
+side: patient
+claim_template: >
+  A required modifier was omitted from the claim. With it, the service is payable
+  under the plan's own rules.
+premises:
+  - id: modifier_applies
+    text: The clinical circumstances support the modifier
+    evidence: medical_records
+  - id: payable_with_modifier
+    text: The plan's payment policy covers the service when so modified
+    evidence: plan_document
+attacks:
+  - target: insurer.coding_error
+    kind: rebut
+known_rebuttals:
+  - id: code.modifier_omitted.rebuttal.documentation
+    text: The insurer says the record does not support the modifier
+    kind: rebut
+    defeated_by_evidence: medical_records
+strength: conditional
+citations:
+  - source: plan_document
+    locator: payment policy

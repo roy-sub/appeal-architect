@@ -1,0 +1,128 @@
+[
+  {
+    "name": "empty",
+    "why": "No arguments. Every semantics admits exactly the empty set.",
+    "arguments": [],
+    "attacks": [],
+    "grounded": [],
+    "preferred": [[]],
+    "stable": [[]]
+  },
+  {
+    "name": "single_unattacked",
+    "why": "An unattacked argument is accepted by every semantics.",
+    "arguments": ["a"],
+    "attacks": [],
+    "grounded": ["a"],
+    "preferred": [["a"]],
+    "stable": [["a"]]
+  },
+  {
+    "name": "simple_defeat",
+    "why": "a attacks b and nothing attacks a, so a is in and b is out.",
+    "arguments": ["a", "b"],
+    "attacks": [["a", "b"]],
+    "grounded": ["a"],
+    "preferred": [["a"]],
+    "stable": [["a"]]
+  },
+  {
+    "name": "even_cycle_two",
+    "why": "a and b attack each other. Grounded is empty (neither is forced). Two preferred and two stable extensions, one per argument. This is the shape that produces the 'Worth adding' tier.",
+    "arguments": ["a", "b"],
+    "attacks": [["a", "b"], ["b", "a"]],
+    "grounded": [],
+    "preferred": [["a"], ["b"]],
+    "stable": [["a"], ["b"]]
+  },
+  {
+    "name": "odd_cycle_three",
+    "why": "a->b->c->a. Grounded is empty. There is NO stable extension, which is the classic reason stable alone is not enough. The only preferred extension is the empty set.",
+    "arguments": ["a", "b", "c"],
+    "attacks": [["a", "b"], ["b", "c"], ["c", "a"]],
+    "grounded": [],
+    "preferred": [[]],
+    "stable": []
+  },
+  {
+    "name": "self_attack",
+    "why": "a attacks itself, so it can never be in a conflict-free set. No stable extension exists because nothing attacks a from outside.",
+    "arguments": ["a"],
+    "attacks": [["a", "a"]],
+    "grounded": [],
+    "preferred": [[]],
+    "stable": []
+  },
+  {
+    "name": "self_attacker_attacks_other",
+    "why": "a attacks itself and also b. a can never be in. b is attacked by a, and a is never defeated by any admissible set, so b is never defended. Grounded and the sole preferred extension are both empty, and there is no stable extension.",
+    "arguments": ["a", "b"],
+    "attacks": [["a", "a"], ["a", "b"]],
+    "grounded": [],
+    "preferred": [[]],
+    "stable": []
+  },
+  {
+    "name": "reinstatement",
+    "why": "a->b->c. a is unattacked so it is in; that defeats b; with b defeated, c is defended and reinstated. Grounded is {a,c}. This is the mechanism by which evidence moves an argument to Solid ground.",
+    "arguments": ["a", "b", "c"],
+    "attacks": [["a", "b"], ["b", "c"]],
+    "grounded": ["a", "c"],
+    "preferred": [["a", "c"]],
+    "stable": [["a", "c"]]
+  },
+  {
+    "name": "floating_defeat",
+    "why": "a and b attack each other and both attack c. Whichever of a or b survives, c is defeated, so c is in no preferred extension even though grounded is empty. c is genuinely 'Left out'.",
+    "arguments": ["a", "b", "c"],
+    "attacks": [["a", "b"], ["b", "a"], ["a", "c"], ["b", "c"]],
+    "grounded": [],
+    "preferred": [["a"], ["b"]],
+    "stable": [["a"], ["b"]]
+  },
+  {
+    "name": "two_independent_cycles",
+    "why": "Two separate 2-cycles. Preferred extensions are the four combinations, one choice from each cycle. Checks that the solver does not collapse independent choices.",
+    "arguments": ["a", "b", "c", "d"],
+    "attacks": [["a", "b"], ["b", "a"], ["c", "d"], ["d", "c"]],
+    "grounded": [],
+    "preferred": [["a", "c"], ["a", "d"], ["b", "c"], ["b", "d"]],
+    "stable": [["a", "c"], ["a", "d"], ["b", "c"], ["b", "d"]]
+  },
+  {
+    "name": "cycle_plus_unattacked",
+    "why": "An unattacked argument alongside a 2-cycle. Grounded holds the unattacked one only; each preferred extension adds one side of the cycle.",
+    "arguments": ["x", "a", "b"],
+    "attacks": [["a", "b"], ["b", "a"]],
+    "grounded": ["x"],
+    "preferred": [["x", "a"], ["x", "b"]],
+    "stable": [["x", "a"], ["x", "b"]]
+  },
+  {
+    "name": "longer_reinstatement_chain",
+    "why": "a->b->c->d. a in, b out, c reinstated, d defeated by c. Grounded is {a,c}. Checks the monotone iteration runs more than one round.",
+    "arguments": ["a", "b", "c", "d"],
+    "attacks": [["a", "b"], ["b", "c"], ["c", "d"]],
+    "grounded": ["a", "c"],
+    "preferred": [["a", "c"]],
+    "stable": [["a", "c"]]
+  },
+  {
+    "name": "insurer_reason_with_one_unanswered_rebuttal",
+    "why": "The product's own shape. The insurer's reason i is attacked by counter-argument s; s is in a mutual attack with the insurer's known rebuttal r. Grounded is empty, and s appears in one preferred extension, which is exactly the Worth adding tier.",
+    "arguments": ["i", "s", "r"],
+    "attacks": [["s", "i"], ["r", "s"], ["s", "r"]],
+    "grounded": [],
+    "preferred": [["s"], ["i", "r"]],
+    "stable": [["s"], ["i", "r"]]
+  },
+  {
+    "name": "insurer_reason_with_answered_rebuttal",
+    "why": "The same shape once the user attaches the evidence. The answer e attacks the rebuttal r one-way. e is unattacked so it is in; r is defeated; s is reinstated and defeats i. Grounded is {e,s}, which is the Solid ground tier.",
+    "arguments": ["i", "s", "r", "e"],
+    "attacks": [["s", "i"], ["r", "s"], ["s", "r"], ["e", "r"]],
+    "grounded": ["e", "s"],
+    "preferred": [["e", "s"]],
+    "stable": [["e", "s"]]
+  }
+]

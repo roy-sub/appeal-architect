@@ -1,0 +1,26 @@
+id: oon.no_in_network_available
+denial_reason: out_of_network
+side: patient
+claim_template: >
+  No in-network provider was available to deliver {service} within a reasonable
+  time or distance, so network adequacy requires this be paid at the in-network
+  rate.
+premises:
+  - id: searched
+    text: In-network providers were contacted and none could provide the care
+    evidence: network_search_record
+  - id: adequacy_standard
+    text: The plan or state law sets a time or distance standard that was not met
+    evidence: plan_document
+attacks:
+  - target: insurer.out_of_network
+    kind: rebut
+known_rebuttals:
+  - id: oon.no_in_network_available.rebuttal.provider_existed
+    text: The insurer names an in-network provider it says was available
+    kind: rebut
+    defeated_by_evidence: network_search_record
+strength: strong
+citations:
+  - source: plan_document
+    locator: network adequacy

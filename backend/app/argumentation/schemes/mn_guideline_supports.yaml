@@ -1,0 +1,27 @@
+id: mn.guideline_supports
+denial_reason: not_medically_necessary
+side: patient
+claim_template: >
+  Recognised clinical guidelines for {condition} support {service} in these
+  circumstances.
+premises:
+  - id: guideline_exists
+    text: A recognised specialty guideline addresses this situation
+    evidence: clinical_guideline
+  - id: patient_matches
+    text: The documented clinical picture matches the guideline's criteria
+    evidence: medical_records
+attacks:
+  - target: insurer.not_medically_necessary
+    kind: rebut
+known_rebuttals:
+  - id: mn.guideline_supports.rebuttal.plan_criteria_control
+    text: >
+      The insurer says its own criteria control, not an external specialty
+      guideline
+    kind: undercut
+    defeated_by_evidence: plan_clinical_policy
+strength: conditional
+citations:
+  - source: clinical_guideline
+    locator: specialty society guidance

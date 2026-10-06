@@ -1,0 +1,26 @@
+id: oon.continuity_of_care
+denial_reason: out_of_network
+side: patient
+claim_template: >
+  This is an ongoing course of treatment that began while the provider was
+  in-network, and continuity-of-care rules require it be honoured through the
+  transition period.
+premises:
+  - id: ongoing_course
+    text: The treatment began before the provider left the network
+    evidence: medical_records
+  - id: within_transition
+    text: The service falls within the continuity-of-care period
+    evidence: plan_document
+attacks:
+  - target: insurer.out_of_network
+    kind: rebut
+known_rebuttals:
+  - id: oon.continuity_of_care.rebuttal.period_expired
+    text: The insurer says the continuity-of-care period has expired
+    kind: undercut
+    defeated_by_evidence: plan_document
+strength: conditional
+citations:
+  - source: 45 CFR 149.510
+    locator: continuity of care

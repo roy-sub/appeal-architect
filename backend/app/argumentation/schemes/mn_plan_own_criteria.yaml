@@ -1,0 +1,25 @@
+id: mn.plan_own_criteria
+denial_reason: not_medically_necessary
+side: patient
+claim_template: >
+  The requested {service} meets {insurer}'s own published medical-necessity
+  criteria for {condition}.
+premises:
+  - id: criteria_exist
+    text: The plan publishes clinical criteria for this service
+    evidence: plan_clinical_policy
+  - id: criteria_met
+    text: The documented clinical picture satisfies those criteria
+    evidence: medical_records
+attacks:
+  - target: insurer.not_medically_necessary
+    kind: rebut
+known_rebuttals:
+  - id: mn.plan_own_criteria.rebuttal.version
+    text: The insurer asserts that a newer version of its criteria applies
+    kind: undercut
+    defeated_by_evidence: policy_version_in_effect_on_service_date
+strength: strong
+citations:
+  - source: plan_document
+    locator: clinical policy bulletin

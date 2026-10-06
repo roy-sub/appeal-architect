@@ -1,0 +1,25 @@
+id: exp.standard_of_care
+denial_reason: experimental_investigational
+side: patient
+claim_template: >
+  {service} is accepted standard of care for {condition}, not an unproven
+  therapy: specialty guidance and peer-reviewed literature support its use.
+premises:
+  - id: guideline_support
+    text: A recognised specialty guideline recommends it for this indication
+    evidence: clinical_guideline
+  - id: literature
+    text: Peer-reviewed evidence supports it for this indication
+    evidence: literature_citations
+attacks:
+  - target: insurer.experimental_investigational
+    kind: rebut
+known_rebuttals:
+  - id: exp.standard_of_care.rebuttal.insufficient_evidence
+    text: The insurer says the evidence base is still insufficient
+    kind: rebut
+    defeated_by_evidence: literature_citations
+strength: conditional
+citations:
+  - source: clinical_guideline
+    locator: specialty society guidance

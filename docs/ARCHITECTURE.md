@@ -24,7 +24,13 @@ the code and by a test, not by a convention anyone has to remember.
 - `clingo`, `clorm` — the ASP solver and its ORM
 - `pydantic` — the domain models
 - `dateutil`, `holidays` — date arithmetic
+- `yaml` — the scheme library is YAML files on disk (`safe_load` only)
 - `app/domain/**` — the shared vocabulary
+
+Every entry is a pure computation or data-parsing library: no network client, no
+database driver, no model SDK, and nothing that could acquire one as a
+dependency. The list is itself pinned by a test, so widening it shows up as a
+deliberate change in a diff rather than slipping in alongside a feature.
 
 They may not import `anthropic`, `httpx`, `requests`, `supabase`,
 `app/services/llm.py` or `app/db/**`. Not directly, and not through anything

@@ -1,0 +1,25 @@
+id: pa.retroactive_available
+denial_reason: prior_auth_missing
+side: patient
+claim_template: >
+  {insurer}'s own policy allows prior authorisation to be granted after the fact
+  where the clinical need is established.
+premises:
+  - id: policy_allows
+    text: The plan's policy provides for retrospective review
+    evidence: plan_document
+  - id: need_established
+    text: The clinical need for the service is documented
+    evidence: medical_records
+attacks:
+  - target: insurer.prior_auth_missing
+    kind: rebut
+known_rebuttals:
+  - id: pa.retroactive_available.rebuttal.window_passed
+    text: The insurer says the window for retrospective review has closed
+    kind: undercut
+    defeated_by_evidence: plan_document
+strength: conditional
+citations:
+  - source: plan_document
+    locator: prior authorisation / retrospective review

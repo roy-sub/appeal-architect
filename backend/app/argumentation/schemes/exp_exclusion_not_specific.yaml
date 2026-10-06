@@ -1,0 +1,22 @@
+id: exp.exclusion_not_specific
+denial_reason: experimental_investigational
+side: patient
+claim_template: >
+  The plan's exclusion does not name {service}, and an exclusion that does not
+  name the treatment cannot be read to cover it.
+premises:
+  - id: exclusion_text
+    text: The plan's exclusion language does not identify this treatment
+    evidence: plan_document
+attacks:
+  - target: insurer.experimental_investigational
+    kind: undermine
+known_rebuttals:
+  - id: exp.exclusion_not_specific.rebuttal.catch_all
+    text: The insurer relies on a general catch-all clause
+    kind: rebut
+    defeated_by_evidence: plan_document
+strength: conditional
+citations:
+  - source: plan_document
+    locator: exclusions

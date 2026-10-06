@@ -1,0 +1,24 @@
+id: oon.emergency_protections
+denial_reason: out_of_network
+side: patient
+claim_template: >
+  Federal surprise-billing protections apply: emergency services must be covered
+  at the in-network cost-sharing level regardless of the provider's network status.
+premises:
+  - id: emergency_services
+    text: The services were emergency services
+    evidence: emergency_record
+attacks:
+  - target: insurer.out_of_network
+    kind: undermine
+known_rebuttals:
+  - id: oon.emergency_protections.rebuttal.post_stabilisation
+    text: >
+      The insurer says the services were post-stabilisation care, not emergency
+      services
+    kind: undercut
+    defeated_by_evidence: emergency_record
+strength: strong
+citations:
+  - source: 45 CFR 149.110
+    locator: (a)

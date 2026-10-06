@@ -1,0 +1,24 @@
+id: mn.reviewer_lacked_specialty
+denial_reason: not_medically_necessary
+side: patient
+claim_template: >
+  The denial does not show that a reviewer with training in {condition} looked at
+  this claim.
+premises:
+  - id: no_specialty_shown
+    text: The denial letter names no reviewer, or no relevant specialty
+    evidence: denial_letter
+attacks:
+  - target: insurer.not_medically_necessary
+    kind: undercut
+known_rebuttals:
+  - id: mn.reviewer_lacked_specialty.rebuttal.reviewer_qualified
+    text: >
+      The insurer produces the reviewer's credentials and they are in the right
+      specialty
+    kind: rebut
+    defeated_by_evidence: claim_file
+strength: conditional
+citations:
+  - source: 29 CFR 2560.503-1
+    locator: (h)(3)(iii)

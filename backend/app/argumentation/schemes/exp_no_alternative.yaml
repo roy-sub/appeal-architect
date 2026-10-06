@@ -1,0 +1,22 @@
+id: exp.no_alternative
+denial_reason: experimental_investigational
+side: patient
+claim_template: >
+  There is no covered alternative that is clinically appropriate here, so the
+  exclusion leaves the condition untreated.
+premises:
+  - id: alternatives_exhausted
+    text: The covered alternatives have been tried or ruled out on clinical grounds
+    evidence: physician_letter
+attacks:
+  - target: insurer.experimental_investigational
+    kind: undercut
+known_rebuttals:
+  - id: exp.no_alternative.rebuttal.alternative_exists
+    text: The insurer names a covered alternative it says is appropriate
+    kind: rebut
+    defeated_by_evidence: physician_letter
+strength: conditional
+citations:
+  - source: plan_document
+    locator: medically necessary alternatives

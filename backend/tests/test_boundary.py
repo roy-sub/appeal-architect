@@ -28,8 +28,22 @@ import pytest
 BACKEND_ROOT = Path(__file__).resolve().parent.parent
 APP_ROOT = BACKEND_ROOT / "app"
 
-#: The packages the pure engine is allowed to reach. Spec 4.1, plus `holidays`
-#: in place of `workalendar` (PLAN.md Q1) and `csv`/stdlib via the stdlib rule.
+#: The packages the pure engine is allowed to reach.
+#:
+#: Widening this list is an architectural decision, not a convenience. Each entry
+#: has to be a pure computation or data-parsing library: no network client, no
+#: database driver, no model SDK, and nothing that could acquire one as a
+#: dependency. Record the reason when adding one.
+#:
+#:   clingo, clorm        the ASP solver and its ORM (spec 4.1)
+#:   pydantic             the domain models (spec 4.1)
+#:   dateutil             month arithmetic (spec 4.1)
+#:   holidays             US federal holidays, in place of `workalendar`, which
+#:                        cannot be installed here (PLAN.md Q1)
+#:   yaml                 the scheme library is YAML files on disk (spec 7.2).
+#:                        Parsing only; the builder uses safe_load, so no
+#:                        arbitrary object construction.
+#:   typing_extensions    typing backports
 ALLOWED_THIRD_PARTY = frozenset(
     {
         "clingo",
@@ -37,6 +51,7 @@ ALLOWED_THIRD_PARTY = frozenset(
         "pydantic",
         "dateutil",
         "holidays",
+        "yaml",
         "typing_extensions",
     }
 )
@@ -287,4 +302,32 @@ def test_only_llm_service_imports_anthropic() -> None:
     assert not offenders, (
         "only app/services/llm.py may import anthropic; also imported by: "
         + ", ".join(sorted(set(offenders)))
+    )
+
+
+def test_the_engine_allow_list_has_not_quietly_grown() -> None:
+    """Pins the allow-list, so widening it is a visible change in a diff.
+
+    The boundary is only as strong as this list. An import added in passing --
+    `requests` for "just fetching the rulebase", say -- would pass the purity
+    test the moment someone added it here without thinking. Making the list
+    itself an assertion forces the decision into review.
+    """
+    assert (
+        frozenset(
+            {
+                "clingo",
+                "clorm",
+                "pydantic",
+                "dateutil",
+                "holidays",
+                "yaml",
+                "typing_extensions",
+            }
+        )
+        == ALLOWED_THIRD_PARTY
+    ), (
+        "the engine's allow-list changed. If that is deliberate, update this test "
+        "and record why in the comment above ALLOWED_THIRD_PARTY and in "
+        "docs/ARCHITECTURE.md."
     )

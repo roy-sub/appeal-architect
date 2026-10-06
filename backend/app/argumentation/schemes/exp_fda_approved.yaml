@@ -1,0 +1,25 @@
+id: exp.fda_approved
+denial_reason: experimental_investigational
+side: patient
+claim_template: >
+  {service} is not experimental: it is FDA-approved for this indication, which
+  the plan's own exclusion language does not reach.
+premises:
+  - id: approval_exists
+    text: The treatment is FDA-approved for this use
+    evidence: fda_label
+  - id: indication_matches
+    text: The documented diagnosis matches the approved indication
+    evidence: medical_records
+attacks:
+  - target: insurer.experimental_investigational
+    kind: rebut
+known_rebuttals:
+  - id: exp.fda_approved.rebuttal.off_label
+    text: The insurer says this particular use is off-label
+    kind: undercut
+    defeated_by_evidence: fda_label
+strength: strong
+citations:
+  - source: plan_document
+    locator: experimental / investigational exclusion

@@ -1,0 +1,26 @@
+id: pa.provider_responsibility
+denial_reason: prior_auth_missing
+side: patient
+claim_template: >
+  Obtaining authorisation was the in-network provider's responsibility, and a
+  member may not be held financially liable for the provider's administrative
+  failure.
+premises:
+  - id: in_network
+    text: The provider was in-network at the time of service
+    evidence: eob
+  - id: member_not_responsible
+    text: The plan assigns the authorisation duty to the provider
+    evidence: plan_document
+attacks:
+  - target: insurer.prior_auth_missing
+    kind: undercut
+known_rebuttals:
+  - id: pa.provider_responsibility.rebuttal.member_duty
+    text: The insurer says the member shares the duty to confirm authorisation
+    kind: rebut
+    defeated_by_evidence: plan_document
+strength: conditional
+citations:
+  - source: plan_document
+    locator: member financial responsibility
