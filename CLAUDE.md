@@ -59,13 +59,15 @@ frontend/     Next.js 15 static export, Tailwind v4, Motion
 design/       READ-ONLY. The original Claude Design export: prototype, tokens,
               component and motion specs, the design chat where the decisions live
 docs/         ARCHITECTURE · RULEBASE · SCHEMES · PRIVACY · DEPLOY
-PLAN.md       The build plan and the open decisions
+PLAN.md       The build plan, the decisions taken, the conflicts flagged
+MEDIA.md      The assets to generate, with a prompt and a path for each
+THIRD_PARTY.md  Accounts, keys, and the pre-launch checklist
 .env.example  Every environment variable, both halves
 ```
 
-Nothing else belongs at the root — the build spec fixes that list, which is why
-there is no root `Makefile` or `docker-compose.yml` and "one command per side"
-means a command inside each side.
+The build spec fixes the root list, which is why there is no `Makefile` or
+`docker-compose.yml` and "one command per side" means a command inside each
+side. `MEDIA.md` and `THIRD_PARTY.md` are additions the user asked for.
 
 ## Working agreement
 

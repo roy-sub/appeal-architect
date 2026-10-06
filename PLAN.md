@@ -1,6 +1,6 @@
 # PLAN.md
 
-Phase 1 plan, open decisions, and the things I think are wrong or underspecified.
+The build plan, the decisions taken, and the things flagged as wrong or underspecified.
 
 **Status: nothing built yet.** This document is the deliverable of step 2 of the working
 agreement. I have read the build spec and the whole design bundle. I have written no code.
@@ -449,7 +449,50 @@ Then I stop and show you.
 
 ---
 
-## 8. Phases 2–8 — one line each, as agreed
+## 7b. Phases 2–8: what was built, and the calls made along the way
+
+All phases are complete. The user granted executive decision-making licence for
+phases 2 onward; these are the decisions that licence was used for, each one a
+deviation from the build spec worth seeing in writing.
+
+| # | Decision | Why |
+|---|---|---|
+| D1 | **No Tesseract.** Scanned pages and phone photos are transcribed by the model. | The binary cannot be installed on Render's native Python runtime, and Docker is out of scope per instruction. It is also the better architecture: a photo of a creased letter is what Tesseract is worst at and a vision model is good at, and reading a document is the LLM's sanctioned job here. `pytesseract` is dropped entirely. |
+| D2 | **No Docker.** `backend/main.py` is the entry point; `render.yaml` declares the services. | Per instruction. The package structure stays, because the neurosymbolic boundary is defined in terms of which packages may import which. |
+| D3 | **An undatable deadline is undated.** `RouteStep.deadline` is optional, with `starts_after` and `pending_reason`. | Dating the external review from the original denial letter produced a decision date *before* the request date. The design already specified "starts after step 01". |
+| D4 | **A known rebuttal is a mutual attack.** | A one-way attack defeated its counter-argument outright, so nothing ever landed in "Worth adding" and a user would be told an argument is dead when it is merely contestable. See `docs/SCHEMES.md`. |
+| D5 | **`yaml` added to the engine's allow-list.** | The scheme library is YAML on disk (spec §7.2). Parsing only, `safe_load`. The list is now pinned by a test so widening it shows up in a diff. |
+| D6 | **The paywall never gates a deadline.** Letters and full graph detail are paid; route, deadlines, citations and reminders are free at every tier. | Hiding a deadline behind our own paywall would make this the thing it exists to fight. Pinned by a test asserting the 402 message says so. |
+| D7 | **`procedural` counts as a valid paragraph tag** (PLAN.md §3.5, confirmed in practice). | §4.4 read literally deletes the letter's legally necessary header. |
+| D8 | **Phase 5 re-pointed the built screens** rather than rebuilding them (§2). | They were pixel-matched already. `lib/case-data.ts` is deleted and nothing references it. |
+
+### Phase status
+
+| Phase | State | Notes |
+|---|---|---|
+| 1 Skeleton | done | 28 endpoints eventually; migration 001 with RLS proven against real Postgres |
+| 2 Rules engine | done | clingo rulebase, `because/3` integrity constraints, 8 golden fixtures, the deadline table |
+| 3 Argumentation | done | grounded/preferred/stable verified against 14 hand-worked frameworks; 21 schemes |
+| 4 Data + API + ingestion | done | upload, transcription, extraction with real character offsets, the confirmation gate |
+| 5 Core product UI | done | all nine screens on live data; React Flow + dagre on desktop, lanes on mobile |
+| 6 Letters + reminders | done | per-paragraph argument backlinks, PDF/DOCX, the idempotent reminder job |
+| 7 Marketing + triage + hardening | done | legal, pricing, settings with a real hard delete, timeline, escalation, 404 |
+| 8 Billing + deploy | done | Stripe with entitlement gating, `render.yaml`, Cloudflare Pages documented |
+
+### What is still outstanding, and it is not code
+
+**Every legal value in the rulebase is `verified=false`.** They are transcribed
+from the build spec's own seed baseline, and nobody has read them in 45 CFR
+147.136 or 29 CFR 2560.503-1. The product tells users this, on every route
+determination and as a banner. `docs/RULEBASE.md` lists the files.
+
+**The CA, NY and TX override tables are empty on purpose.** No statute source
+exists for them, so the federal baseline governs, which is correct and honest.
+
+Both of these are judgement calls about legal accuracy that need a person with
+the sources in front of them. Everything around them is built and tested.
+
+## 8. Phases 2–8 — the original one-line plan, kept for the record
 
 | Phase | Shape | The thing I will flag |
 |---|---|---|

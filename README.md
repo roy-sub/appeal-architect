@@ -78,6 +78,8 @@ frontend/    Next.js 15 static export, Tailwind v4. See frontend/CLAUDE.md
 design/      The approved design system and screens. READ-ONLY — the visual authority
 docs/        ARCHITECTURE · RULEBASE · SCHEMES · PRIVACY · DEPLOY
 PLAN.md      The build plan, the decisions taken, and the conflicts flagged
+MEDIA.md     The 13 assets to generate: path and prompt for each
+THIRD_PARTY.md  The accounts and keys you need, and how to get them
 .env.example Every environment variable, both halves
 ```
 
@@ -87,37 +89,49 @@ spacing and motion. Where they conflict, `PLAN.md` §3 records which won and why
 
 ## Where the build is
 
-**Phase 1 of 8 complete.** Repo shape, domain model, auth, the database with RLS,
-the boundary test, Docker.
+**All eight phases complete.** The backend serves 28 endpoints; all nine designed
+screens plus legal, pricing, settings, timeline and 404 run on live data.
 
 | Phase | | What |
 |---|---|---|
-| 1 | done | Skeleton, auth, migration 001, the boundary test |
-| 2 | next | Rules engine: route, deadlines, required elements, `because/3` traces |
-| 3 | | Argumentation engine: grounded / preferred / stable, the scheme library |
-| 4 | | Data, API and ingestion: upload, OCR, extraction, confirmation |
-| 5 | | Core product UI wired to the engine |
-| 6 | | Letters and deadline reminders |
-| 7 | | Marketing site, free triage, hardening |
-| 8 | | Billing and deploy |
+| 1 | ✅ | Skeleton, auth, migrations with RLS, the boundary test |
+| 2 | ✅ | Rules engine: route, deadlines, required elements, `because/3` traces |
+| 3 | ✅ | Argumentation: grounded / preferred / stable, 21 schemes |
+| 4 | ✅ | Data, API and ingestion: upload, transcription, the confirmation gate |
+| 5 | ✅ | All nine screens wired to the engine; demo data deleted |
+| 6 | ✅ | Letters with per-paragraph argument backlinks, PDF/DOCX, reminders |
+| 7 | ✅ | Legal, pricing, settings with a real hard delete, timeline, escalation |
+| 8 | ✅ | Stripe with entitlement gating, Render and Cloudflare deploy |
 
-The frontend is further along than the phase number suggests: all nine designed
-screens are built and pixel-matched to the prototype, reading demo data from
-`frontend/lib/case-data.ts`. Phase 5 replaces those reads with engine output.
+Roughly 1,100 tests and checks pass. `PLAN.md` §7b records the eight decisions
+taken where the build spec and reality diverged, and why.
 
-### Two things that are deliberately unfinished
+### To get it running yourself
+
+Two documents, written for exactly this:
+
+- **[`THIRD_PARTY.md`](THIRD_PARTY.md)** — the five accounts you need, what each
+  costs, every key and where it goes, and a pre-launch checklist.
+- **[`MEDIA.md`](MEDIA.md)** — the thirteen images and videos, where to save
+  each one, and a generation prompt for each. Nothing here blocks launch: every
+  slot has a designed placeholder and the layout is already correct without them.
+
+### Two things that are deliberately unfinished, and they are not code
 
 **Every legal value in the rulebase is marked UNVERIFIED.** Nobody has yet
-checked those deadlines against the regulations they cite. Unverified values are
-shown to the user as unverified — in the determination's warnings and as a banner
-— never quietly treated as correct.
+checked those deadlines against the regulations they cite. The product shows
+users that they are unverified — in the determination's warnings and as a banner
+— rather than letting them assume otherwise.
 [`docs/RULEBASE.md`](docs/RULEBASE.md) lists the files awaiting a source.
 
-**The CA, NY and TX override tables are empty on purpose.** With no override row,
-the federal baseline governs, which is correct and honest. They are empty because
-we have no state statute source, and a plausible-looking invented state deadline
-— shown to someone with a citation beside it as the date their rights expire — is
-the most harmful thing this codebase could contain.
+**The CA, NY and TX override tables are empty on purpose.** With no override
+row, the federal baseline governs, which is correct and honest. They are empty
+because we have no state statute source, and a plausible-looking invented state
+deadline — shown to someone with a citation beside it as the date their rights
+expire — is the most harmful thing this codebase could contain.
+
+Both need a person with the sources in front of them. Everything around them is
+built and tested.
 
 ## What this is not
 
