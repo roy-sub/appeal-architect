@@ -275,19 +275,87 @@ def test_llm_module_cannot_reach_the_engine() -> None:
     assert not offenders, f"app/services/llm.py imports the engine: {offenders}"
 
 
+def _docstring_nodes(tree: ast.AST) -> set[int]:
+    """ids of the Constant nodes that are docstrings, so prose is not scanned."""
+    ids: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef):
+            body = getattr(node, "body", [])
+            if (
+                body
+                and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)
+            ):
+                ids.add(id(body[0].value))
+    return ids
+
+
+def _code_strings(path: Path) -> list[str]:
+    """Every string literal in real code, excluding docstrings."""
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    docstrings = _docstring_nodes(tree)
+    return [
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and id(node) not in docstrings
+    ]
+
+
 @pytest.mark.skipif(not LLM_MODULE.is_file(), reason="llm.py arrives in phase 4")
 def test_llm_module_never_writes_conclusions() -> None:
     """``llm.py`` must not name the tables that store computed conclusions.
 
-    A string match is coarse, but it is the right coarseness: there is no
-    legitimate reason for the LLM module to mention these table names at all.
+    Checked against string literals in real code rather than the whole file, so
+    the module's own docstring can state the rule it obeys without tripping it.
+    There is no legitimate reason for executable code here to mention these
+    table names at all.
     """
-    source = LLM_MODULE.read_text(encoding="utf-8")
-    named = [t for t in CONCLUSION_TABLES if t in source]
+    named = sorted(
+        {
+            table
+            for literal in _code_strings(LLM_MODULE)
+            for table in CONCLUSION_TABLES
+            if table in literal
+        }
+    )
     assert not named, (
-        f"app/services/llm.py references conclusion table(s) {named}; "
+        f"app/services/llm.py references conclusion table(s) {named} in code; "
         "the LLM must never write a route determination or an argument graph"
     )
+
+
+@pytest.mark.skipif(not LLM_MODULE.is_file(), reason="llm.py arrives in phase 4")
+def test_the_conclusion_table_check_can_actually_fail() -> None:
+    """Negative control for the AST-based scan.
+
+    The previous version of this check was a plain string match, which a
+    docstring tripped. This proves the replacement still catches the real case:
+    a table name in executable code.
+    """
+    probe = BACKEND_ROOT / "app" / "services" / "_llm_probe_tmp.py"
+    probe.write_text(
+        '''"""A docstring mentioning route_determinations must NOT trip the check."""
+'''
+        'client.table("argument_graphs").insert({})\n',
+        encoding="utf-8",
+    )
+    try:
+        named = sorted(
+            {
+                table
+                for literal in _code_strings(probe)
+                for table in CONCLUSION_TABLES
+                if table in literal
+            }
+        )
+        assert named == ["argument_graphs"], (
+            "the scan should catch a table name in code and ignore one in a docstring"
+        )
+    finally:
+        probe.unlink()
 
 
 def test_only_llm_service_imports_anthropic() -> None:

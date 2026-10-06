@@ -1,0 +1,77 @@
+# Render blueprint. Native Python, no Docker.
+#
+# Two services: the API, and the daily cron that sends deadline reminders.
+#
+# The cron is not optional. Without it there is no error, no failed request and
+# no alert -- deadline reminder emails simply never arrive, and a user who was
+# relying on them misses their filing window. It is in this file so it cannot be
+# forgotten at deploy time.
+
+services:
+  - type: web
+    name: appeal-architect-api
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -e .
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.12"
+      # Set these in the Render dashboard. Never commit them.
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-6
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_APPEAL_PACKAGE
+        sync: false
+      - key: STRIPE_PRICE_SUBSCRIPTION
+        sync: false
+      - key: INTERNAL_JOB_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: RULEBASE_VERSION
+        value: 1.0.0
+      - key: SCHEMES_VERSION
+        value: 1.0.0
+      - key: LLM_MONTHLY_CALL_CAP
+        value: "200"
+
+  - type: cron
+    name: appeal-architect-reminders
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    # 13:00 UTC daily: morning across the US, so a reminder is read the day it
+    # arrives rather than overnight.
+    schedule: "0 13 * * *"
+    buildCommand: pip install -e .
+    startCommand: python -m app.jobs.send_reminders
+    envVars:
+      - key: API_BASE_URL
+        sync: false
+      - key: INTERNAL_JOB_SECRET
+        fromService:
+          type: web
+          name: appeal-architect-api
+          envVarKey: INTERNAL_JOB_SECRET

@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     # Stripe -- phase 8
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
+    stripe_price_appeal_package: str = ""
+    stripe_price_subscription: str = ""
 
     # Pinned engine versions. Recorded on every determination so a conclusion is
     # reproducible against the exact rules that produced it.
