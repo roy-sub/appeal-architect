@@ -1,0 +1,19 @@
+{
+  "why": "Pre-service claim: the insurer's window is 30 days rather than 60, because the treatment has not happened yet. The member's own filing window is unchanged at 180 days.",
+  "facts": {
+    "plan_type": "aca_marketplace",
+    "state": "NY",
+    "denial_date": "2026-09-14",
+    "service_timing": "pre",
+    "denial_reasons": ["prior_auth_missing"],
+    "filer": "member"
+  },
+  "expect": {
+    "levels": ["internal_1", "external"],
+    "deadlines": {
+      "internal_appeal": "2027-03-13",
+      "insurer_response": "2026-10-14"
+    },
+    "ambiguous": ["internal_appeal"]
+  }
+}

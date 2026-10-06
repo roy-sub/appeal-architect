@@ -1,0 +1,19 @@
+{
+  "why": "A denial dated just before new year. 28 Dec 2026 + 180 days = 26 Jun 2027, and the insurer's 60-day window crosses into February.",
+  "facts": {
+    "plan_type": "aca_marketplace",
+    "state": "NY",
+    "denial_date": "2026-12-28",
+    "service_timing": "post",
+    "denial_reasons": ["not_covered_benefit"],
+    "filer": "provider"
+  },
+  "expect": {
+    "levels": ["internal_1", "external"],
+    "deadlines": {
+      "internal_appeal": "2027-06-26",
+      "insurer_response": "2027-02-26"
+    },
+    "ambiguous": ["internal_appeal"]
+  }
+}

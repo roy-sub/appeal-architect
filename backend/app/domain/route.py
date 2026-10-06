@@ -68,6 +68,14 @@ class DeadlineItem(BaseModel):
     is_calendar_days: bool = Field(
         description="Calendar vs business days is explicit per item, never inferred"
     )
+    source_layer: str = Field(
+        default="federal",
+        description=(
+            "Which layer produced this number: 'federal', or a two-letter state code "
+            "when a state statute overrides the federal baseline. The UI says which, "
+            "because 'California law gives you longer' is information the user wants."
+        ),
+    )
     count: int | None = Field(default=None, description="The day count applied")
     ambiguous: bool = Field(
         default=False, description="True when the regulation's trigger is unclear"
@@ -106,8 +114,22 @@ class RouteStep(BaseModel):
     required_elements: list[RequiredElement] = Field(default_factory=list)
     review_body: str
     insurer_response_window_days: int | None = None
-    deadline: DeadlineItem
-    citation: Citation
+    #: None when this step's trigger has not happened yet -- the external review
+    #: has no date until the insurer gives its final internal answer. The UI
+    #: shows "starts after step N" rather than a fabricated date.
+    deadline: DeadlineItem | None = None
+    #: The step this one follows, when it is not yet datable.
+    starts_after: int | None = None
+    #: Why there is no date yet, in the product's voice. Present iff deadline is None.
+    pending_reason: str | None = None
+    citation: Citation | None = None
+
+    def model_post_init(self, _context: object) -> None:
+        if self.deadline is None and not self.pending_reason:
+            raise ValueError(
+                f"step {self.order} has no deadline and no pending_reason; an undated "
+                "step must say why, or the user is left guessing"
+            )
 
 
 class RouteDetermination(BaseModel):

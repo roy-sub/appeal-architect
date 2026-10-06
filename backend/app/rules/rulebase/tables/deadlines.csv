@@ -12,18 +12,23 @@
 # To verify a row: read the cited subsection, confirm count/unit/trigger, set
 # verified=true and set effective_date to the date that text took effect.
 #
-# unit: calendar | business | months | hours
-# trigger: denial_date | denial_received_date | final_adverse_date | service_date
+# item     : internal_appeal | insurer_response | external_review
+#            | external_review_decision
+# timing   : `-` for a row that does not depend on timing; otherwise
+#            pre | post | concurrent | urgent | standard
+# unit     : calendar | business | months | hours
+# trigger  : denial_date | denial_received_date | final_adverse_date | service_date
 # plan_type: a PlanType value, or * for any
-# active: false means transcribed but not yet used by the rulebase (deferred phase)
-rule_id,item,plan_type,count,unit,trigger,citation_source,citation_locator,verified,effective_date,active,note
-fed.internal_appeal.window,internal_appeal,*,180,calendar,denial_received_date,45 CFR 147.136,(b)(2),false,,true,"Reg says 'following receipt'; where receipt date is unknown the engine falls back to denial_date and flags the deadline ambiguous"
-fed.erisa.internal_appeal.window,internal_appeal,employer_self_funded,180,calendar,denial_received_date,29 CFR 2560.503-1,(h)(3)(i),false,,false,"ERISA self-funded; plan type deferred to phase 7. Inherited from the pre-engine scaffold."
-fed.insurer_response.pre_service,insurer_response,*,30,calendar,denial_date,45 CFR 147.136,(b)(2),false,,true,Pre-service claim
-fed.insurer_response.post_service,insurer_response,*,60,calendar,denial_date,45 CFR 147.136,(b)(2),false,,true,Post-service claim
-fed.insurer_response.urgent,insurer_response,*,72,hours,denial_date,45 CFR 147.136,(b)(2)(ii)(B),false,,true,"Reg reads 'as soon as possible, not later than 72 hours' -- the engine reports the outer bound and says so"
-fed.external_review.window,external_review,*,4,months,final_adverse_date,45 CFR 147.136,(d),false,,true,"Four months, not 120 days -- month arithmetic, not a day count"
-fed.external_review.decision,external_review_decision,*,45,calendar,final_adverse_date,45 CFR 147.136,(d)(2),false,,true,Standard external review
-fed.external_review.decision_expedited,external_review_decision,*,72,hours,final_adverse_date,45 CFR 147.136,(d)(2)(ii),false,,true,Expedited external review
-ma.redetermination.window,internal_appeal,medicare_advantage,65,calendar,denial_date,42 CFR 422.582,(b),false,,false,"Medicare Advantage; deferred to phase 7. Inherited from the pre-engine scaffold."
-medicaid.plan_appeal.window,internal_appeal,medicaid,60,calendar,denial_date,42 CFR 438.402,(c)(2)(ii),false,,false,"Medicaid managed care; deferred to phase 7. Inherited from the pre-engine scaffold."
+# active   : false means transcribed but not yet used (deferred plan type)
+rule_id,item,timing,plan_type,count,unit,trigger,citation_source,citation_locator,verified,effective_date,active,note
+fed.internal_appeal.window,internal_appeal,-,*,180,calendar,denial_received_date,45 CFR 147.136,(b)(2),false,,true,"Reg says 'following receipt'; with no receipt date the engine counts from the letter date and flags the deadline ambiguous"
+fed.insurer_response.pre_service,insurer_response,pre,*,30,calendar,denial_date,45 CFR 147.136,(b)(2),false,,true,Pre-service claim
+fed.insurer_response.post_service,insurer_response,post,*,60,calendar,denial_date,45 CFR 147.136,(b)(2),false,,true,Post-service claim
+fed.insurer_response.concurrent,insurer_response,concurrent,*,30,calendar,denial_date,45 CFR 147.136,(b)(2),false,,true,"Concurrent care; treated as pre-service pending verification"
+fed.insurer_response.urgent,insurer_response,urgent,*,72,hours,denial_date,45 CFR 147.136,(b)(2)(ii)(B),false,,true,"Reg reads 'as soon as possible, not later than 72 hours' -- the engine reports the outer bound and says so"
+fed.external_review.window,external_review,-,*,4,months,final_adverse_date,45 CFR 147.136,(d),false,,true,"Four months, not 120 days -- month arithmetic, not a day count"
+fed.external_review.decision,external_review_decision,standard,*,45,calendar,final_adverse_date,45 CFR 147.136,(d)(2),false,,true,Standard external review
+fed.external_review.decision_expedited,external_review_decision,urgent,*,72,hours,final_adverse_date,45 CFR 147.136,(d)(2)(ii),false,,true,Expedited external review
+erisa.internal_appeal.window,internal_appeal,-,employer_self_funded,180,calendar,denial_received_date,29 CFR 2560.503-1,(h)(3)(i),false,,false,"ERISA self-funded; plan type deferred to phase 7. Inherited from the pre-engine scaffold."
+ma.redetermination.window,internal_appeal,-,medicare_advantage,65,calendar,denial_date,42 CFR 422.582,(b),false,,false,"Medicare Advantage; deferred to phase 7. Inherited from the pre-engine scaffold."
+medicaid.plan_appeal.window,internal_appeal,-,medicaid,60,calendar,denial_date,42 CFR 438.402,(c)(2)(ii),false,,false,"Medicaid managed care; deferred to phase 7. Inherited from the pre-engine scaffold."

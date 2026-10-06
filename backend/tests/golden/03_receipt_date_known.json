@@ -1,0 +1,20 @@
+{
+  "why": "With the receipt date confirmed, the rule's actual trigger is known, so the filing window counts from 19 Sep and is NOT flagged ambiguous. 19 Sep 2026 + 180 days = 18 Mar 2027 -- five days later than the conservative fallback, which is correct: we are not entitled to shorten a window whose real start we know.",
+  "facts": {
+    "plan_type": "aca_marketplace",
+    "state": "TX",
+    "denial_date": "2026-09-14",
+    "denial_received_date": "2026-09-19",
+    "service_timing": "post",
+    "denial_reasons": ["not_medically_necessary"],
+    "filer": "member"
+  },
+  "expect": {
+    "levels": ["internal_1", "external"],
+    "deadlines": {
+      "internal_appeal": "2027-03-18",
+      "insurer_response": "2026-11-13"
+    },
+    "ambiguous": []
+  }
+}

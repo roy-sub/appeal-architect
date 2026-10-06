@@ -1,0 +1,21 @@
+{
+  "why": "Once the insurer's final internal denial exists, the external-review step gets a real date: 20 Jan 2027 + 4 months = 20 May 2027. Months, not 120 days -- 120 days would be 20 May too here by coincidence of month lengths, so the decision window (45 calendar days from the same trigger) is checked as well.",
+  "facts": {
+    "plan_type": "aca_marketplace",
+    "state": "CA",
+    "denial_date": "2026-09-14",
+    "service_timing": "post",
+    "denial_reasons": ["not_medically_necessary"],
+    "final_adverse_date": "2027-01-20",
+    "filer": "member"
+  },
+  "expect": {
+    "levels": ["internal_1", "external"],
+    "deadlines": {
+      "internal_appeal": "2027-03-13",
+      "external_review": "2027-05-20",
+      "external_review_decision": "2027-03-06"
+    },
+    "ambiguous": ["internal_appeal"]
+  }
+}

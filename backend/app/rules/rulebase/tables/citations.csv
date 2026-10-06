@@ -6,6 +6,7 @@ fed.internal_appeal.window,45 CFR 147.136,(b)(2),Internal claims and appeals pro
 fed.erisa.internal_appeal.window,29 CFR 2560.503-1,(h)(3)(i),ERISA claims procedure regulation,,https://www.ecfr.gov/current/title-29/section-2560.503-1,false
 fed.insurer_response.pre_service,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
 fed.insurer_response.post_service,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.insurer_response.concurrent,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
 fed.insurer_response.urgent,45 CFR 147.136,(b)(2)(ii)(B),Expedited notification of benefit determinations,,https://www.ecfr.gov/current/title-45/section-147.136,false
 fed.external_review.window,45 CFR 147.136,(d),External review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
 fed.external_review.decision,45 CFR 147.136,(d)(2),Federal external review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
@@ -13,3 +14,28 @@ fed.external_review.decision_expedited,45 CFR 147.136,(d)(2)(ii),Expedited exter
 fed.documents.free_copies,29 CFR 2560.503-1,(h),Appeal of adverse benefit determinations,,https://www.ecfr.gov/current/title-29/section-2560.503-1,false
 ma.redetermination.window,42 CFR 422.582,(b),Request for a standard redetermination,,https://www.ecfr.gov/current/title-42/section-422.582,false
 medicaid.plan_appeal.window,42 CFR 438.402,(c)(2)(ii),Timely filing of a plan appeal,,https://www.ecfr.gov/current/title-42/section-438.402,false
+fed.required.claim_identifiers,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.required.denial_letter_copy,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.required.statement_of_reasons,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.required.rep_authorisation,29 CFR 2560.503-1,(b)(4),Authorised representative,,https://www.ecfr.gov/current/title-29/section-2560.503-1,false
+fed.required.urgency_statement,45 CFR 147.136,(b)(2)(ii)(B),Expedited notification of benefit determinations,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.required.free_copies_request,29 CFR 2560.503-1,(h),Appeal of adverse benefit determinations,,https://www.ecfr.gov/current/title-29/section-2560.503-1,false
+fed.required.external_review_form,45 CFR 147.136,(d),External review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.required.final_denial_copy,45 CFR 147.136,(d),External review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.required.expedited_external_form,45 CFR 147.136,(d)(2)(ii),Expedited external review,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.track.standard,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.track.expedited,45 CFR 147.136,(b)(2)(ii)(B),Expedited notification of benefit determinations,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.level.internal_1,45 CFR 147.136,(b)(2),Internal claims and appeals processes,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.level.external,45 CFR 147.136,(d),External review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.level.expedited_external,45 CFR 147.136,(d)(2)(ii),Expedited external review,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.step.internal_first,45 CFR 147.136,(d)(1),Exhaustion of the internal process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.step.external_after_internal,45 CFR 147.136,(d)(1),Exhaustion of the internal process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.step.expedited_external_available,45 CFR 147.136,(d)(2)(ii),Expedited external review,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.who_files.internal,29 CFR 2560.503-1,(b)(4),Authorised representative,,https://www.ecfr.gov/current/title-29/section-2560.503-1,false
+fed.who_files.external,45 CFR 147.136,(d),External review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.who_files.expedited_external,45 CFR 147.136,(d)(2)(ii),Expedited external review,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.review_body.internal,45 CFR 147.136,(b)(2)(ii)(D),Avoiding conflicts of interest,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.review_body.external,45 CFR 147.136,(d),External review process,,https://www.ecfr.gov/current/title-45/section-147.136,false
+fed.review_body.expedited_external,45 CFR 147.136,(d)(2)(ii),Expedited external review,,https://www.ecfr.gov/current/title-45/section-147.136,false
+xx.internal_appeal.window,XX Test Code,§ 1-A,Synthetic test state -- not a real jurisdiction,,,false
+xx.external_review.window,XX Test Code,§ 1-B,Synthetic test state -- not a real jurisdiction,,,false

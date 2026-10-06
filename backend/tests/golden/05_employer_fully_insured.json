@@ -1,0 +1,19 @@
+{
+  "why": "Fully-insured employer plan. Same federal baseline as the marketplace, plus the warning that group plans sometimes run two internal rounds. A representative is filing, so authorisation becomes a required element.",
+  "facts": {
+    "plan_type": "employer_fully_insured",
+    "state": "NY",
+    "denial_date": "2026-11-02",
+    "service_timing": "post",
+    "denial_reasons": ["out_of_network", "not_medically_necessary"],
+    "filer": "authorized_rep"
+  },
+  "expect": {
+    "levels": ["internal_1", "external"],
+    "deadlines": {
+      "internal_appeal": "2027-05-01",
+      "insurer_response": "2027-01-01"
+    },
+    "ambiguous": ["internal_appeal"]
+  }
+}

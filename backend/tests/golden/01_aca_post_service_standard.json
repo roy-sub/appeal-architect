@@ -1,0 +1,22 @@
+{
+  "why": "The design prototype's own demo case. ACA marketplace, post-service, not urgent. The prototype showed 22 Mar 2027; the correct filing deadline is 13 Mar 2027 -- nine days earlier. This fixture is the one that pins that fix.",
+  "facts": {
+    "plan_type": "aca_marketplace",
+    "state": "CA",
+    "insurer_name": "Anthem Blue Cross",
+    "claim_number": "CLM-4471902",
+    "denial_date": "2026-09-14",
+    "service_timing": "post",
+    "denial_reasons": ["not_medically_necessary"],
+    "filer": "member"
+  },
+  "expect": {
+    "levels": ["internal_1", "external"],
+    "deadlines": {
+      "internal_appeal": "2027-03-13",
+      "insurer_response": "2026-11-13"
+    },
+    "undated": ["external_review", "external_review_decision"],
+    "ambiguous": ["internal_appeal"]
+  }
+}

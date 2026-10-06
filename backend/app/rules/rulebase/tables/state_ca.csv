@@ -11,7 +11,7 @@
 # To fill this in, add one row per override with the statute text to hand, then set
 # verified=true only once you have read the cited section yourself.
 #
-# The override MECHANISM is proven by the synthetic state 'XX' in
-# tests/golden/ -- the federal-default-vs-state-override path is fully exercised
-# without any real value being invented.
-rule_id,item,count,unit,trigger,citation_source,citation_locator,verified,effective_date,note
+# The override MECHANISM is proven by the synthetic test state in state_xx.csv --
+# the federal-default-versus-state-override path is fully exercised without any
+# real value being invented.
+rule_id,item,count,unit,trigger,citation_source,citation_locator,verified,effective_date,active,note

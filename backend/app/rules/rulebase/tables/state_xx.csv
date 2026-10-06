@@ -1,0 +1,11 @@
+# STATE XX -- A SYNTHETIC TEST STATE. NOT A REAL JURISDICTION.
+#
+# This file exists so the federal-default-versus-state-override path is fully
+# exercised by the golden tests without any real legal value being invented.
+# `XX` is not a US state code, so it can never be selected by a real user.
+#
+# It is loaded only when the rulebase is built with include_test_state=True,
+# which is what tests/test_rules_engine.py does and what production never does.
+rule_id,item,count,unit,trigger,citation_source,citation_locator,verified,effective_date,active,note
+xx.internal_appeal.window,internal_appeal,240,calendar,denial_date,XX Test Code,§ 1-A,false,2026-01-01,true,"A longer filing window than the federal 180 days, so the override is visibly distinguishable in a test"
+xx.external_review.window,external_review,6,months,final_adverse_date,XX Test Code,§ 1-B,false,2026-01-01,true,"Month units, so the override path is exercised for a non-day unit too"

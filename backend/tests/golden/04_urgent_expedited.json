@@ -1,0 +1,20 @@
+{
+  "why": "Urgent case. The insurer's answer drops to 72 hours (17 Sep), the expedited external level appears, and the member's filing window stays at 180 days -- expedited governs how fast they must answer, not how long you have to file.",
+  "facts": {
+    "plan_type": "aca_marketplace",
+    "state": "CA",
+    "denial_date": "2026-09-14",
+    "service_timing": "pre",
+    "denial_reasons": ["experimental_investigational"],
+    "is_urgent_medical": true,
+    "filer": "member"
+  },
+  "expect": {
+    "levels": ["internal_1", "external", "expedited_external"],
+    "deadlines": {
+      "internal_appeal": "2027-03-13",
+      "insurer_response": "2026-09-17"
+    },
+    "ambiguous": ["internal_appeal"]
+  }
+}

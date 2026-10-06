@@ -1,0 +1,19 @@
+{
+  "why": "A filing window crossing 29 February. 14 Sep 2027 + 180 days crosses Feb 2028, which has 29 days, so the deadline lands 12 Mar 2028 -- a day earlier than the same count in a non-leap year. Getting this wrong by a day is exactly the class of error that costs an appeal.",
+  "facts": {
+    "plan_type": "aca_marketplace",
+    "state": "TX",
+    "denial_date": "2027-09-14",
+    "service_timing": "post",
+    "denial_reasons": ["coding_error"],
+    "filer": "member"
+  },
+  "expect": {
+    "levels": ["internal_1", "external"],
+    "deadlines": {
+      "internal_appeal": "2028-03-12",
+      "insurer_response": "2027-11-13"
+    },
+    "ambiguous": ["internal_appeal"]
+  }
+}
