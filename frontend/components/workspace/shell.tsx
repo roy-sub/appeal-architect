@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { StatusPill } from "@/components/status-pill";
 import { CaseProvider } from "@/components/workspace/case-context";
+import { useHealth } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 const rail = [
@@ -13,6 +14,7 @@ const rail = [
   ["/case/arguments/", "Arguments"],
   ["/case/evidence/", "Evidence"],
   ["/case/letter/", "Letter"],
+  ["/case/timeline/", "Timeline"],
 ] as const;
 
 const mobileBar = [
@@ -22,6 +24,34 @@ const mobileBar = [
   ["/case/evidence/", "Evidence"],
   ["/case/letter/", "Letter"],
 ] as const;
+
+/**
+ * "Rules current as of {date} · version {v}" — a fixed string from the brief,
+ * and one that must be true. The values come from /healthz, so the rail cannot
+ * go on claiming a version the engine has moved past.
+ */
+function RulesStamp() {
+  const health = useHealth();
+  if (!health.data) {
+    return (
+      <span className="font-mono text-[11px] leading-[17px] text-ink-muted">
+        Rules version loading
+      </span>
+    );
+  }
+  const today = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return (
+    <span className="font-mono text-[11px] leading-[17px] text-ink-muted">
+      Rules current as of {today}
+      <br />
+      version {health.data.rulebase_version}
+    </span>
+  );
+}
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
@@ -51,10 +81,16 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             </Link>
           );
         })}
-        <div className="mt-auto border-t border-rule pt-4 font-mono text-[11px] leading-[17px] text-ink-muted">
-          Rules current as of 5 Oct 2026
-          <br />
-          version 2026.10.1
+        <div className="mt-auto flex flex-col gap-3 border-t border-rule pt-4">
+          <Link
+            href="/settings/"
+            className="font-mono text-[11px] tracking-[.06em] text-ink-muted no-underline hover:text-ink"
+          >
+            SETTINGS
+          </Link>
+          {/* The stamp comes from the engine, never from a constant: a hardcoded
+              version would keep claiming currency after the rulebase moved. */}
+          <RulesStamp />
         </div>
       </nav>
 

@@ -15,7 +15,7 @@ export function SiteNav() {
           {[
             ["#how", "How it works"],
             ["#does", "What it does"],
-            ["#pricing", "Pricing"],
+            ["/pricing/", "Pricing"],
             ["#faq", "Questions"],
           ].map(([href, label]) => (
             <a key={href} href={href} className="whitespace-nowrap text-[14px] text-ink-muted no-underline hover:text-ink">

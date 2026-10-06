@@ -257,14 +257,14 @@ export function SiteFooter() {
         <div className={col}>
           <span className={head}>Product</span>
           <Link href="/#how" className={link}>How it works</Link>
-          <Link href="/#pricing" className={link}>Pricing</Link>
+          <Link href="/pricing/" className={link}>Pricing</Link>
           <Link href="/#faq" className={link}>Questions</Link>
         </div>
         <div className={col}>
           <span className={head}>Legal</span>
-          <a href="#terms" className={link}>Terms</a>
-          <a href="#privacy" className={link}>Privacy, in plain language</a>
-          <a href="#rules" className={link}>Rules changelog</a>
+          <Link href="/legal/" className={link}>Terms</Link>
+          <Link href="/legal/" className={link}>Privacy, in plain language</Link>
+          <Link href="/legal/" className={link}>Rules changelog</Link>
         </div>
       </div>
       <div className="mx-auto mt-9 flex flex-col gap-3.5 border-t border-band-rule pt-6 lg:mt-16 lg:max-w-[1440px]">
