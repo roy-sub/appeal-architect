@@ -8,9 +8,26 @@ const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], 
 const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap" });
 const doc = Newsreader({ subsets: ["latin"], weight: ["400", "500", "600"], style: ["normal", "italic"], variable: "--font-newsreader", display: "swap" });
 
+const DESCRIPTION =
+  "Every paragraph backed by a rule. Find your appeal track, your deadline, and the arguments that hold against your health-insurance denial.";
+
 export const metadata: Metadata = {
   title: "Appeal Architect — Your denial, formally refuted.",
-  description: "Every paragraph backed by a rule. Find your appeal track, your deadline, and the arguments that hold against your health-insurance denial.",
+  description: DESCRIPTION,
+  // The share card. Until og-card.png exists the slot simply 404s, which costs
+  // a preview image and nothing else -- no layout depends on it.
+  openGraph: {
+    title: "Appeal Architect — Your denial, formally refuted.",
+    description: DESCRIPTION,
+    type: "website",
+    images: [{ url: "/media/og-card.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Appeal Architect — Your denial, formally refuted.",
+    description: DESCRIPTION,
+    images: ["/media/og-card.png"],
+  },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#F2EDE4" };
