@@ -38,10 +38,11 @@ export function Hero() {
       <div className="absolute inset-0 animate-kenburns">
         <MediaSlot
           fill
+          priority
           slotId="hero-bg"
-          kind="video"
-          label="Slow documentary footage: a person at a kitchen table opening a denial letter, late afternoon light"
-          intrinsic="2560×1440"
+          kind="image"
+          label="A person at a kitchen table reading a denial letter, late afternoon light"
+          intrinsic="1920×1086"
         />
       </div>
       <div

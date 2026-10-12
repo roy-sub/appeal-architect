@@ -14,8 +14,8 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: "Appeal Architect — Your denial, formally refuted.",
   description: DESCRIPTION,
-  // The share card. Until og-card.png exists the slot simply 404s, which costs
-  // a preview image and nothing else -- no layout depends on it.
+  // The share card lives at public/media/og-card.png: 1200x630, the size every
+  // scraper expects. PNG rather than webp because some crawlers still skip webp.
   openGraph: {
     title: "Appeal Architect — Your denial, formally refuted.",
     description: DESCRIPTION,

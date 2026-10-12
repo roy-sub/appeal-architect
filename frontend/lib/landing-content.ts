@@ -31,8 +31,8 @@ export const capabilities = [
     title: "Your deadlines, and the rule each one came from",
     body: "We read your plan type from the letter, then work out every date: when the internal appeal is due, how long they have to answer, and when the external review window opens and closes. Open any date to see the trigger date it was counted from and the regulation that sets the count.",
     cite: "29 C.F.R. § 2560.503-1(h)(3)(i) · counted from 14 Sep 2026",
-    slot: "feature-roadmap", ratio: "16 / 10", kind: "image" as const,
-    slotLabel: "The procedural roadmap with deadlines", intrinsic: "1600×1000",
+    slot: "feature-roadmap", ratio: "16 / 9", kind: "image" as const,
+    slotLabel: "The procedural roadmap with deadlines", intrinsic: "1600×905",
   },
   {
     source: "Your denial letter, page 1",
@@ -40,8 +40,8 @@ export const capabilities = [
     title: "Solid ground, and worth adding",
     body: "We treat that sentence as an argument and build the counter-arguments that attack it. Then we check each one against what the insurer would most likely say back. Three survive whatever they answer. Two only help under a narrow reading, so they are labelled that way instead of being passed off as strong.",
     cite: "Reason code CO-50 · 3 solid ground · 2 worth adding · 1 left out",
-    slot: "feature-graph", ratio: "16 / 10", kind: "image" as const,
-    slotLabel: "The argument graph, solid ground against worth adding", intrinsic: "1600×1000",
+    slot: "feature-graph", ratio: "16 / 9", kind: "image" as const,
+    slotLabel: "The argument graph, solid ground against worth adding", intrinsic: "1600×905",
   },
   {
     source: "Your denial letter, page 2",
@@ -49,8 +49,8 @@ export const capabilities = [
     title: "Every paragraph backed by a rule",
     body: "The letter is assembled only from arguments that hold. Each paragraph carries the node it came from, so you can click a sentence and see exactly why it is in there. You edit it, you sign it, you send it. We tell you where to send it and how to prove it arrived on time.",
     cite: "Exports to PDF and DOCX · prints on US Letter with correct margins",
-    slot: "feature-letter", ratio: "4 / 5", kind: "image" as const,
-    slotLabel: "A generated appeal letter page with citation markers", intrinsic: "1200×1500",
+    slot: "feature-letter", ratio: "3 / 4", kind: "image" as const,
+    slotLabel: "A generated appeal letter page with citation markers", intrinsic: "1100×1473",
   },
   {
     source: "Your denial letter, page 3",
@@ -58,15 +58,15 @@ export const capabilities = [
     title: "The evidence list writes itself",
     body: "That sentence is where most appeals quietly fail. We turn it into a specific list: which records, from whom, covering which dates, and the exact points your doctor’s letter has to make for this case. Each item says which argument needs it, so nothing on the list is there for padding.",
     cite: "8 items · 6 on file · 1 requested · 1 optional",
-    slot: "feature-evidence", ratio: "16 / 10", kind: "video" as const,
-    slotLabel: "Evidence checklist items being satisfied", intrinsic: "1600×1000",
+    slot: "feature-evidence", ratio: "16 / 9", kind: "image" as const,
+    slotLabel: "The evidence checklist, each item satisfied", intrinsic: "1600×905",
   },
 ];
 
 export const personas = [
-  { slot: "persona-1", ratio: "4 / 5", intrinsic: "1000×1250", alt: "A person at a kitchen table with a letter, mid-afternoon", tag: "First time", title: "You just got the letter", body: "Three days ago. You have read it four times. You do not know whether this is normal or how long you have. Start with the free check." },
-  { slot: "persona-2", ratio: "4 / 3", intrinsic: "1200×900", alt: "A person managing a chronic condition at a laptop, prior correspondence beside them", tag: "Been here before", title: "This is the fourth one this year", body: "You know the process. You want the workspace, the dates, and the letter, without being explained things you already know." },
-  { slot: "persona-3", ratio: "1 / 1", intrinsic: "1100×1100", alt: "A caregiver on a phone in a waiting room, handling it for someone else", tag: "For someone else", title: "You are handling it for someone else", body: "For a parent or a child, on a phone, between other things. The case holds its state and the reminders find you." },
+  { slot: "persona-1", ratio: "3 / 4", intrinsic: "900×1206", alt: "A person at a kitchen table with a letter, mid-afternoon", tag: "First time", title: "You just got the letter", body: "Three days ago. You have read it four times. You do not know whether this is normal or how long you have. Start with the free check." },
+  { slot: "persona-2", ratio: "3 / 4", intrinsic: "900×1206", alt: "A person managing a chronic condition at a laptop, prior correspondence beside them", tag: "Been here before", title: "This is the fourth one this year", body: "You know the process. You want the workspace, the dates, and the letter, without being explained things you already know." },
+  { slot: "persona-3", ratio: "1 / 1", intrinsic: "900×900", alt: "A caregiver on a phone in a waiting room, handling it for someone else", tag: "For someone else", title: "You are handling it for someone else", body: "For a parent or a child, on a phone, between other things. The case holds its state and the reminders find you." },
 ];
 
 export const plans = [

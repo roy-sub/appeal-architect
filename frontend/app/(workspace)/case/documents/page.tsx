@@ -135,8 +135,7 @@ export default function DocumentsPage() {
                   ratio="1 / 1"
                   kind="illustration"
                   label="A page being placed into a folder"
-                  intrinsic="512×512"
-                  className="p-2 [&_div]:text-[9px]"
+                  intrinsic="384×384"
                 />
               </div>
               <h2 className="m-0 text-[19px] leading-7 font-semibold text-ink">
@@ -188,7 +187,7 @@ export default function DocumentsPage() {
                 ratio="3 / 4"
                 kind="image"
                 label="A denial letter framed correctly in a phone camera"
-                intrinsic="900×1200"
+                intrinsic="720×964"
               />
               <ul className="mt-4 mb-0 flex list-none flex-col gap-2 p-0">
                 {[

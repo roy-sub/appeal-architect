@@ -1,3 +1,4 @@
+import { mediaAssets } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 type Kind = "image" | "video" | "illustration" | "image strip";
@@ -11,6 +12,8 @@ type Props = {
   intrinsic: string;
   /** Background layer: absolute inset, no ratio, single corner caption. */
   fill?: boolean;
+  /** Above the fold: load eagerly instead of lazily. One slot only (the hero). */
+  priority?: boolean;
   className?: string;
 };
 
@@ -18,22 +21,71 @@ const showIds = process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC
 
 // Reserved media location (brief §5). Three modes, derived from the ratio:
 // roomy (default), tight (≥5:1, one inline label) and fill (background layer).
-// Slot ids and intrinsic sizes show in dev only.
-export function MediaSlot({ slotId, kind = "image", ratio = "16 / 9", label, intrinsic, fill, className }: Props) {
+//
+// A slot listed in lib/media.ts renders its file; one that is not renders the
+// designed placeholder. Both occupy exactly the same box, so shipping an asset
+// never moves the layout. Slot ids and intrinsic sizes show in dev only.
+//
+// Plain <img>, not next/image: the build is a static export with
+// `images.unoptimized`, so next/image would emit the same tag with extra markup
+// around it. Sizes come from lib/media.ts so the box is reserved before the
+// bytes land.
+export function MediaSlot({ slotId, kind = "image", ratio = "16 / 9", label, intrinsic, fill, priority, className }: Props) {
+  const asset = mediaAssets[slotId];
+
   if (fill) {
     return (
       // Fill slots sit behind type and are decorative: alt="" / aria-hidden (media-manifest.md).
       <div data-slot={slotId} className={cn("absolute inset-0 overflow-hidden bg-surface-sunk", className)} aria-hidden>
-        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent 0 9px, var(--stripe) 9px 10px)" }} />
-        {showIds && (
-          <div className="absolute bottom-3 left-3.5 flex items-center gap-2 font-mono text-[11px] leading-[14px] uppercase tracking-[.06em] text-ink-muted opacity-75">
-            <span className="size-1.5 bg-ink-muted" />
-            <span>{slotId}</span>·<span>{kind}</span>·<span>{intrinsic}</span>
-          </div>
+        {asset ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={asset.src}
+            alt=""
+            width={asset.width}
+            height={asset.height}
+            className="size-full object-cover"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
+            decoding="async"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent 0 9px, var(--stripe) 9px 10px)" }} />
+            {showIds && (
+              <div className="absolute bottom-3 left-3.5 flex items-center gap-2 font-mono text-[11px] leading-[14px] uppercase tracking-[.06em] text-ink-muted opacity-75">
+                <span className="size-1.5 bg-ink-muted" />
+                <span>{slotId}</span>·<span>{kind}</span>·<span>{intrinsic}</span>
+              </div>
+            )}
+          </>
         )}
       </div>
     );
   }
+
+  if (asset) {
+    return (
+      <div
+        data-slot={slotId}
+        className={cn("relative w-full overflow-hidden rounded-[10px]", className)}
+        style={{ aspectRatio: ratio }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={asset.src}
+          alt={label}
+          width={asset.width}
+          height={asset.height}
+          className="size-full object-cover"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : undefined}
+          decoding="async"
+        />
+      </div>
+    );
+  }
+
   const [w, h] = ratio.split("/").map((n) => parseFloat(n) || 1);
   const tight = w / h >= 5;
   return (

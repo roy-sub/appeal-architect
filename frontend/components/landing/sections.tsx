@@ -19,7 +19,7 @@ export function Stats() {
   return (
     <section className="relative overflow-hidden bg-band">
       <div className="absolute inset-0 opacity-[.13]">
-        <MediaSlot fill slotId="stat-backdrop" kind="image" label="Quiet backdrop for the statistics band" intrinsic="2100×900" />
+        <MediaSlot fill slotId="stat-backdrop" kind="image" label="Quiet backdrop for the statistics band" intrinsic="1600×686" />
       </div>
       <div className="relative mx-auto px-5 py-14 lg:max-w-[1440px] lg:px-14 lg:py-24">
         <div className="mb-11 grid lg:mb-[72px] lg:grid-cols-[56px_1fr]">

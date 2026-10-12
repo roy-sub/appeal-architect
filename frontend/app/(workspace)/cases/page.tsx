@@ -165,8 +165,7 @@ function EmptyCases() {
           ratio="4 / 3"
           kind="illustration"
           label="A closed folder resting on a desk"
-          intrinsic="640×480"
-          className="p-2 [&_div]:text-[9px]"
+          intrinsic="480×358"
         />
       </div>
       <h2 className="m-0 text-[21px] leading-7 font-semibold text-ink">No cases yet</h2>
