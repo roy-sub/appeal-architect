@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCase } from "@/components/workspace/case-context";
 import { PageHead, card, label } from "@/components/workspace/shell";
+import { BuyButton } from "@/components/workspace/buy-button";
 import { Gated, LoadError, NeedsCase, Skeleton } from "@/components/workspace/states";
 import { ApiError } from "@/lib/api";
 import {
   useEditLetter,
-  useEntitlement,
+  useEntitlement, usePaidReturn,
   useExportLetter,
   useGenerateLetter,
   useLetters,
@@ -31,7 +32,8 @@ const POSTING_CHECKLIST = [
 export default function LetterPage() {
   const { caseId, node, setNode } = useCase();
   const letters = useLetters(caseId);
-  const entitlement = useEntitlement();
+  const paidReturn = usePaidReturn();
+  const entitlement = useEntitlement({ awaitingPayment: paidReturn });
   const generate = useGenerateLetter(caseId);
   const edit = useEditLetter(caseId);
   const exportLetter = useExportLetter(caseId);
@@ -76,6 +78,26 @@ export default function LetterPage() {
               href="/#pricing"
               cta="See what the package includes"
             />
+            {paidReturn ? (
+              // Back from Stripe, still on the free tier: the webhook has not
+              // landed yet. Say that, rather than asking them to pay again.
+              <div className="border-l-[3px] border-ink bg-surface px-[18px] py-4">
+                <p className="m-0 text-[16px] leading-[26px] text-ink text-pretty">
+                  Your payment went through and we are waiting for the confirmation. This
+                  page updates itself as soon as it arrives, usually within a few seconds.
+                  If it has not after a minute, reload — nothing is lost and you will not
+                  be charged twice.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <BuyButton>Get the Appeal Package</BuyButton>
+                <p className="mt-2.5 mb-0 max-w-[56ch] text-pretty text-[15px] leading-[24px] text-ink-muted">
+                  One payment, for this case, through Stripe. We never see your card
+                  details, and nothing about your diagnosis is sent to them.
+                </p>
+              </div>
+            )}
             {entitlement.data ? (
               <div className={cn(card, "px-[22px] py-5")}>
                 <div className={cn(label, "mb-3")}>ALWAYS FREE</div>

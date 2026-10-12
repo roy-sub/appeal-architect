@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BuyButton } from "@/components/workspace/buy-button";
 import { PageHead, card, label, well } from "@/components/workspace/shell";
 import { LoadError } from "@/components/workspace/states";
 import { api, ApiError, type DeletionReceipt } from "@/lib/api";
@@ -75,9 +75,12 @@ export default function SettingsPage() {
                 </ul>
               </div>
               {!entitlement.data.can_generate_letter ? (
-                <Button variant="ghost" asChild className="mt-4">
-                  <Link href="/pricing/">See the Appeal Package</Link>
-                </Button>
+                <div className="mt-4 flex flex-col gap-2.5">
+                  <BuyButton>Get the Appeal Package — $149 once, per case</BuyButton>
+                  <BuyButton product="subscription" variant="ghost">
+                    Or go ongoing — $19 a month
+                  </BuyButton>
+                </div>
               ) : null}
             </>
           )}

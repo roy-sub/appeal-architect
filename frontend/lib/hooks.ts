@@ -307,12 +307,58 @@ export function useEscalate(caseId: string | null) {
   });
 }
 
-export function useEntitlement() {
-  return useQuery({
+export function useEntitlement(options?: { awaitingPayment?: boolean }) {
+  const query = useQuery({
     queryKey: ["entitlement"],
     queryFn: api.getEntitlement,
     enabled,
     retry: false,
+    // Coming back from Stripe, the tier is set by the webhook, which usually
+    // lands within a second or two but is not synchronous with the redirect.
+    // Poll until it does rather than showing someone who has just paid a screen
+    // telling them to pay.
+    refetchInterval: (query) =>
+      options?.awaitingPayment && query.state.data?.can_generate_letter === false ? 3000 : false,
+  });
+  return query;
+}
+
+/** True when the browser came back from Stripe's success URL.
+ *
+ *  A hint, never proof: the entitlement still comes from the server. Read from
+ *  `window` rather than `useSearchParams` because a static export would
+ *  otherwise need a Suspense boundary around every page that asks.
+ */
+export function usePaidReturn(): boolean {
+  const [paid, setPaid] = useState(false);
+  useEffect(() => {
+    setPaid(new URLSearchParams(window.location.search).get("paid") === "1");
+  }, []);
+  return paid;
+}
+
+/** Open Stripe Checkout and hand the browser over to it.
+ *
+ *  The return addresses are built from the current page, so a payment started
+ *  from the letter screen comes back to the letter screen. `?paid=1` is a hint
+ *  that a payment happened, not proof of one -- the tier is set by the webhook,
+ *  server-side, and the UI re-reads the entitlement rather than believing the
+ *  query string.
+ */
+export function useCheckout() {
+  return useMutation({
+    mutationFn: async (product: "appeal_package" | "subscription") => {
+      const here = `${window.location.origin}${window.location.pathname}`;
+      const { url } = await api.checkout({
+        product,
+        success_url: `${here}?paid=1`,
+        cancel_url: `${here}?paid=0`,
+      });
+      return url;
+    },
+    onSuccess: (url) => {
+      window.location.assign(url);
+    },
   });
 }
 
