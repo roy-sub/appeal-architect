@@ -6,6 +6,7 @@ copy can be rewritten without breaking the client. Spec 10.
 
 from __future__ import annotations
 
+import logging
 from enum import StrEnum
 from typing import Any
 
@@ -155,6 +156,22 @@ async def http_exception_handler(_request: Request, exc: Exception) -> JSONRespo
     # a duplicate of the title and are not the product's voice.
     detail = _GENERIC_DETAILS.get(str(exc.detail), str(exc.detail))
     return Problem(exc.status_code, code, detail).to_response()
+
+
+async def unhandled_handler(_request: Request, exc: Exception) -> JSONResponse:
+    """Anything that got away. One error shape, and nothing internal in it.
+
+    The exception is logged with its traceback for us and described to the user
+    only as a failure, because an exception message can carry a row, a filename
+    or a query, and this application's rows are health records.
+    """
+    logging.getLogger("appeal_architect").exception("unhandled error", exc_info=exc)
+    return Problem(
+        500,
+        ErrorCode.INTERNAL_ERROR,
+        "Something went wrong at our end. Nothing you entered was lost. "
+        "Try again, and if it keeps happening the problem is ours, not yours.",
+    ).to_response()
 
 
 async def validation_handler(_request: Request, exc: Exception) -> JSONResponse:

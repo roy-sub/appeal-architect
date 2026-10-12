@@ -29,6 +29,7 @@ from app.problem import (
     Problem,
     http_exception_handler,
     problem_handler,
+    unhandled_handler,
     validation_handler,
 )
 
@@ -76,6 +77,8 @@ def create_app() -> FastAPI:
     app.add_exception_handler(Problem, problem_handler)
     app.add_exception_handler(HTTPException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_handler)
+    # Last resort, so nothing leaves as a bare 500 in a different shape.
+    app.add_exception_handler(Exception, unhandled_handler)
 
     app.include_router(health_router)
     app.include_router(v1_router)

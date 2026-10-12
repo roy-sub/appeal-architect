@@ -335,7 +335,27 @@ def render_html(letter: dict[str, Any], case: dict[str, Any]) -> str:
 
 
 def render_pdf(html: str) -> bytes:
-    from weasyprint import HTML
+    """PDF via WeasyPrint, which needs Pango and Cairo from the operating system.
+
+    Those are present on any normal Linux image and absent on some minimal
+    hosts. When they are missing the import raises OSError at call time, which
+    would otherwise reach the user as a bare 500 on the one action they came to
+    the page for. DOCX needs nothing from the system, so the message sends them
+    there rather than leaving them stuck.
+    """
+    try:
+        from weasyprint import HTML
+    except (ImportError, OSError):
+        logger.error("weasyprint could not load; the PDF renderer is unavailable")
+        raise Problem(
+            503,
+            ErrorCode.SERVICE_NOT_CONFIGURED,
+            "This server cannot make PDFs just now. Export the letter as DOCX "
+            "instead -- it is the same letter, and it opens in Word, Pages and "
+            "Google Docs. Printing from this page also produces a correct copy.",
+            title="PDF export is unavailable",
+            extra={"alternative": "docx"},
+        ) from None
 
     return bytes(HTML(string=html).write_pdf() or b"")
 
