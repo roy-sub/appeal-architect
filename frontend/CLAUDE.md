@@ -118,9 +118,11 @@ lib/
   reuse a gesture across landing sections. Elements that start fully clipped need
   `wrapClassName` (IntersectionObserver can't see them). `instant` renders the end state.
   Only transform/opacity/clip-path animate.
-- **Media:** every image or video goes through `<MediaSlot>` with the id, ratio and intrinsic
-  size from `media-manifest.md`. To ship an asset, render it inside the same box, so the
-  layout is unchanged.
+- **Media:** every image goes through `<MediaSlot>` with its id, ratio and intrinsic size.
+  A slot id listed in `lib/media.ts` renders its file; one that is not renders the designed
+  placeholder. Both occupy the same box, so a file arriving or leaving never moves the
+  layout. Ratios follow the assets that actually shipped, which is `lib/media.ts`, not
+  `media-manifest.md`, where the two disagree.
 - **Case data** comes from the API, always. There is no demo data and no
   fallback: a screen that cannot reach the backend says so rather than showing
   something plausible.
@@ -158,8 +160,11 @@ Also built:
   only worked for one fixed set of nodes, and the solver produces varying
   shapes. The graph bundle is lazy-loaded so its ~70 kB stays off phones, which
   render the list instead -- not a fallback, the better reading on a phone.
-- **Media ratios** now follow `media-manifest.md` where the two disagreed. The
-  remaining slots and their generation prompts are in the root `MEDIA.md`.
+- **Media** is shipped: twelve slot assets in `public/media/` plus the share
+  card, all listed with their real pixel size in `lib/media.ts`. Three boxes
+  moved to fit what was generated -- the feature shots to 16/9, the letter and
+  persona-1 to 3/4 -- and persona-2 came back portrait, so it is 3/4 as well.
+  hero-bg and feature-evidence were specified as video and arrived as stills.
 - **Footer legal links** point at `/legal`, which exists.
 - **Triage** runs the real engine, with options served from the backend's enums
   so they cannot drift from what it accepts.
@@ -174,15 +179,19 @@ Also built:
 
 ### Still open
 
-- `trust-strip` and `graph-legend` were dropped deliberately -- the reasons are
-  in the last section of the root `MEDIA.md`.
+- `trust-strip` and `graph-legend` were dropped deliberately. The landing page
+  states the privacy position in words and links to `/legal` rather than showing
+  a strip of security badges, and the argument graph carries its legend on the
+  page itself, where it cannot be dismissed and lost.
 - Spec components not built as standalone pieces, because the screens that
   needed them implement the behaviour inline: `Field` (the no-red error state
   lives in `components/workspace/states.tsx`), `DestructiveDialog` (the
   type-the-phrase delete flow on `/settings`), toasts (mutations report inline,
   beside the thing they changed), the `MarginNote` connector hairline.
-- The media files themselves. Every slot has a designed placeholder, so nothing
-  is broken without them.
+- `feature-roadmap` carries generic captions rather than this product's words.
+  Rewriting them would mean putting specific deadline arithmetic into a picture,
+  which is the one thing the rulebase is not allowed to do casually, so it stands
+  as generated.
 
 ### Everything is wired to the backend
 
@@ -210,7 +219,7 @@ to it.
 
 No theme switch and no dark palette. The build spec's phase 1 asks for one; the
 design chat removed dark mode by explicit instruction, and appearance is
-design's authority. See `PLAN.md` §3.1.
+design's authority.
 
 ## What a next build would add
 

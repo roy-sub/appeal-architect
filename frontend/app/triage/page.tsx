@@ -381,14 +381,39 @@ function Verdict({ result }: { result: TriageResponse }) {
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <Button asChild>
-          <Link href="/signin/">Upload the letter and get the exact date</Link>
-        </Button>
-        <Button variant="ghost" asChild>
-          <Link href="/">Back to the start</Link>
-        </Button>
-      </div>
+      {/* The call to action has to match what the engine can actually do. With no
+          track there is no deadline to promise, and sending someone to upload a
+          letter on the strength of a date we cannot compute would be the same
+          guess the page just refused to make. */}
+      {result.track ? (
+        <div className="flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/signin/">Upload the letter and get the exact date</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/">Back to the start</Link>
+          </Button>
+        </div>
+      ) : (
+        <div>
+          <p className="mt-0 mb-4 max-w-[62ch] text-[16px] leading-[26px] text-ink-muted text-pretty">
+            Uploading the letter will not change this. It would still be the same kind of
+            plan, and we would still have no dates for it. What the workspace can do for
+            you is read the letter, build the counter-arguments against the reason they
+            gave, list the evidence each one needs, and write the appeal — everything
+            except the deadline. Your plan document and your denial letter both state the
+            filing window; use the date on them, not one from us.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href="/signin/">Use the workspace without the dates</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link href="/">Back to the start</Link>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

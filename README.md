@@ -77,15 +77,13 @@ backend/     Python 3.12, FastAPI, clingo. See backend/README.md
 frontend/    Next.js 15 static export, Tailwind v4. See frontend/CLAUDE.md
 design/      The approved design system and screens. READ-ONLY — the visual authority
 docs/        ARCHITECTURE · RULEBASE · SCHEMES · PRIVACY · DEPLOY
-PLAN.md      The build plan, the decisions taken, and the conflicts flagged
-MEDIA.md     The 13 assets to generate: path and prompt for each
-THIRD_PARTY.md  The accounts and keys you need, and how to get them
 .env.example Every environment variable, both halves
 ```
 
 Two authorities, and they are different ones. `Appeal Build Spec.md` wins on
 architecture, data, API and correctness. `design/` wins on appearance, copy,
-spacing and motion. Where they conflict, `PLAN.md` §3 records which won and why.
+spacing and motion. Where they conflicted, the decision and its reason are in the
+comment at the point of the code that resolves it.
 
 ## Where the build is
 
@@ -103,20 +101,14 @@ screens plus legal, pricing, settings, timeline and 404 run on live data.
 | 7 | ✅ | Legal, pricing, settings with a real hard delete, timeline, escalation |
 | 8 | ✅ | Stripe with entitlement gating, Render and Cloudflare deploy |
 
-Roughly 1,100 tests and checks pass. `PLAN.md` §7b records the eight decisions
-taken where the build spec and reality diverged, and why.
+441 backend tests and the frontend's typecheck, lint, token check and build all
+pass. The media is shipped: twelve slot assets plus the share card in
+`frontend/public/media/`, listed in `frontend/lib/media.ts`.
 
-### To get it running yourself
+To put it online, [`docs/DEPLOY.md`](docs/DEPLOY.md) has the accounts, the keys,
+where each one goes, and the pre-launch checklist.
 
-Two documents, written for exactly this:
-
-- **[`THIRD_PARTY.md`](THIRD_PARTY.md)** — the five accounts you need, what each
-  costs, every key and where it goes, and a pre-launch checklist.
-- **[`MEDIA.md`](MEDIA.md)** — the thirteen images and videos, where to save
-  each one, and a generation prompt for each. Nothing here blocks launch: every
-  slot has a designed placeholder and the layout is already correct without them.
-
-### Two things that are deliberately unfinished, and they are not code
+### Three things that are deliberately unfinished, and none of them are code
 
 **Every legal value in the rulebase is marked UNVERIFIED.** Nobody has yet
 checked those deadlines against the regulations they cite. The product shows
@@ -130,8 +122,17 @@ because we have no state statute source, and a plausible-looking invented state
 deadline — shown to someone with a citation beside it as the date their rights
 expire — is the most harmful thing this codebase could contain.
 
-Both need a person with the sources in front of them. Everything around them is
-built and tested.
+**Four of the six plan types have no route.** The rulebase covers ACA
+marketplace plans and fully-insured employer plans. Self-funded employer plans,
+Medicare Advantage and Medicaid are transcribed in `tables/deadlines.csv` but
+`active=false`, because each needs a route *shape* read out of its own
+regulation — Medicare Advantage and Medicaid do not end in ACA external review,
+so routing them through it would be wrong, not merely unverified. Someone on one
+of those plans is told so at the free check and again on the roadmap, and still
+gets the argument, the evidence list and the letter; only the dates are missing.
+
+All three need a person with the sources in front of them. Everything around them
+is built and tested.
 
 ## What this is not
 

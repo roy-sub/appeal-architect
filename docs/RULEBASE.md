@@ -1,8 +1,10 @@
 # Rulebase
 
-> **Phase 2 deliverable.** This file is a stub. The rules engine does not exist
-> yet; there are no `.lp` files. What does exist is the seed tables and the
-> promise below.
+The engine is built. `app/rules/rulebase/*.lp` holds the rules, `runner.py`
+solves them with clingo and refuses a non-unique or unjustified answer set, and
+`deadlines.py` does the date arithmetic against a holiday calendar tested on
+5 U.S.C. § 6103. What follows is what the rules are allowed to say, and what is
+still missing from them.
 
 ## The absolute rule
 
@@ -48,11 +50,27 @@ The override *mechanism* is proven by a synthetic state `XX` in the golden tests
 which exercises the full federal-default-versus-state-override path without any
 real value being invented.
 
-## To be written in phase 2
+## Four of the six plan types have no route
 
-- `00_core.lp`, `10_plan_type.lp`, `20_track.lp`, `30_deadlines.lp`,
-  `40_required.lp`, `50_expedited.lp`
-- `90_state_ca.lp`, `90_state_ny.lp`, `90_state_tx.lp`
-- The CSV→LP generator and its malformed-row refusal
-- `deadlines.py` — pure date arithmetic, and `calendar.py` — the holiday adapter
-- `tests/golden/` worked examples, and `tests/test_deadlines.py`
+`10_plan_type.lp` admits `aca_marketplace` and `employer_fully_insured`. The
+other four produce no track, no steps and no deadlines, and a warning saying so.
+
+`employer_self_funded`, `medicare_advantage` and `medicaid` each have their
+filing window transcribed in `tables/deadlines.csv` with `active=false`. Flipping
+that flag is **not** enough to turn them on, and the flag is not the hard part:
+
+- A self-funded ERISA plan appeals under 29 CFR 2560.503-1 rather than 45 CFR
+  147.136, so the citations on every step change even where the counts do not.
+- Medicare Advantage runs reconsideration → independent review entity → ALJ →
+  Council → judicial review. Medicaid managed care runs plan appeal → state fair
+  hearing. **Neither ends in ACA external review.** Routing them through
+  `20_track.lp` as it stands would produce a confidently wrong track, which is
+  the one failure this rulebase exists to prevent.
+
+So each needs its own route shape read out of its own regulation, not a flag.
+Until then the product says it cannot work the route out, and the rest of the
+case — arguments, evidence, letter — still runs, because none of it depends on
+the plan type.
+
+`unknown` is separate: it is a question the user has not answered yet, not a gap
+in the rulebase.

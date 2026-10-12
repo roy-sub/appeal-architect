@@ -60,7 +60,10 @@ export function LoadError({
 export function NeedsCase() {
   return (
     <Bar>
-      <p className="m-0 text-[16px] leading-[26px] text-ink">
+      {/* An h1 even here: every screen a person can land on needs one, and a
+          screen reader arriving at this state should hear what it is. */}
+      <h1 className="m-0 text-[16px] leading-[26px] font-medium text-ink">No case open</h1>
+      <p className="mt-1.5 mb-0 text-[16px] leading-[26px] text-ink">
         Open a case first. This screen shows one case at a time.
       </p>
       <Link

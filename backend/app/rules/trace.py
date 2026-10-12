@@ -82,7 +82,9 @@ EXPLANATIONS: dict[str, str] = {
 WARNINGS: dict[str, str] = {
     "plan_type_unsupported": (
         "We cannot work out the appeal route for this kind of plan yet, so we have not "
-        "guessed one. What we can tell you is on the roadmap; the rest needs a person."
+        "guessed one, and we have no dates for you. Everything that does not depend on "
+        "the plan type still works: the argument, the evidence list and the letter. "
+        "Take your filing window from your denial letter or your plan document."
     ),
     "plan_type_unknown": (
         "We do not know what kind of insurance this is, and the rules depend on it. "

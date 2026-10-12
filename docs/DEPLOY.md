@@ -3,11 +3,11 @@
 Free tier throughout: Supabase free, Render free, Cloudflare Pages. No Redis, no
 Celery, no always-on worker.
 
-## Phase 1: what you need to do now
+## First: Supabase
 
-The rest of this file describes the phase 8 production deploy. **This section is
-the part that is live today** — it closes the last item of the Phase 1 Definition
-of Done, which needs a Supabase project that only you can create.
+Everything else depends on this, locally and in production alike. It is the one
+step nobody can do for you, because the project has to be created under your own
+account.
 
 ### 1. Create the Supabase project
 
@@ -15,10 +15,18 @@ of Done, which needs a Supabase project that only you can create.
 2. Pick a region near you. Save the database password somewhere safe — it is
    shown once.
 
-### 2. Apply migration 001
+### 2. Apply the migrations
 
-Either from the dashboard — **SQL Editor** → paste
-`backend/app/db/migrations/001_init.sql` → **Run** — or from the CLI:
+Three files, **in order**. From the dashboard: **SQL Editor** → paste each →
+**Run**.
+
+```
+backend/app/db/migrations/001_init.sql              tables, RLS, storage buckets
+backend/app/db/migrations/002_case_fields.sql       case fields added in phase 4
+backend/app/db/migrations/003_billing_and_profiles.sql  profiles and plan tier
+```
+
+Or from the CLI:
 
 ```bash
 cd backend
@@ -26,8 +34,9 @@ supabase link --project-ref <your-project-ref>
 supabase db push
 ```
 
-It creates 14 tables, enables RLS on every one, and creates the two private
-storage buckets.
+001 creates 14 tables, enables RLS on every one, and creates the two private
+storage buckets. Skipping 002 or 003 leaves the API returning database errors on
+upload and on billing, so run all three.
 
 ### 3. Turn on magic-link sign-in
 
@@ -71,13 +80,15 @@ Then sign up through the app and land on an empty case list.
 
 ---
 
-## Phase 8: production
-
-> Not yet live. Recorded here so the checklist exists before it is needed.
+## Then: production
 
 ### Backend → Render
 
-- New **Web Service**, Docker, free plan, pointed at `backend/Dockerfile`.
+- New **Web Service**, native Python (no Docker), free plan, root directory
+  `backend`. Build `pip install -e .`, start
+  `uvicorn main:app --host 0.0.0.0 --port $PORT`, health check `/healthz`.
+  `backend/render.yaml` is the same thing as a blueprint; copy it to the repo
+  root if you want Render to read it automatically.
 - Environment: every variable in the backend block of `.env.example`, plus
   `ENV=production` and `CORS_ORIGINS` set to the Pages domain.
 - The free service **sleeps after 15 minutes idle**. The frontend shows a warming
@@ -87,8 +98,10 @@ Then sign up through the app and land on an empty case list.
 ### Frontend → Cloudflare Pages
 
 - Build command `npm run build`, output directory `out`, root `frontend`.
-- Environment: the three `NEXT_PUBLIC_*` variables. `NEXT_PUBLIC_API_URL` points
-  at the Render service.
+- Environment: the four `NEXT_PUBLIC_*` variables. `NEXT_PUBLIC_API_URL` points
+  at the Render service, and `NEXT_PUBLIC_SITE_URL` at the Pages domain —
+  without the latter the share card, the canonical link and the sitemap all
+  point at `localhost`.
 - Add the Pages domain to Supabase's redirect URLs and to the backend's
   `CORS_ORIGINS`.
 
@@ -115,7 +128,7 @@ select cron.schedule(
   'appeal-architect-reminders',
   '0 13 * * *',  -- 13:00 UTC daily
   $$ select net.http_post(
-       url     := 'https://<your-render-service>.onrender.com/internal/run-reminders',
+       url     := 'https://<your-render-service>.onrender.com/api/v1/internal/run-reminders',
        headers := '{"X-Internal-Job-Secret": "<INTERNAL_JOB_SECRET>"}'::jsonb
      ); $$
 );
@@ -126,8 +139,11 @@ select cron.schedule(
 ```bash
 curl -fsS -X POST \
   -H "X-Internal-Job-Secret: $INTERNAL_JOB_SECRET" \
-  https://<your-render-service>.onrender.com/internal/run-reminders
+  https://<your-render-service>.onrender.com/api/v1/internal/run-reminders
 ```
+
+The Render cron in `backend/render.yaml` runs `python -m app.jobs.send_reminders`,
+which calls the same path for you and exits non-zero if it fails.
 
 The endpoint is idempotent — the `reminders_sent` unique constraint on
 `(deadline_id, days_before)` means a double-firing cron cannot email the same

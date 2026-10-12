@@ -78,6 +78,9 @@ export default function RoadmapPage() {
   const detail = open !== null ? steps[open] : null;
 
   if (steps.length === 0) {
+    // No track means the plan type is outside the rulebase, not that something
+    // failed. The rest of the case still works, so say which parts and link to
+    // them rather than leaving the screen as a wall.
     return (
       <div>
         <PageHead
@@ -85,6 +88,23 @@ export default function RoadmapPage() {
           lead="We do not guess a track we cannot work out."
         />
         <Warnings warnings={determination.warnings} />
+        <div className={cn(card, "mt-3.5 p-[22px]")}>
+          <div className={cn(label, "mb-2.5")}>What still works</div>
+          <p className="mt-0 mb-4 max-w-[64ch] text-[16px] leading-[26px] text-ink-muted text-pretty">
+            Only the dates depend on the kind of plan. Everything built on the reason
+            they gave you does not, so the argument, the evidence list and the letter are
+            all still yours. Take the filing window from your denial letter or your plan
+            document and work to that date.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href="/case/arguments/">Build the argument</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link href="/case/evidence/">See the evidence list</Link>
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }

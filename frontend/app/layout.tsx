@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import { MotionProvider } from "@/components/motion-provider";
+import { SITE_URL } from "@/lib/site-url";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -12,6 +13,10 @@ const DESCRIPTION =
   "Every paragraph backed by a rule. Find your appeal track, your deadline, and the arguments that hold against your health-insurance denial.";
 
 export const metadata: Metadata = {
+  // Absolute URLs are built from this. Unset, Next uses localhost and the share
+  // card silently points nowhere.
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
   title: "Appeal Architect — Your denial, formally refuted.",
   description: DESCRIPTION,
   // The share card lives at public/media/og-card.png: 1200x630, the size every

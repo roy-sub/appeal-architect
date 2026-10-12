@@ -4,9 +4,15 @@ Every version records what changed and which sources were consulted. A route
 determination stores the version that produced it, so any conclusion can be
 reproduced against the exact rules in force when it was computed.
 
-## 1.0.0 — unreleased (phase 1)
+## 1.0.0
 
-Seed tables only; no `.lp` rules yet. The engine arrives in phase 2.
+The rules in force. `00_core`, `10_plan_type`, `20_track`, `30_deadlines`,
+`40_required`, `50_expedited`, and the three state files, generated against the
+tables below.
+
+**In scope:** `aca_marketplace` and `employer_fully_insured`. The other four plan
+types produce no route and a warning rather than a guess — see
+`docs/RULEBASE.md` for why a flag in `deadlines.csv` is not enough to add one.
 
 **Every value in `tables/` is `verified=false`.** They are transcribed from the
 build spec's seed baseline (§6.2), which itself marks them for verification
