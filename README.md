@@ -8,6 +8,13 @@ Appeal Architect takes a health-insurance denial letter and returns three things
 
 This repository unifies two previously separate codebases into a single project. The `frontend/` and `backend/` directories each retain their own detailed technical README and documentation; this root document covers the system as a whole: why it exists, how it is designed, and which engineering and research decisions shaped it.
 
+**Building on it rather than reading about it?** Each half documents itself, in its own folder:
+
+| | |
+| --- | --- |
+| **[`backend/README.md`](./backend/README.md)** | Service layout, the rules and argumentation engines, the rulebase and scheme formats, the API surface, the error contract, the test suite |
+| **[`frontend/README.md`](./frontend/README.md)** | Application structure, the typed API client, design tokens and motion, the media system, the static-export build |
+
 ---
 
 ## Table of contents
